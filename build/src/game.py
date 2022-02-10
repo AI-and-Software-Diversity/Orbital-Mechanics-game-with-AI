@@ -2,29 +2,54 @@ import pygame
 from pygame.locals import *
 import sys
 import numpy as np
+import scipy
+import scipy.constants
 
 WIDTH = 1400
 HEIGHT = 800
-FPS = 90
+FPS = 144
 CLOCK = pygame.time.Clock()
 
-"""
-https://www.youtube.com/watch?v=1_H7InPMjaY
-https://www.youtube.com/watch?v=a5JWrd7Y_14&t=936s
-Used to create basic game window
-
-https://www.youtube.com/watch?v=0RryiSjpJn0
-used to help implement main menus
-"""
-
 def text_box(str, font, screen, x, y):
-    #https://www.fontspace.com/press-start-2p-font-f11591
+    """
+    https://www.fontspace.com/press-start-2p-font-f11591
+
+    :param str:
+    :param font:
+    :param screen:
+    :param x:
+    :param y:
+    :return:
+    """
+
     font = pygame.font.Font('../data/fonts/PressStart2P-vaV7.ttf', font)
     text = font.render(str, True, (255,255,255))
     screen.blit(text, (x, y))
 
+def get_force_between_2_bodies(body1, body2):
+    """
+    We calculate the force on each body newtonian mechanics
+    F_12 = G(m_1 * m_2/r^2)
+    https://en.wikipedia.org/wiki/Gravitational_constant
+
+    """
+    return (
+            scipy.constants.G * (body1.mass * body2.mass) /
+            np.linalg.norm((np.array(body1.x,
+                                     body1.y)-np.array(
+                body2.x,
+                                                       body2.y)))
+    )
 
 def main_menu():
+    """
+    https://www.youtube.com/watch?v=1_H7InPMjaY
+    https://www.youtube.com/watch?v=a5JWrd7Y_14&t=936s
+    Used to create basic game window
+
+    https://www.youtube.com/watch?v=0RryiSjpJn0
+    used to help implement main menus
+    """
 
     pygame.init()
 
@@ -113,8 +138,55 @@ def main_menu():
 
         CLOCK.tick(FPS)
 
+class Planet:
+
+    def __init__(self, screen, x, y, r, velocity, acceleration):
+        print("initialising a planet")
+        self.x = x
+        self.y = y
+        self.r = r
+        self.mass = r
+        self.velocity = velocity
+        self.acceleration = acceleration
+        self.screen = screen
+        # surface, color, center, radius
+        self.rd, self.gn, self.bu = np.random.randint(0,254), np.random.randint(0,254), np.random.randint(0,254)
+
+    def draw(self):
+        """
+        draw a planet
+        """
+        # print("drawing a planet")
+        pygame.draw.circle(self.screen, (self.rd, self.gn, self.bu), (self.x, self.y), self.r)
+
+    def move(self):
+        """
+        move a planet
+        """
+        self.x = self.x + self.velocity[0]
+        self.y = self.y + self.velocity[1]
+        # self.x = self.x + self.velocity[0] * self.acceleration[0]
+        # self.y = self.y + self.velocity[1] * self.acceleration[1]
+        # print("Pos:  {},{}".format(self.x, self.y))
+        # print("Accl:  {},{}".format(self.acceleration[0], self.acceleration[1]))
+
+
+    def destroy(self):
+        """
+        destroy any planet that goes offscreen
+        """
+        if np.linalg.norm(self.velocity) > 0:
+            print("boom...")
+
+        self.r, self.x, self.y, self.velocity = 0, -100, -100, [0, 0]
+
 
 def play_human():
+
+    """
+    Play the game (for humans)
+    """
+
     print("a human is starting...")
     clock = pygame.time.Clock()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -134,23 +206,54 @@ def play_human():
     # mbutton = pygame.Rect((WIDTH / 2, HEIGHT / 2), (30, 10))
     # rbutton = pygame.Rect((100 + WIDTH / 2, HEIGHT / 2), (30, 10))
     # rrbutton = pygame.Rect((200 + WIDTH / 2, HEIGHT / 2), (30, 10))
-    planet = Planet(screen, 20, 20, 20, 1)
+    # planet = Planet(screen, 20, 20, 20, [122,25], [1, 1])
+    planet = Planet(screen, 30, 30, 20, [-1,0], [1, 1])
     star = Star(screen, 50, 50, 11)
 
+
+
+
     while running:
-        print("1")
         screen.blit(bg, (0, 0))
 
         text_box("human player", 15, screen, -50 + (WIDTH / 2), -350 + (HEIGHT / 2))
 
         star.draw()
-        planet.move()
-        planet.draw()
+        if planet:
+            planet.move()
+            planet.draw()
         CLICKED = False
+
+        # walls
+        # rl
+        # if WIDTH - planet.x == planet.r or planet.x - planet.r <= 0:
+        #     print("side wall")
+        #     planet.velocity[0] = -1 * planet.velocity[0]
+        #
+        # #t b
+        # if HEIGHT - planet.y == planet.r or planet.y + planet.r <= 0:
+        #     print("vert wall")
+        #     planet.velocity[1] = -1 * planet.velocity[1]
+
+
+        # offscreen checker
+        # if planet.x > 200 and planet:
+        #     pass
+        # l r
+        if (planet.x <= planet.r) or (planet.x >= WIDTH):
+            planet.destroy()
+        # t b
+        if (planet.y <= planet.r) or (planet.y >= HEIGHT):
+            planet.destroy()
+
+        # force controller
+        get_force_between_2_bodies(star, planet)
+
+        # planet star collision
+
 
         # an event is some interaction with the engine. eg mouseclick
         for event in pygame.event.get():
-            print("2")
 
             # quit logic
             if event.type == pygame.QUIT:
@@ -307,15 +410,14 @@ def play_r_learning():
         # refresh rate
         clock.tick(FPS)
 
-"""
-https://www.youtube.com/watch?v=G8MYGDf_9ho
-https://www.pygame.org/docs/ref/draw.html?highlight=circl#pygame.draw.circle
-
-used to create circles with hitboxes
-"""
-
 
 class Star:
+    """
+    https://www.youtube.com/watch?v=G8MYGDf_9ho
+    https://www.pygame.org/docs/ref/draw.html?highlight=circl#pygame.draw.circle
+
+    used to create circles with hitboxes
+    """
     def __init__(self, screen, x, y, r):
 
         self.x = x
@@ -333,27 +435,6 @@ class Star:
         # screen.blit(screen, (self.x,self.y))
 
 
-class Planet:
-
-    def __init__(self, screen, x, y, r, force):
-        print("initialising a planet")
-        self.x = x
-        self.y = y
-        self.r = r
-        self.mass = r
-        self.force = force
-        self.screen = screen
-        # surface, color, center, radius
-        self.rd, self.gn, self.bu = np.random.randint(0,254), np.random.randint(0,254), np.random.randint(0,254)
-
-    def draw(self):
-        # print("drawing a planet")
-        pygame.draw.circle(self.screen, (self.rd, self.gn, self.bu), (self.x, self.y), self.r)
-
-    def move(self):
-        # print("moving a planet")
-        self.x = self.x + self.force
-        self.y = self.y + self.force
 
 
 def window_template():
