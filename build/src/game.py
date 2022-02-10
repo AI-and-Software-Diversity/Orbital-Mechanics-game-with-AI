@@ -4,6 +4,7 @@ import sys
 import numpy as np
 import scipy
 import scipy.constants
+import math
 
 WIDTH = 1400
 HEIGHT = 800
@@ -26,20 +27,43 @@ def text_box(str, font, screen, x, y):
     text = font.render(str, True, (255,255,255))
     screen.blit(text, (x, y))
 
-def get_force_between_2_bodies(body1, body2):
+def get_force_vector_from_gravity(body1, body2):
     """
-    We calculate the force on each body newtonian mechanics
+    We calculate the force of body 1 applies on body 2 on each body newtonian mechanics
     F_12 = G(m_1 * m_2/r^2)
-    https://en.wikipedia.org/wiki/Gravitational_constant
+    https://en.wikipedia.org/wiki/Newton%27s_law_of_universal_gravitation
 
     """
-    return (
-            scipy.constants.G * (body1.mass * body2.mass) /
-            np.linalg.norm((np.array(body1.x,
-                                     body1.y)-np.array(
-                body2.x,
-                                                       body2.y)))
-    )
+    # 1 calculate the force between the bodies
+    F = (100000 * body1.mass * body2.mass) / np.linalg.norm((np.array([body1.x, body1.y])-np.array([body2.x, body2.y]))) ** 2
+    # print(F)
+
+    # 2 calculate the angle of the force
+    # reversed
+    # direction_vector = np.array([body1.x, body1.y]) - np.array([body2.x, body2.y])
+
+    direction_vector = np.array([-body2.x, body2.y]) - np.array([-body1.x, body1.y])
+    # print(direction_vector)
+
+    # convert the force to a vector
+    # tangent = math.tan(direction_vector[0]
+    #                    /direction_vector[1])
+
+    if direction_vector[1] == 0:
+        tangent = 0
+    else:
+        tangent = math.tan(direction_vector[0]/direction_vector[1])
+
+
+    if tangent == 0:
+        angle = 0
+    else:
+        angle = math.atan(tangent)
+
+    F_vector = F*math.sin(angle), F*math.cos(angle)
+    # print(F_vector)
+    return F_vector
+
 
 def main_menu():
     """
@@ -118,7 +142,6 @@ def main_menu():
             # print("test")
             # quit logic
             if event.type == pygame.QUIT:
-                print("event.type == pygame.QUIT")
                 pygame.quit()
                 sys.exit()
             elif event.type == KEYDOWN and event.key == K_ESCAPE:
@@ -138,6 +161,7 @@ def main_menu():
 
         CLOCK.tick(FPS)
 
+
 class Planet:
 
     def __init__(self, screen, x, y, r, velocity, acceleration):
@@ -145,12 +169,14 @@ class Planet:
         self.x = x
         self.y = y
         self.r = r
-        self.mass = r
+        # self. mass = 3.3e+24 * r
+        self. mass = r
         self.velocity = velocity
         self.acceleration = acceleration
         self.screen = screen
+        self.force = [0,0]
         # surface, color, center, radius
-        self.rd, self.gn, self.bu = np.random.randint(0,254), np.random.randint(0,254), np.random.randint(0,254)
+        self.rd, self.gn, self.bu = np.random.randint(0, 254), np.random.randint(0, 254), np.random.randint(0, 254)
 
     def draw(self):
         """
@@ -163,12 +189,32 @@ class Planet:
         """
         move a planet
         """
+        # self.velocity[0] = self.acceleration[0] * self.velocity[0]
+        # self.velocity[1] = self.acceleration[1] * self.velocity[1]
+
+        # self.x = self.x + self.velocity[0]
+        # self.y = self.y + self.velocity[1]
+
+        # self.x = self.x + 1
+        # self.y = self.y + 1
+
+        # calc velocity from force
+        self.velocity[0] = self.force[0] / self.mass
+        self.velocity[1] = self.force[1] / self.mass
+        # self.velocity[0] = 1
+        # self.velocity[1] = 1
+
+        # calc new position
+        print(self.x, self.y)
+
+        # ---
+
         self.x = self.x + self.velocity[0]
         self.y = self.y + self.velocity[1]
-        # self.x = self.x + self.velocity[0] * self.acceleration[0]
-        # self.y = self.y + self.velocity[1] * self.acceleration[1]
+
         # print("Pos:  {},{}".format(self.x, self.y))
         # print("Accl:  {},{}".format(self.acceleration[0], self.acceleration[1]))
+        # print("V:  {},{}".format(self.velocity[0], self.velocity[1]))
 
 
     def destroy(self):
@@ -207,8 +253,9 @@ def play_human():
     # rbutton = pygame.Rect((100 + WIDTH / 2, HEIGHT / 2), (30, 10))
     # rrbutton = pygame.Rect((200 + WIDTH / 2, HEIGHT / 2), (30, 10))
     # planet = Planet(screen, 20, 20, 20, [122,25], [1, 1])
-    planet = Planet(screen, 30, 30, 20, [-1,0], [1, 1])
-    star = Star(screen, 50, 50, 11)
+    planet = Planet(screen, 30, 30, 10, [4, 3], [1, 1])
+    # star = Star(screen, WIDTH/4, HEIGHT/5, 20)
+    star = Star(screen, WIDTH/2, HEIGHT/2, 20)
 
 
 
@@ -219,9 +266,8 @@ def play_human():
         text_box("human player", 15, screen, -50 + (WIDTH / 2), -350 + (HEIGHT / 2))
 
         star.draw()
-        if planet:
-            planet.move()
-            planet.draw()
+        planet.move()
+        planet.draw()
         CLICKED = False
 
         # walls
@@ -247,8 +293,8 @@ def play_human():
             planet.destroy()
 
         # force controller
-        get_force_between_2_bodies(star, planet)
 
+        planet.force = get_force_vector_from_gravity(star, planet)
         # planet star collision
 
 
@@ -423,6 +469,7 @@ class Star:
         self.x = x
         self.y = y
         self.r = r
+        # self.mass = 1e+21 * r
         self.mass = r
         self.screen = screen
         # surface, color, center, radius
