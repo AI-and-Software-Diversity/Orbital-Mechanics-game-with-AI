@@ -35,7 +35,7 @@ def get_force_vector_from_gravity(body1, body2):
 
     """
     # 1 calculate the force between the bodies
-    F = (100000 * body1.mass * body2.mass) / np.linalg.norm((np.array([body1.x, body1.y])-np.array([body2.x, body2.y]))) ** 2
+    F = (100 * body1.mass * body2.mass) / np.linalg.norm((np.array([body1.x, body1.y])-np.array([body2.x, body2.y]))) ** 2
     # print(F)
 
     # 2 calculate the angle of the force
@@ -62,8 +62,51 @@ def get_force_vector_from_gravity(body1, body2):
 
     F_vector = F*math.sin(angle), F*math.cos(angle)
     # print(F_vector)
+
+    print("===========================")
+    print(F_vector)
+    print("===========================")
     return F_vector
 
+def law_of_gravitation(body1, body2):
+    """
+    We calculate the force of body 1 applies on body 2 on each body newtonian mechanics
+    F_12 = G(m_1 * m_2/r^2)
+    https://en.wikipedia.org/wiki/Newton%27s_law_of_universal_gravitation
+
+    The specific method used was the Euler-Cromer method
+    https://www.youtube.com/watch?v=rPkJtpVJwSw&list=PLdCdV2GBGyXOOutOEKggaZo1rCHtUYh-A
+
+    Which followed this tutorial
+    https://www.youtube.com/watch?v=4ycpvtIio-o&list=PLdCdV2GBGyXOExPW4u8H88S5mwrx_8vWK&index=2
+    """
+
+    # F = (100 * body1.mass * body2.mass) / np.linalg.norm((np.array([body1.x, body1.y])-np.array([body2.x, body2.y]))) ** 2
+    # direction_vector = np.array([-body2.x, body2.y]) - np.array([-body1.x, body1.y])
+    # if direction_vector[1] == 0:
+    #     tangent = 0
+    # else:
+    #     tangent = math.tan(direction_vector[0]/direction_vector[1])
+    # if tangent == 0:
+    #     angle = 0
+    # else:
+    #     angle = math.atan(tangent)
+    # F_vector = F*math.sin(angle), F*math.cos(angle)
+
+    G = 1000
+    r_vec = np.array([body1.x, body1.y])-np.array([body2.x, body2.y])
+    r_mag = np.linalg.norm((np.array([body1.x, body1.y])-np.array([body2.x, body2.y])))
+    r_hat = r_vec/r_mag
+    F_mag = G * body1.mass * body2.mass / r_mag**2
+    F_vector = F_mag * r_hat
+    print("===========================")
+    print(body1.mass)
+    print(body2.mass)
+    print(r_mag)
+    print(r_mag**2)
+    print(F_vector)
+    print("===========================")
+    return F_vector
 
 def main_menu():
     """
@@ -164,17 +207,19 @@ def main_menu():
 
 class Planet:
 
-    def __init__(self, screen, x, y, r, velocity, acceleration):
+    def __init__(self, screen, x, y, r, velocity, force):
         print("initialising a planet")
+        self.dt = 0.000001 # step size
         self.x = x
         self.y = y
         self.r = r
         # self. mass = 3.3e+24 * r
         self. mass = r
         self.velocity = velocity
-        self.acceleration = acceleration
+        self.acceleration = force
         self.screen = screen
-        self.force = [0,0]
+        self.force = force
+        self.momentum = [0, 0]
         # surface, color, center, radius
         self.rd, self.gn, self.bu = np.random.randint(0, 254), np.random.randint(0, 254), np.random.randint(0, 254)
 
@@ -189,28 +234,23 @@ class Planet:
         """
         move a planet
         """
-        # self.velocity[0] = self.acceleration[0] * self.velocity[0]
-        # self.velocity[1] = self.acceleration[1] * self.velocity[1]
 
-        # self.x = self.x + self.velocity[0]
-        # self.y = self.y + self.velocity[1]
-
-        # self.x = self.x + 1
-        # self.y = self.y + 1
-
-        # calc velocity from force
-        self.velocity[0] = self.force[0] / self.mass
-        self.velocity[1] = self.force[1] / self.mass
-        # self.velocity[0] = 1
-        # self.velocity[1] = 1
-
-        # calc new position
         print(self.x, self.y)
 
-        # ---
+        # Euler-Cromer method to new position:
 
-        self.x = self.x + self.velocity[0]
-        self.y = self.y + self.velocity[1]
+        # First calculate the force on the body using the newtonian ...
+        # done already in game loop
+
+        # Then update momentum using the force*stepsize
+        print("self.momentum:  {}".format(self.momentum))
+        print("self.force:  {}".format(self.force))
+        self.momentum[0] = self.momentum[0] + self.force[0] * self.dt
+        self.momentum[1] = self.momentum[1] + self.force[1] * self.dt
+
+        # Finally, update the position using the momentum
+        self.x = self.x + self.momentum[0]/(self.mass * self.dt)
+        self.y = self.y + self.momentum[1]/(self.mass * self.dt)
 
         # print("Pos:  {},{}".format(self.x, self.y))
         # print("Accl:  {},{}".format(self.acceleration[0], self.acceleration[1]))
@@ -224,7 +264,7 @@ class Planet:
         if np.linalg.norm(self.velocity) > 0:
             print("boom...")
 
-        self.r, self.x, self.y, self.velocity = 0, -100, -100, [0, 0]
+        self.r, self.x, self.y, self.velocity, self.momentum = 0, -200, -200, [0, 0], [0, 0]
 
 
 def play_human():
@@ -253,7 +293,7 @@ def play_human():
     # rbutton = pygame.Rect((100 + WIDTH / 2, HEIGHT / 2), (30, 10))
     # rrbutton = pygame.Rect((200 + WIDTH / 2, HEIGHT / 2), (30, 10))
     # planet = Planet(screen, 20, 20, 20, [122,25], [1, 1])
-    planet = Planet(screen, 30, 30, 10, [4, 3], [1, 1])
+    planet = Planet(screen, 30, 30, 10, [0, 30], [0, 30])
     # star = Star(screen, WIDTH/4, HEIGHT/5, 20)
     star = Star(screen, WIDTH/2, HEIGHT/2, 20)
 
@@ -294,7 +334,9 @@ def play_human():
 
         # force controller
 
-        planet.force = get_force_vector_from_gravity(star, planet)
+        # planet.force = get_force_vector_from_gravity(star, planet)
+        planet.force = law_of_gravitation(star, planet)
+
         # planet star collision
 
 
