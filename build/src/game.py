@@ -2,14 +2,25 @@ import pygame
 from pygame.locals import *
 import sys
 import numpy as np
-import scipy
-import scipy.constants
+# from scipy.constants import G
 import math
+
+import logging
+fmt = '[%(levelname)s] %(asctime)s - %(message)s'
+logging.basicConfig(level=logging.DEBUG, format=fmt)
 
 WIDTH = 1400
 HEIGHT = 800
-FPS = 144
+FPS = 288
 CLOCK = pygame.time.Clock()
+
+def euclidian_distance(body1, body2):
+
+
+    distance = np.abs(np.linalg.norm(
+        np.array([body1.x, body1.y]) - np.array([body2.x, body2.y])
+    ))
+    return distance
 
 def text_box(str, font, screen, x, y):
     """
@@ -35,7 +46,7 @@ def get_force_vector_from_gravity(body1, body2):
 
     """
     # 1 calculate the force between the bodies
-    F = (10 * body1.mass * body2.mass) / np.linalg.norm((np.array([body1.x, body1.y])-np.array([body2.x, body2.y]))) ** 2
+    F = (100 * body1.mass * body2.mass) / np.linalg.norm((np.array([body1.x, body1.y])-np.array([body2.x, body2.y]))) ** 2
     # print(F)
 
     # 2 calculate the angle of the force
@@ -96,6 +107,7 @@ def law_of_gravitation(body1, body2):
     return F_vector
 
 def main_menu():
+
     """
     https://www.youtube.com/watch?v=1_H7InPMjaY
     https://www.youtube.com/watch?v=a5JWrd7Y_14&t=936s
@@ -117,13 +129,8 @@ def main_menu():
     bg = pygame.image.load("../data/gamebg1.png")
     pygame.display.set_icon(bg)
 
-
-
-
-
     # menu buttons
     # (x, y), (l, w)
-
 
     llbutton = pygame.Rect((WIDTH/5, HEIGHT / 2), (30, 10))
     lbutton = pygame.Rect((2*WIDTH/5, HEIGHT / 2), (30, 10))
@@ -131,10 +138,6 @@ def main_menu():
     rbutton = pygame.Rect((4*WIDTH/5, HEIGHT / 2), (30, 10))
 
     while True:
-
-
-
-
 
         mx, my = pygame.mouse.get_pos()
 
@@ -147,6 +150,7 @@ def main_menu():
         pygame.draw.rect(screen, (255, 255, 255), llbutton)
 
         if llbutton.collidepoint(mx, my) and clicked:
+            pygame.event.wait(100)
             play_human()
             print("ll button")
 
@@ -181,7 +185,7 @@ def main_menu():
             # mouseclick logic + menu traversal
 
             if event.type == MOUSEBUTTONDOWN and event.button == 1:
-                print("*click*")
+                logging.info("*click*")
                 clicked = True
 
 
@@ -195,7 +199,7 @@ def main_menu():
 class Planet:
 
     def __init__(self, screen, x, y, r, velocity, force):
-        print("initialising a planet")
+        logging.info("initialising a planet")
         self.dt = 0.000001 # step size
         self.x = x
         self.y = y
@@ -209,6 +213,7 @@ class Planet:
         self.momentum = [0, 0]
         # surface, color, center, radius
         self.rd, self.gn, self.bu = np.random.randint(0, 254), np.random.randint(0, 254), np.random.randint(0, 254)
+
 
     def draw(self):
         """
@@ -239,6 +244,12 @@ class Planet:
         self.x = self.x + self.momentum[0]/(self.mass * self.dt)
         self.y = self.y + self.momentum[1]/(self.mass * self.dt)
 
+        # if (self.x <= self.r) or (self.x >= WIDTH):
+        #     self.destroy()
+        # # t b
+        # if (self.y <= self.r) or (self.y >= HEIGHT):
+        #     self.destroy()
+
         # print("Pos:  {},{}".format(self.x, self.y))
         # print("Accl:  {},{}".format(self.acceleration[0], self.acceleration[1]))
         # print("V:  {},{}".format(self.velocity[0], self.velocity[1]))
@@ -248,11 +259,9 @@ class Planet:
         """
         destroy any planet that goes offscreen
         """
-        if np.linalg.norm(self.velocity) > 0:
-            print("boom...")
 
         self.r, self.x, self.y, self.velocity, self.momentum = 0, -200, -200, [0, 0], [0, 0]
-
+        logging.info("boom...")
 
 def play_human():
 
@@ -260,12 +269,11 @@ def play_human():
     Play the game (for humans)
     """
 
-    print("a human is starting...")
+
+    logging.info("a human is starting...")
     clock = pygame.time.Clock()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     running = True
-
-    # window title
 
     # setting up bg
     bg = pygame.image.load("../data/gamebg1.png")
@@ -274,25 +282,25 @@ def play_human():
 
     # menu buttons
     # (x, y), (l, w)
-    # llbutton = pygame.Rect((-200 + WIDTH / 2, HEIGHT / 2), (30, 10))
-    # lbutton = pygame.Rect((-100 + WIDTH / 2, HEIGHT / 2), (30, 10))
-    # mbutton = pygame.Rect((WIDTH / 2, HEIGHT / 2), (30, 10))
-    # rbutton = pygame.Rect((100 + WIDTH / 2, HEIGHT / 2), (30, 10))
-    # rrbutton = pygame.Rect((200 + WIDTH / 2, HEIGHT / 2), (30, 10))
-    # planet = Planet(screen, 20, 20, 20, [122,25], [1, 1])
     planet = Planet(screen, 30, 30, 10, [0, 0], [0, 0])
-    # star = Star(screen, WIDTH/4, HEIGHT/5, 20)
     star = Star(screen, WIDTH/2, HEIGHT/2, 40)
+
+    planets = []
+    stars = []
 
     planet1exists = False
     planet2exists = False
     planet3exists = False
-    clicks = 0;
+    clicks = 0
+    # print("clicks {}".format(clicks))
+    logging.info("clicks {}".format(clicks))
     planet1 = None
     planet2 = None
     planet3 = None
 
     while running:
+
+        mx, my = pygame.mouse.get_pos()
         planet_net_force = 0
         planet1_net_force = 0
         planet2_net_force = 0
@@ -307,27 +315,49 @@ def play_human():
         planet.draw()
         CLICKED = False
 
-        # walls
-        # rl
-        # if WIDTH - planet.x == planet.r or planet.x - planet.r <= 0:
-        #     print("side wall")
-        #     planet.velocity[0] = -1 * planet.velocity[0]
-        #
-        # #t b
-        # if HEIGHT - planet.y == planet.r or planet.y + planet.r <= 0:
-        #     print("vert wall")
-        #     planet.velocity[1] = -1 * planet.velocity[1]
+        # sun eats planets
+        for pnt in planets:
+            if euclidian_distance(star, pnt) <= star.r * 1.2:
+                logging.info("yum")
+                pnt.destroy()
 
+        # if distFromSun < sun.r
+        #     destroy planet
+        #     feed sun maybe??
 
         # offscreen checker
         # if planet.x > 200 and planet:
         #     pass
         # l r
-        if (planet.x <= planet.r) or (planet.x >= WIDTH):
-            planet.destroy()
-        # t b
-        if (planet.y <= planet.r) or (planet.y >= HEIGHT):
-            planet.destroy()
+
+        # if (planet.x <= planet.r) or (planet.x >= WIDTH):
+        #     planet.destroy()
+        # # t b
+        # if (planet.y <= planet.r) or (planet.y >= HEIGHT):
+        #     planet.destroy()
+
+        # planet clash
+        for pnt1 in planets:
+            for pnt2 in planets:
+                if euclidian_distance(pnt1, pnt2) < (pnt1.r * 2.3 or pnt2.r * 2.3) and pnt1 != pnt2:
+                    print("")
+                    logging.info("collision")
+                    n = np.random.randint(0, 2)
+                    if n == 1:
+                        pnt1.destroy()
+                    else:
+                        pnt2.destroy()
+                        # ==================================================================================================
+
+
+        # for pnt in planets:
+        #     # l r
+        #     if (pnt.x <= pnt.r) or (pnt.x >= WIDTH):
+        #         pnt.destroy()
+        #     # t b
+        #     if (pnt.y <= pnt.r) or (pnt.y >= HEIGHT):
+        #         pnt.destroy()
+
 
         # # new planets
         # if planet1exists:
@@ -375,6 +405,13 @@ def play_human():
         #### CALCULATE FORCES ###
         #########################
 
+        ################################################
+        ## https://www.youtube.com/watch?v=OTJWGvibBfk #
+        ## The previous tutorial taught me to add the  #
+        ## fores to get a net fore. The exact .        #
+        ## implementation is original                  #
+        ################################################
+
         if planet1exists:
             planet1_net_force += law_of_gravitation(star, planet1)
             # planet1_net_force += law_of_gravitation(planet1, star)
@@ -386,7 +423,6 @@ def play_human():
             planet_net_force += law_of_gravitation(planet1, planet)
             #
 
-
         if planet2exists:
             planet2_net_force += law_of_gravitation(star, planet2)
             # planet2_net_force += law_of_gravitation(planet2, star)
@@ -394,7 +430,6 @@ def play_human():
             #
             planet_net_force += law_of_gravitation(planet2, planet)
             #
-
 
         if planet3exists:
             planet3_net_force += law_of_gravitation(star, planet3)
@@ -420,7 +455,7 @@ def play_human():
 
         planet_net_force += law_of_gravitation(star, planet)
         #########################
-        #### MOVE PLANETS ###
+        #### MOVE PLANETS     ###
         #########################
 
         if planet1exists:
@@ -438,16 +473,11 @@ def play_human():
             planet3.draw()
             planet3.move()
 
-
-
-
-
-
         # planet star collision
-
 
         # an event is some interaction with the engine. eg mouseclick
         for event in pygame.event.get():
+            # BUG: the window launches, and the event loop is entered after the first mousedown. Then
 
             # quit logic
             if event.type == pygame.QUIT:
@@ -462,32 +492,31 @@ def play_human():
 
 
             # mouseclick logic + menu traversal
-            mx, my = pygame.mouse.get_pos()
 
             if event.type == MOUSEBUTTONDOWN and event.button == 1:
                 CLICKED = True
 
-
             if event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 0:
-                clicks+=1
-                print("clicks {}".format(clicks))
-                print("planet1exists = True")
-                planet1exists = True
+                clicks += 1
+                logging.info("clicks {}".format(clicks))
                 planet1 = Planet(screen, mx, my, 10, [0, 0], [0, 0])
 
             elif event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 1:
-                clicks+=1
-                print("clicks {}".format(clicks))
-                print("planet2exists = True")
-                planet2exists = True
+                clicks += 1
+                logging.info("clicks {}".format(clicks))
                 planet2 = Planet(screen, mx, my, 10, [0, 0], [0, 0])
 
             elif event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 2:
-                clicks+=1
-                print("clicks {}".format(clicks))
-                print("planet3exists = True")
+                clicks += 1
+                logging.info("clicks {}".format(clicks))
+                planet1exists = True
+                planet2exists = True
                 planet3exists = True
                 planet3 = Planet(screen, mx, my, 10, [0, 0], [0, 0])
+                planets.append(planet1)
+                planets.append(planet2)
+                planets.append(planet3)
+
 
             # if llbutton.collidepoint(mx, my) and CLICKED:
             #     print("ll button")
@@ -650,8 +679,6 @@ class Star:
         # screen.blit(pygame.image.load("../data/s10.png"), (self.x, self.y))
         # pygame.image.load("../data/sun1.png")
         # screen.blit(screen, (self.x,self.y))
-
-
 
 
 def window_template():
