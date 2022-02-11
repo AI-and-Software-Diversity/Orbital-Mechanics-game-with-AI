@@ -35,7 +35,7 @@ def get_force_vector_from_gravity(body1, body2):
 
     """
     # 1 calculate the force between the bodies
-    F = (100 * body1.mass * body2.mass) / np.linalg.norm((np.array([body1.x, body1.y])-np.array([body2.x, body2.y]))) ** 2
+    F = (10 * body1.mass * body2.mass) / np.linalg.norm((np.array([body1.x, body1.y])-np.array([body2.x, body2.y]))) ** 2
     # print(F)
 
     # 2 calculate the angle of the force
@@ -69,8 +69,10 @@ def get_force_vector_from_gravity(body1, body2):
     return F_vector
 
 def law_of_gravitation(body1, body2):
+
     """
     We calculate the force of body 1 applies on body 2 on each body newtonian mechanics
+    The pull body1 applies to body2
     F_12 = G(m_1 * m_2/r^2)
     https://en.wikipedia.org/wiki/Newton%27s_law_of_universal_gravitation
 
@@ -81,31 +83,16 @@ def law_of_gravitation(body1, body2):
     https://www.youtube.com/watch?v=4ycpvtIio-o&list=PLdCdV2GBGyXOExPW4u8H88S5mwrx_8vWK&index=2
     """
 
-    # F = (100 * body1.mass * body2.mass) / np.linalg.norm((np.array([body1.x, body1.y])-np.array([body2.x, body2.y]))) ** 2
-    # direction_vector = np.array([-body2.x, body2.y]) - np.array([-body1.x, body1.y])
-    # if direction_vector[1] == 0:
-    #     tangent = 0
-    # else:
-    #     tangent = math.tan(direction_vector[0]/direction_vector[1])
-    # if tangent == 0:
-    #     angle = 0
-    # else:
-    #     angle = math.atan(tangent)
-    # F_vector = F*math.sin(angle), F*math.cos(angle)
+    if body1 == body2:
+        raise Exception("The bodies can not be the same")
 
-    G = 1000
+    G = 400
     r_vec = np.array([body1.x, body1.y])-np.array([body2.x, body2.y])
     r_mag = np.linalg.norm((np.array([body1.x, body1.y])-np.array([body2.x, body2.y])))
     r_hat = r_vec/r_mag
     F_mag = G * body1.mass * body2.mass / r_mag**2
     F_vector = F_mag * r_hat
-    print("===========================")
-    print(body1.mass)
-    print(body2.mass)
-    print(r_mag)
-    print(r_mag**2)
-    print(F_vector)
-    print("===========================")
+
     return F_vector
 
 def main_menu():
@@ -235,7 +222,7 @@ class Planet:
         move a planet
         """
 
-        print(self.x, self.y)
+        # print(self.x, self.y)
 
         # Euler-Cromer method to new position:
 
@@ -243,8 +230,8 @@ class Planet:
         # done already in game loop
 
         # Then update momentum using the force*stepsize
-        print("self.momentum:  {}".format(self.momentum))
-        print("self.force:  {}".format(self.force))
+        # print("self.momentum:  {}".format(self.momentum))
+        # print("self.force:  {}".format(self.force))
         self.momentum[0] = self.momentum[0] + self.force[0] * self.dt
         self.momentum[1] = self.momentum[1] + self.force[1] * self.dt
 
@@ -293,14 +280,24 @@ def play_human():
     # rbutton = pygame.Rect((100 + WIDTH / 2, HEIGHT / 2), (30, 10))
     # rrbutton = pygame.Rect((200 + WIDTH / 2, HEIGHT / 2), (30, 10))
     # planet = Planet(screen, 20, 20, 20, [122,25], [1, 1])
-    planet = Planet(screen, 30, 30, 10, [0, 30], [0, 30])
+    planet = Planet(screen, 30, 30, 10, [0, 0], [0, 0])
     # star = Star(screen, WIDTH/4, HEIGHT/5, 20)
-    star = Star(screen, WIDTH/2, HEIGHT/2, 20)
+    star = Star(screen, WIDTH/2, HEIGHT/2, 40)
 
-
-
+    planet1exists = False
+    planet2exists = False
+    planet3exists = False
+    clicks = 0;
+    planet1 = None
+    planet2 = None
+    planet3 = None
 
     while running:
+        planet_net_force = 0
+        planet1_net_force = 0
+        planet2_net_force = 0
+        planet3_net_force = 0
+
         screen.blit(bg, (0, 0))
 
         text_box("human player", 15, screen, -50 + (WIDTH / 2), -350 + (HEIGHT / 2))
@@ -332,10 +329,119 @@ def play_human():
         if (planet.y <= planet.r) or (planet.y >= HEIGHT):
             planet.destroy()
 
-        # force controller
+        # # new planets
+        # if planet1exists:
+        #     planet1.draw()
+        #     planet1.move()
+        #     planet1.force = law_of_gravitation(star, planet1)
+        #     planet1.force = law_of_gravitation(planet1, star)
+        #     planet1.force = law_of_gravitation(planet, planet1)
+        #     planet.force = law_of_gravitation(planet1, planet)
+        #
+        # if planet2exists:
+        #     planet2.draw()
+        #     planet2.move()
+        #     planet2.force = law_of_gravitation(star, planet2)
+        #     planet2.force = law_of_gravitation(planet2, star)
+        #     planet2.force = law_of_gravitation(planet, planet2)
+        #
+        #
+        #     planet.force = law_of_gravitation(planet2, planet)
+        #
+        #
+        # if planet3exists:
+        #     planet3.draw()
+        #     planet3.move()
+        #     planet3.force = law_of_gravitation(star, planet3)
+        #     planet3.force = law_of_gravitation(planet3, star)
+        #     planet3.force = law_of_gravitation(planet, planet3)
+        #     planet.force = law_of_gravitation(planet3, planet)
+        #
+        # if planet1 and planet2:
+        #     planet1.force = law_of_gravitation(planet2, planet1)
+        #     planet2.force = law_of_gravitation(planet1, planet2)
+        #
+        #
+        # if planet1 and planet3:
+        #     planet1.force = law_of_gravitation(planet3, planet1)
+        #     planet3.force = law_of_gravitation(planet1, planet3)
+        #
+        #
+        # if planet2 and planet3:
+        #     planet2.force = law_of_gravitation(planet3, planet2)
+        #     planet3.force = law_of_gravitation(planet2, planet3)
 
-        # planet.force = get_force_vector_from_gravity(star, planet)
-        planet.force = law_of_gravitation(star, planet)
+        #########################
+        #### CALCULATE FORCES ###
+        #########################
+
+        if planet1exists:
+            planet1_net_force += law_of_gravitation(star, planet1)
+            # planet1_net_force += law_of_gravitation(planet1, star)
+            planet1_net_force += law_of_gravitation(planet, planet1)
+
+            # BEWARE
+            # planet1_net_force += law_of_gravitation(planet1, planet)
+            # planet1_net_force += law_of_gravitation(planet1, planet)
+            planet_net_force += law_of_gravitation(planet1, planet)
+            #
+
+
+        if planet2exists:
+            planet2_net_force += law_of_gravitation(star, planet2)
+            # planet2_net_force += law_of_gravitation(planet2, star)
+            planet2_net_force += law_of_gravitation(planet, planet2)
+            #
+            planet_net_force += law_of_gravitation(planet2, planet)
+            #
+
+
+        if planet3exists:
+            planet3_net_force += law_of_gravitation(star, planet3)
+            # planet3_net_force += law_of_gravitation(planet3, star)
+            planet3_net_force += law_of_gravitation(planet, planet3)
+
+            #
+            # planet_net_force += law_of_gravitation(planet3, planet)
+            planet_net_force += law_of_gravitation(planet3, planet)
+            #
+
+        if planet1 and planet2:
+            planet1_net_force += law_of_gravitation(planet2, planet1)
+            planet2_net_force += law_of_gravitation(planet1, planet2)
+
+        if planet1 and planet3:
+            planet1_net_force += law_of_gravitation(planet3, planet1)
+            planet3_net_force += law_of_gravitation(planet1, planet3)
+
+        if planet2 and planet3:
+            planet2_net_force += law_of_gravitation(planet3, planet2)
+            planet3_net_force += law_of_gravitation(planet2, planet3)
+
+        planet_net_force += law_of_gravitation(star, planet)
+        #########################
+        #### MOVE PLANETS ###
+        #########################
+
+        if planet1exists:
+            planet1.force = planet1_net_force
+            planet1.draw()
+            planet1.move()
+
+        if planet2exists:
+            planet2.force = planet2_net_force
+            planet2.draw()
+            planet2.move()
+
+        if planet3exists:
+            planet3.force = planet3_net_force
+            planet3.draw()
+            planet3.move()
+
+
+
+
+
 
         # planet star collision
 
@@ -358,8 +464,30 @@ def play_human():
             # mouseclick logic + menu traversal
             mx, my = pygame.mouse.get_pos()
 
-            if event.type == MOUSEBUTTONDOWN:
+            if event.type == MOUSEBUTTONDOWN and event.button == 1:
                 CLICKED = True
+
+
+            if event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 0:
+                clicks+=1
+                print("clicks {}".format(clicks))
+                print("planet1exists = True")
+                planet1exists = True
+                planet1 = Planet(screen, mx, my, 10, [0, 0], [0, 0])
+
+            elif event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 1:
+                clicks+=1
+                print("clicks {}".format(clicks))
+                print("planet2exists = True")
+                planet2exists = True
+                planet2 = Planet(screen, mx, my, 10, [0, 0], [0, 0])
+
+            elif event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 2:
+                clicks+=1
+                print("clicks {}".format(clicks))
+                print("planet3exists = True")
+                planet3exists = True
+                planet3 = Planet(screen, mx, my, 10, [0, 0], [0, 0])
 
             # if llbutton.collidepoint(mx, my) and CLICKED:
             #     print("ll button")
