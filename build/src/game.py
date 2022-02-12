@@ -150,7 +150,7 @@ def main_menu():
         pygame.draw.rect(screen, (255, 255, 255), llbutton)
 
         if llbutton.collidepoint(mx, my) and clicked:
-            pygame.event.wait(100)
+            pygame.event.wait()
             play_human()
             print("ll button")
 

@@ -7,10 +7,6 @@ import scipy
 import scipy.constants
 import math
 
-WIDTH = 1400
-HEIGHT = 800
-FPS = 144
-CLOCK = pygame.time.Clock()
 
 class Planet:
 
@@ -50,7 +46,7 @@ def main_menu():
 
         if llbutton.collidepoint(mx, my) and clicked:
             print("--")
-            pygame.event.wait(100)
+            pygame.event.wait()
             print("---")
 
             play_human()
@@ -71,6 +67,7 @@ def main_menu():
             pygame.display.update()
 
         CLOCK.tick(FPS)
+
 
 def play_human():
 
@@ -119,6 +116,7 @@ def play_human():
 
         CLOCK.tick(FPS)
 
+
 class Star:
 
     def __init__(self, screen, x, y, r):
@@ -133,4 +131,10 @@ class Star:
     def draw(self):
         pygame.draw.circle(self.screen, (39, 176, 144), (self.x, self.y), self.r)
 
-main_menu()
+
+if __name__ == '__main__':
+    WIDTH = 1400
+    HEIGHT = 800
+    FPS = 144
+    CLOCK = pygame.time.Clock()
+    main_menu()
