@@ -2,17 +2,9 @@ import pygame
 from pygame.locals import *
 import sys
 import numpy as np
-# from scipy.constants import G
 import math
-
 import logging
-fmt = '[%(levelname)s] %(asctime)s - %(message)s'
-logging.basicConfig(level=logging.DEBUG, format=fmt)
-
-WIDTH = 1400
-HEIGHT = 800
-FPS = 288
-CLOCK = pygame.time.Clock()
+from datetime import datetime
 
 def euclidian_distance(body1, body2):
 
@@ -21,6 +13,7 @@ def euclidian_distance(body1, body2):
         np.array([body1.x, body1.y]) - np.array([body2.x, body2.y])
     ))
     return distance
+
 
 def text_box(str, font, screen, x, y):
     """
@@ -37,6 +30,7 @@ def text_box(str, font, screen, x, y):
     font = pygame.font.Font('../data/fonts/PressStart2P-vaV7.ttf', font)
     text = font.render(str, True, (255,255,255))
     screen.blit(text, (x, y))
+
 
 def get_force_vector_from_gravity(body1, body2):
     """
@@ -79,6 +73,7 @@ def get_force_vector_from_gravity(body1, body2):
     print("===========================")
     return F_vector
 
+
 def law_of_gravitation(body1, body2):
 
     """
@@ -101,10 +96,16 @@ def law_of_gravitation(body1, body2):
     r_vec = np.array([body1.x, body1.y])-np.array([body2.x, body2.y])
     r_mag = np.linalg.norm((np.array([body1.x, body1.y])-np.array([body2.x, body2.y])))
     r_hat = r_vec/r_mag
-    F_mag = G * body1.mass * body2.mass / r_mag**2
+
+    try:
+        F_mag = G * body1.mass * body2.mass / r_mag**2
+    except ZeroDivisionError as err:
+        logging.error(err)
+
     F_vector = F_mag * r_hat
 
     return F_vector
+
 
 def main_menu():
 
@@ -199,28 +200,31 @@ def main_menu():
 class Planet:
 
     def __init__(self, screen, x, y, r, velocity, force):
+
         logging.info("initialising a planet")
+        self.active = False
+        self.alive = True
         self.dt = 0.000001 # step size
-        self.x = x
-        self.y = y
-        self.r = r
-        # self. mass = 3.3e+24 * r
+        self.x = x # xPos
+        self.y = y # yPos
+        self.r = r # Radius
         self. mass = r
         self.velocity = velocity
         self.acceleration = force
         self.screen = screen
         self.force = force
-        self.momentum = [0, 0]
+        self.momentum = [0.0001, 0]
+        self.age = 0 # how long a planet lasts for before being destroyed, initially 0
         # surface, color, center, radius
         self.rd, self.gn, self.bu = np.random.randint(0, 254), np.random.randint(0, 254), np.random.randint(0, 254)
-
-
+        self.birthtime = 0 # time utc when planet was launched initially set when ALL planets are fired
     def draw(self):
         """
         draw a planet
         """
         # print("drawing a planet")
         pygame.draw.circle(self.screen, (self.rd, self.gn, self.bu), (self.x, self.y), self.r)
+        # iterate the age by 0.1
 
     def move(self):
         """
@@ -241,27 +245,33 @@ class Planet:
         self.momentum[1] = self.momentum[1] + self.force[1] * self.dt
 
         # Finally, update the position using the momentum
-        self.x = self.x + self.momentum[0]/(self.mass * self.dt)
-        self.y = self.y + self.momentum[1]/(self.mass * self.dt)
+        self.x = self.x + self.momentum[0] / (self.mass * self.dt)
+        self.y = self.y + self.momentum[1] / (self.mass * self.dt)
 
-        # if (self.x <= self.r) or (self.x >= WIDTH):
-        #     self.destroy()
-        # # t b
-        # if (self.y <= self.r) or (self.y >= HEIGHT):
-        #     self.destroy()
+        # l r t b
+        # if ((self.x <= self.r) or (self.x >= WIDTH)) and np.linalg.norm(self.velocity) == 0:
+        # if ((self.x <= self.r) or (self.x >= WIDTH) or (self.y <= self.r) or (self.y >= HEIGHT)) and np.linalg.norm(self.velocity) == 0 and self.alive == True:
+        if ((self.x <= self.r) or (self.x >= WIDTH) or (self.y <= self.r) or (self.y >= HEIGHT)) and self.alive == True:
+            planets.remove(self)
+            self.destroy(deathmsg="blasting off again...")
 
         # print("Pos:  {},{}".format(self.x, self.y))
         # print("Accl:  {},{}".format(self.acceleration[0], self.acceleration[1]))
         # print("V:  {},{}".format(self.velocity[0], self.velocity[1]))
 
-
-    def destroy(self):
+    def destroy(self, deathmsg="--------"):
         """
         destroy any planet that goes offscreen
         """
+        logging.debug(deathmsg)
+        self.deathtime = datetime.utcnow()
+        self.age = (self.deathtime - self.birthtime)
+        self.age = self.age.total_seconds()
+        x, y = np.random.randint(200, 300), np.random.randint(200, 300)
+        self.r, self.x, self.y, self.velocity, self.momentum, self.alive = 0, -x, -y, [0, 0], [0, 0], False
+        logging.info(f"SCORE: {self.age}s")
+        # if np.linalg.norm(self.velocity) > 0:
 
-        self.r, self.x, self.y, self.velocity, self.momentum = 0, -200, -200, [0, 0], [0, 0]
-        logging.info("boom...")
 
 def play_human():
 
@@ -277,129 +287,54 @@ def play_human():
 
     # setting up bg
     bg = pygame.image.load("../data/gamebg1.png")
-
     pygame.display.set_icon(bg)
+
+    # A var to indicate if an agent has placed the first planet.
+    started_placement = False
 
     # menu buttons
     # (x, y), (l, w)
-    planet = Planet(screen, 30, 30, 10, [0, 0], [0, 0])
     star = Star(screen, WIDTH/2, HEIGHT/2, 40)
 
-    planets = []
-    stars = []
+    # planets = []
+    stars = [star]
 
-    planet1exists = False
-    planet2exists = False
-    planet3exists = False
     clicks = 0
-    # print("clicks {}".format(clicks))
-    logging.info("clicks {}".format(clicks))
-    planet1 = None
-    planet2 = None
-    planet3 = None
+    logging.info(f"clicks {clicks}")
 
     while running:
 
         mx, my = pygame.mouse.get_pos()
-        planet_net_force = 0
-        planet1_net_force = 0
-        planet2_net_force = 0
-        planet3_net_force = 0
 
         screen.blit(bg, (0, 0))
 
         text_box("human player", 15, screen, -50 + (WIDTH / 2), -350 + (HEIGHT / 2))
 
+        # print(SCORE)
+
         star.draw()
-        planet.move()
-        planet.draw()
         CLICKED = False
 
         # sun eats planets
         for pnt in planets:
             if euclidian_distance(star, pnt) <= star.r * 1.2:
-                logging.info("yum")
-                pnt.destroy()
-
-        # if distFromSun < sun.r
-        #     destroy planet
-        #     feed sun maybe??
-
-        # offscreen checker
-        # if planet.x > 200 and planet:
-        #     pass
-        # l r
-
-        # if (planet.x <= planet.r) or (planet.x >= WIDTH):
-        #     planet.destroy()
-        # # t b
-        # if (planet.y <= planet.r) or (planet.y >= HEIGHT):
-        #     planet.destroy()
+                # logging.info("yum")
+                planets.remove(pnt)
+                pnt.destroy(deathmsg="eaten by sun")
 
         # planet clash
         for pnt1 in planets:
             for pnt2 in planets:
                 if euclidian_distance(pnt1, pnt2) < (pnt1.r * 2.3 or pnt2.r * 2.3) and pnt1 != pnt2:
                     print("")
-                    logging.info("collision")
+                    # logging.info("collision")
                     n = np.random.randint(0, 2)
                     if n == 1:
-                        pnt1.destroy()
+                        planets.remove(pnt1)
+                        pnt1.destroy(deathmsg="multi-planet collision")
                     else:
-                        pnt2.destroy()
-                        # ==================================================================================================
-
-
-        # for pnt in planets:
-        #     # l r
-        #     if (pnt.x <= pnt.r) or (pnt.x >= WIDTH):
-        #         pnt.destroy()
-        #     # t b
-        #     if (pnt.y <= pnt.r) or (pnt.y >= HEIGHT):
-        #         pnt.destroy()
-
-
-        # # new planets
-        # if planet1exists:
-        #     planet1.draw()
-        #     planet1.move()
-        #     planet1.force = law_of_gravitation(star, planet1)
-        #     planet1.force = law_of_gravitation(planet1, star)
-        #     planet1.force = law_of_gravitation(planet, planet1)
-        #     planet.force = law_of_gravitation(planet1, planet)
-        #
-        # if planet2exists:
-        #     planet2.draw()
-        #     planet2.move()
-        #     planet2.force = law_of_gravitation(star, planet2)
-        #     planet2.force = law_of_gravitation(planet2, star)
-        #     planet2.force = law_of_gravitation(planet, planet2)
-        #
-        #
-        #     planet.force = law_of_gravitation(planet2, planet)
-        #
-        #
-        # if planet3exists:
-        #     planet3.draw()
-        #     planet3.move()
-        #     planet3.force = law_of_gravitation(star, planet3)
-        #     planet3.force = law_of_gravitation(planet3, star)
-        #     planet3.force = law_of_gravitation(planet, planet3)
-        #     planet.force = law_of_gravitation(planet3, planet)
-        #
-        # if planet1 and planet2:
-        #     planet1.force = law_of_gravitation(planet2, planet1)
-        #     planet2.force = law_of_gravitation(planet1, planet2)
-        #
-        #
-        # if planet1 and planet3:
-        #     planet1.force = law_of_gravitation(planet3, planet1)
-        #     planet3.force = law_of_gravitation(planet1, planet3)
-        #
-        #
-        # if planet2 and planet3:
-        #     planet2.force = law_of_gravitation(planet3, planet2)
-        #     planet3.force = law_of_gravitation(planet2, planet3)
+                        planets.remove(pnt2)
+                        pnt2.destroy(deathmsg="multi-planet collision")
 
         #########################
         #### CALCULATE FORCES ###
@@ -412,69 +347,30 @@ def play_human():
         ## implementation is original                  #
         ################################################
 
-        if planet1exists:
-            planet1_net_force += law_of_gravitation(star, planet1)
-            # planet1_net_force += law_of_gravitation(planet1, star)
-            planet1_net_force += law_of_gravitation(planet, planet1)
+        # net force calculator for bodies
+        # motion step 1
+        for body in (planets + stars):
+            body.force = 0
+            # setattr(body, "force", 0)
 
-            # BEWARE
-            # planet1_net_force += law_of_gravitation(planet1, planet)
-            # planet1_net_force += law_of_gravitation(planet1, planet)
-            planet_net_force += law_of_gravitation(planet1, planet)
-            #
+        # update gravity for all bodies
+        for body1 in (planets + stars):
+            for body2 in (planets + stars):
+                # if body not in stars:
+                #     pass
+                if body1 != body2:
+                    body1.force += law_of_gravitation(body2, body1)
 
-        if planet2exists:
-            planet2_net_force += law_of_gravitation(star, planet2)
-            # planet2_net_force += law_of_gravitation(planet2, star)
-            planet2_net_force += law_of_gravitation(planet, planet2)
-            #
-            planet_net_force += law_of_gravitation(planet2, planet)
-            #
 
-        if planet3exists:
-            planet3_net_force += law_of_gravitation(star, planet3)
-            # planet3_net_force += law_of_gravitation(planet3, star)
-            planet3_net_force += law_of_gravitation(planet, planet3)
-
-            #
-            # planet_net_force += law_of_gravitation(planet3, planet)
-            planet_net_force += law_of_gravitation(planet3, planet)
-            #
-
-        if planet1 and planet2:
-            planet1_net_force += law_of_gravitation(planet2, planet1)
-            planet2_net_force += law_of_gravitation(planet1, planet2)
-
-        if planet1 and planet3:
-            planet1_net_force += law_of_gravitation(planet3, planet1)
-            planet3_net_force += law_of_gravitation(planet1, planet3)
-
-        if planet2 and planet3:
-            planet2_net_force += law_of_gravitation(planet3, planet2)
-            planet3_net_force += law_of_gravitation(planet2, planet3)
-
-        planet_net_force += law_of_gravitation(star, planet)
         #########################
         #### MOVE PLANETS     ###
         #########################
-
-        if planet1exists:
-            planet1.force = planet1_net_force
-            planet1.draw()
-            planet1.move()
-
-        if planet2exists:
-            planet2.force = planet2_net_force
-            planet2.draw()
-            planet2.move()
-
-        if planet3exists:
-            planet3.force = planet3_net_force
-            planet3.draw()
-            planet3.move()
+        for body in planets:
+            if body.active:
+                body.draw()
+                body.move()
 
         # planet star collision
-
         # an event is some interaction with the engine. eg mouseclick
         for event in pygame.event.get():
             # BUG: the window launches, and the event loop is entered after the first mousedown. Then
@@ -489,58 +385,70 @@ def play_human():
                 # pygame.display.set_caption("spooky outer space")
                 running = False
 
-
-
             # mouseclick logic + menu traversal
 
             if event.type == MOUSEBUTTONDOWN and event.button == 1:
                 CLICKED = True
 
             if event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 0:
+                started_placement = True
+                CLICKED = True
                 clicks += 1
                 logging.info("clicks {}".format(clicks))
                 planet1 = Planet(screen, mx, my, 10, [0, 0], [0, 0])
+                planets.append(planet1)
 
             elif event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 1:
                 clicks += 1
                 logging.info("clicks {}".format(clicks))
                 planet2 = Planet(screen, mx, my, 10, [0, 0], [0, 0])
+                planets.append(planet2)
 
             elif event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 2:
                 clicks += 1
                 logging.info("clicks {}".format(clicks))
-                planet1exists = True
-                planet2exists = True
-                planet3exists = True
                 planet3 = Planet(screen, mx, my, 10, [0, 0], [0, 0])
-                planets.append(planet1)
-                planets.append(planet2)
                 planets.append(planet3)
+                logging.debug(f"ALL PLANETS HAVE BECOME ACTIVE (STARTED MOVING)")
+                for pnt in planets:
+                    pnt.active = True
+                    pnt.birthtime = datetime.utcnow()
 
-
+            # example click code
             # if llbutton.collidepoint(mx, my) and CLICKED:
-            #     print("ll button")
-            #
-            # if lbutton.collidepoint(mx, my) and CLICKED:
-            #     print("l button")
-            #
-            # if mbutton.collidepoint(mx, my) and CLICKED:
-            #     print("m button")
-            #
-            # if rbutton.collidepoint(mx, my) and CLICKED:
-            #     print("r button")
-            #
-            # if rrbutton.collidepoint(mx, my) and CLICKED:
-            #     print("rr button")
+            #     print("example")
+
+        # scores_shown = 0
+        # if scores_shown == 0 and all_planets_destroyed(planets) and all_planets_active(planets) and CLICKED == True:
+        #     # SCORE = sum([pnt.age for pnt in planets if pnt.alive == False])
+        #     SCORE = sum([pnt.age for pnt in planets])
+        #     logging.info(f"Final Score= {SCORE}")
+        #     scores_shown = 1
+
+        # text_box(f"score = {SCORE}", 15, screen, WIDTH - (WIDTH - 50), -350 + (HEIGHT / 2))
+        scores_shown = 0
+        if scores_shown == 0 and all_planets_destroyed(planets) and all_planets_active(planets):# and started_placement:
+            # SCORE = sum([pnt.age for pnt in planets if pnt.alive == False])
+            SCORE = sum([pnt.age for pnt in planets])
 
 
-
+            # logging.info(f"Final Score= {SCORE}")
+            scores_shown = 1
 
         # update the bg
         pygame.display.update()
 
         CLOCK.tick(FPS)
 
+def all_planets_destroyed(pnts):
+    if len([pnt for pnt in pnts if pnt.alive == False]) == len([pnt for pnt in pnts]):
+        return True
+    return False
+
+def all_planets_active(pnts):
+    if len([pnt for pnt in pnts if pnt.active == True]) == len([pnt for pnt in pnts]):
+        return True
+    return False
 
 def play_NEAT():
     # stuff happens when function is intially run
@@ -727,10 +635,6 @@ def window_template():
             # if button.collidepoint(mx, my) and clicked:
             #     print("button clicked")
 
-
-
-
-
             # update the bg
             pygame.display.update()
 
@@ -738,4 +642,16 @@ def window_template():
         clock.tick(FPS)
 
 
-main_menu()
+if __name__ == '__main__':
+    SCORE = 0
+    planets = []
+    fmt = '[%(levelname)s] %(asctime)s - %(message)s '
+    # logging.basicConfig(filename="logs.log", level=logging.DEBUG, format=fmt)
+    logging.basicConfig(level=logging.DEBUG, format=fmt)
+    WIDTH = 1400
+    HEIGHT = 800
+    FPS = 144
+    CLOCK = pygame.time.Clock()
+
+    main_menu()
+

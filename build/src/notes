@@ -1,0 +1,19 @@
+/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/venv/bin/python /home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/src/game.py
+pygame 2.1.2 (SDL 2.0.16, Python 3.6.15)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+[INFO] 2022-02-12 12:55:17,757 - *click*
+[INFO] 2022-02-12 12:55:17,863 - a human is starting...
+[INFO] 2022-02-12 12:55:18,071 - clicks 0
+[INFO] 2022-02-12 12:55:18,573 - clicks 1
+[INFO] 2022-02-12 12:55:18,573 - initialising a planet
+[INFO] 2022-02-12 12:55:19,004 - clicks 2
+[INFO] 2022-02-12 12:55:19,004 - initialising a planet
+[INFO] 2022-02-12 12:55:19,376 - clicks 3
+[INFO] 2022-02-12 12:55:19,376 - initialising a planet
+
+[INFO] 2022-02-12 12:55:20,238 - collision
+[INFO] 2022-02-12 12:55:20,675 - yum
+/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/src/game.py:98: RuntimeWarning: invalid value encountered in true_divide
+  r_hat = r_vec/r_mag
+/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/src/game.py:99: RuntimeWarning: divide by zero encountered in double_scalars
+  F_mag = G * body1.mass * body2.mass / r_mag**2
