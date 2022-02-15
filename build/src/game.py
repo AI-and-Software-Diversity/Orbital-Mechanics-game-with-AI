@@ -100,7 +100,6 @@ def play_human():
     Play the game (for humans)
     """
 
-
     logging.debug("a human is starting...")
     planets_in_motion = False
     have_displayed_score = True
