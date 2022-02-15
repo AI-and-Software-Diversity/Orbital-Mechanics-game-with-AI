@@ -47,8 +47,8 @@ class Planet:
         self.screen = screen
         self.force = force
         self.momentum = [0.0001, 0]
-        self.age = age
         self.birthtime = current_time().__round__(2)
+        self.age = (current_time() - self.birthtime).__round__(2)
         # surface, color, center, radius
         self.rd, self.gn, self.bu = np.random.randint(0, 254), np.random.randint(0, 254), np.random.randint(0, 254)
 
@@ -89,9 +89,9 @@ class Planet:
             # l r t b
             # if ((self.x <= self.r) or (self.x >= WIDTH)) and np.linalg.norm(self.velocity) == 0:
             # if ((self.x <= self.r) or (self.x >= WIDTH) or (self.y <= self.r) or (self.y >= HEIGHT)) and np.linalg.norm(self.velocity) == 0 and self.alive == True:
-            if ((self.x <= self.r) or (self.x >= WIDTH) or (self.y <= self.r) or (self.y >= HEIGHT)) and self.alive == True:
-
-                self.destroy(deathmsg="blasting off again...")
+            # if ((self.x <= self.r) or (self.x >= WIDTH) or (self.y <= self.r) or (self.y >= HEIGHT)) and self.alive == True:
+            #     # cumulative_age += pnt.age
+            #     self.destroy(deathmsg="blasting off again...")
 
         # print("Pos:  {},{}".format(self.x, self.y))
         # print("Accl:  {},{}".format(self.acceleration[0], self.acceleration[1]))

@@ -1,7 +1,7 @@
 from pygame.locals import *
 import sys
 from helpers import *
-from bodys import *
+from bodies import *
 
 def main_menu():
 
@@ -102,9 +102,11 @@ def play_human():
 
     logging.debug("a human is starting...")
     planets_in_motion = False
-    have_displayed_score = True
+    have_displayed_score = False
+    start_time = 0
+    cumulative_age = 0
     score = 0
-    logging.info(f"Score = {score}")
+    # logging.info(f"sum age = {cumulative_age}")
     # clock = pygame.time.Clock()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     running = True
@@ -122,7 +124,7 @@ def play_human():
     stars = [star]
 
     clicks = 0
-    logging.debug(f"clicks {clicks}")
+    logging.info(f"STARTING")
 
     while running:
 
@@ -142,18 +144,14 @@ def play_human():
         star.draw()
         CLICKED = False
 
-        # calculate the score
-
-        if all_planets_destroyed(planets) and planets_in_motion and have_displayed_score:
-            score = sum([pnt.age for pnt in planets])
-            logging.info(f"Final Score = {score}")
-            have_displayed_score = False
 
         # sun eats planets
         for pnt in planets:
             if euclidian_distance(star, pnt) <= star.r * 1.2:
-                # logging.info("yum")
+                # cumulative_age += pnt.age
+                logging.info(f"current cml: {cumulative_age}")
                 pnt.destroy(deathmsg="eaten by sun")
+
 
         # planet clash
         for pnt1 in planets:
@@ -163,18 +161,13 @@ def play_human():
                     # logging.info("collision")
                     n = np.random.randint(0, 2)
                     if n == 1:
+                        # cumulative_age += pnt.age
+                        logging.info(f"current cml: {cumulative_age}")
                         pnt1.destroy(deathmsg="multi-planet collision")
                     else:
+                        # cumulative_age += pnt.age
+                        logging.info(f"current cml: {cumulative_age}")
                         pnt2.destroy(deathmsg="multi-planet collision")
-
-
-        # for pnt in planets:
-        #     # l r
-        #     if (pnt.x <= pnt.r) or (pnt.x >= WIDTH):
-        #         pnt.destroy()
-        #     # t b
-        #     if (pnt.y <= pnt.r) or (pnt.y >= HEIGHT):
-        #         pnt.destroy()
 
         #########################
         #### CALCULATE FORCES ###
@@ -188,10 +181,14 @@ def play_human():
         ################################################
 
         # net force calculator for bodies
+
         # motion step 1
+        # set forces = 0 why?
         for body in (planets + stars):
             body.force = 0
             # setattr(body, "force", 0)
+
+        # calculate gravity
         for body1 in (planets + stars):
             for body2 in (planets + stars):
                 # if body not in stars:
@@ -199,14 +196,12 @@ def play_human():
                 if body1 != body2:
                     body1.force += law_of_gravitation(body2, body1)
 
-        #########################
-        #### MOVE PLANETS     ###
-        #########################
-
+        # move and draw planets
         for body in planets:
             if body.active:# and body.mass != 0:
                 body.draw()
                 body.move()
+
 
         # planet star collision
         # an event is some interaction with the engine. eg mouseclick
@@ -220,7 +215,6 @@ def play_human():
 
             # back to main menu
             if event.type == KEYDOWN and event.key == K_ESCAPE:
-                # pygame.display.set_caption("spooky outer space")
                 running = False
 
             # creating planets
@@ -243,20 +237,47 @@ def play_human():
                 logging.debug(f"clicks {clicks}")
                 planet3 = Planet(screen, mx, my, 10, [0, 0], [0, 0])
                 planets_in_motion = True
-
-                # planet1.active = True
-                # planet2.active = True
-                # planet3.active = True
+                start_time = current_time()
 
                 planets.append(planet1)
                 planets.append(planet2)
                 planets.append(planet3)
+
                 for pnt in planets:
                     pnt.active = True
 
             # example click code
             # if llbutton.collidepoint(mx, my) and CLICKED:
             #     print("example")
+
+        # calculate the score
+        # if all_planets_destroyed(planets) and planets_in_motion and not have_displayed_score and cumulative_age > 200:
+        #     # cumulative_age = sum([pnt.age for pnt in planets])
+        #     logging.info(f"Final Score = {(current_time() - start_time).__round__(2)}")
+        #     have_displayed_score = True
+        if not have_displayed_score and cumulative_age > 15:
+            # cumulative_age = sum([pnt.age for pnt in planets])
+            logging.info(f"Final Score = {current_time() - start_time}")
+
+            have_displayed_score = True
+
+
+
+        # off screen
+        for pnt in planets:
+            if ((pnt.x <= pnt.r) or (pnt.x >= WIDTH) or (pnt.y <= pnt.r) or (pnt.y >= HEIGHT)) and pnt.alive == True:
+                # cumulative_age += pnt.age
+                logging.info(f"current cml: {cumulative_age}")
+                pnt.destroy(deathmsg="blasting off again...")
+
+        # updating cml score
+        cumulative_age = sum([pnt.age for pnt in planets])
+
+        # ending game
+        # if all_planets_destroyed(planets) and planets_in_motion and not have_displayed_score:
+        #     logging.info(f"Final Score 1 = {score}")
+        #     pass
+
 
         # update the bg
         pygame.display.update()
@@ -436,7 +457,7 @@ if __name__ == '__main__':
     # l1 = logging.basicConfig(filename="logs.log", level=logging.DEBUG, format=fmt)
 
     # logging.basicConfig(filename="logs.log", level=logging.DEBUG, format=fmt)
-    logging.basicConfig(level=logging.DEBUG, format=fmt)
+    logging.basicConfig(level=logging.INFO, format=fmt)
     FPS = 144
     CLOCK = pygame.time.Clock()
 
