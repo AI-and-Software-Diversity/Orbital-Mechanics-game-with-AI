@@ -31,7 +31,7 @@ class Star:
 
 class Planet:
 
-    def __init__(self, screen, x, y, r, velocity, force, age=0):
+    def __init__(self, screen, x, y, r, velocity=[0, 0], force=[0, 0], age=0):
 
         logging.debug(f"initialising a planet")
         self.active = False
@@ -40,13 +40,13 @@ class Planet:
         self.x = x
         self.y = y
         self.r = r
-        # self. mass = 3.3e+24 * r
-        self. mass = r
+        self.mass = r
         self.velocity = velocity
         self.acceleration = force
         self.screen = screen
         self.force = force
-        self.momentum = [0.0001, 0]
+        # self.momentum = [0.0001, 0]
+        self.momentum = [0, 0]
         self.birthtime = current_time().__round__(2)
         self.age = (current_time() - self.birthtime).__round__(2)
         # surface, color, center, radius
@@ -101,7 +101,7 @@ class Planet:
         """
         destroy any planet that goes offscreen
         """
-        logging.debug(deathmsg)
+        logging.info(deathmsg)
 
         x, y = np.random.randint(200, 300), np.random.randint(200, 300)
         self.r, self.x, self.y, self.velocity, self.momentum, self.alive, self.mass = 0, -x, -y, [0, 0], [0, 0], False, 0

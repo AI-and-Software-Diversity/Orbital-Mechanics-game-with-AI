@@ -48,8 +48,8 @@ def main_menu():
 
         if llbutton.collidepoint(mx, my) and clicked:
             pygame.event.wait()
+            pygame.event.wait()
             play_human()
-            print("ll button")
 
         text_box("play (NEAT AI)", 10, screen, 2*WIDTH/5, 30 + HEIGHT / 2)
         pygame.draw.rect(screen, (255, 255, 255), lbutton)
@@ -113,17 +113,16 @@ def play_human():
 
     # setting up bg
     bg = pygame.image.load("../data/gamebg1.png")
-
     pygame.display.set_icon(bg)
 
     # menu buttons
     # (x, y), (l, w)
     star = Star(screen, WIDTH/2, HEIGHT/2, 40)
-
     planets = []
     stars = [star]
-
     clicks = 0
+
+    print("\n")
     logging.info(f"STARTING")
 
     while running:
@@ -132,7 +131,6 @@ def play_human():
         for pnt in planets:
             if pnt.alive:
                 pnt.age = (current_time() - pnt.birthtime).__round__(2)
-
 
         # logging.info(current_time_s)
         mx, my = pygame.mouse.get_pos()
@@ -144,7 +142,6 @@ def play_human():
         star.draw()
         CLICKED = False
 
-
         # sun eats planets
         for pnt in planets:
             if euclidian_distance(star, pnt) <= star.r * 1.2:
@@ -152,12 +149,10 @@ def play_human():
                 logging.info(f"current cml: {cumulative_age}")
                 pnt.destroy(deathmsg="eaten by sun")
 
-
         # planet clash
         for pnt1 in planets:
             for pnt2 in planets:
                 if euclidian_distance(pnt1, pnt2) < (pnt1.r * 2.3 or pnt2.r * 2.3) and pnt1 != pnt2:
-                    print("")
                     # logging.info("collision")
                     n = np.random.randint(0, 2)
                     if n == 1:
@@ -219,32 +214,65 @@ def play_human():
 
             # creating planets
 
-            if event.type == MOUSEBUTTONDOWN and event.button == 1:
+            if (event.type == MOUSEBUTTONDOWN or event.type == MOUSEBUTTONUP) and event.button == 1:
+                logging.info("*CLICK*")
                 CLICKED = True
 
+            ####################
+            # PLACING PLANETS ##
+            ####################
+            # pygame.event.wait()
+            #p1
             if event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 0:
-                clicks += 1
-                logging.debug(f"clicks {clicks}")
                 planet1 = Planet(screen, mx, my, 10, [0, 0], [0, 0])
+                prev_x, prev_y = mx, my
+                logging.info(f"P1 POS {mx, my}")
 
+            elif event.type == MOUSEBUTTONUP and event.button == 1 and clicks == 0:
+                clicks += 1
+                planet1_momentum = scale_vectors((prev_x, prev_y), (mx, my), 0.2)
+                logging.info(f"P1M: {planet1_momentum}")
+                setattr(planet1, "momentum", planet1_momentum)
+
+            #p2
             elif event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 1:
-                clicks += 1
-                logging.debug(f"clicks {clicks}")
                 planet2 = Planet(screen, mx, my, 10, [0, 0], [0, 0])
+                prev_x, prev_y = mx, my
+                logging.info(f"P2 POS {mx, my}")
 
-            elif event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 2:
+            elif event.type == MOUSEBUTTONUP and event.button == 1 and clicks == 1:
                 clicks += 1
-                logging.debug(f"clicks {clicks}")
+                planet2_momentum = scale_vectors((prev_x, prev_y), (mx, my), 0.2)
+                logging.info(f"P2M: {planet2_momentum}")
+                setattr(planet2, "momentum", planet2_momentum)
+
+            #p3
+            elif event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 2:
                 planet3 = Planet(screen, mx, my, 10, [0, 0], [0, 0])
+                prev_x, prev_y = mx, my
                 planets_in_motion = True
                 start_time = current_time()
+                logging.info(f"P3 POS {mx, my}")
 
                 planets.append(planet1)
                 planets.append(planet2)
                 planets.append(planet3)
 
+
+
+            elif event.type == MOUSEBUTTONUP and event.button == 1 and clicks == 2:
+                planet3_momentum = scale_vectors((prev_x, prev_y), (mx, my), 0.2)
+                logging.info(f"P3M: {planet3_momentum}")
+
+                setattr(planet3, "momentum", planet3_momentum)
                 for pnt in planets:
                     pnt.active = True
+                clicks += 1
+
+            ########################
+            # PLACING PLANETS END ##
+            ########################
+
 
             # example click code
             # if llbutton.collidepoint(mx, my) and CLICKED:
@@ -255,13 +283,12 @@ def play_human():
         #     # cumulative_age = sum([pnt.age for pnt in planets])
         #     logging.info(f"Final Score = {(current_time() - start_time).__round__(2)}")
         #     have_displayed_score = True
-        if not have_displayed_score and cumulative_age > 15:
+        if not have_displayed_score and cumulative_age > 200:
             # cumulative_age = sum([pnt.age for pnt in planets])
-            logging.info(f"Final Score = {current_time() - start_time}")
-
+            score = current_time() - start_time
+            logging.info(f"Final Score = {score}")
             have_displayed_score = True
-
-
+            running = False
 
         # off screen
         for pnt in planets:
@@ -274,10 +301,8 @@ def play_human():
         cumulative_age = sum([pnt.age for pnt in planets])
 
         # ending game
-        # if all_planets_destroyed(planets) and planets_in_motion and not have_displayed_score:
-        #     logging.info(f"Final Score 1 = {score}")
-        #     pass
-
+        if all_planets_destroyed(planets) and planets_in_motion and not have_displayed_score:
+            running = False
 
         # update the bg
         pygame.display.update()

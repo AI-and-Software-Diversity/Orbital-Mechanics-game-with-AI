@@ -82,5 +82,16 @@ def all_planets_destroyed(pnts):
         return True
     return False
 
+def scale_vectors(vec1, vec2, factor):
+    """
+    :param vec1: The initial vector (point in space)
+    :param vec2: The seconds vector (point in space)
+    :return factor: The scaled difference between them (route from vex 2 to vec 1)
+    """
+    resultant_vec = (np.array(vec1) - np.array(vec2)) / 500000
+
+
+    return (resultant_vec) * factor
+
 if __name__ == '__main__':
     pass
