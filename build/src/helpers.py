@@ -3,24 +3,12 @@ import pygame
 import logging
 import time
 
-class tester:
-
-    def test1(self):
-        return 2
-
-    def test2(self):
-        return 3
-
-
-
-
-
 def euclidian_distance(body1, body2):
-
 
     distance = np.abs(np.linalg.norm(
         np.array([body1.x, body1.y]) - np.array([body2.x, body2.y])
     ))
+
     return distance
 
 def text_box(str, font, screen, x, y):
@@ -74,7 +62,7 @@ def law_of_gravitation(body1, body2):
         return 0
 
 def current_time():
-    # return time.time().real.__round__(2)
+    # return time.time().real
     return round(time.time().real, 2)
 
 def all_planets_destroyed(pnts):
