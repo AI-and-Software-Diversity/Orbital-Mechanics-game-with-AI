@@ -34,6 +34,7 @@ def main_menu():
     mbutton = pygame.Rect((3*WIDTH/5, HEIGHT / 2), (30, 10))
     rbutton = pygame.Rect((4*WIDTH/5, HEIGHT / 2), (30, 10))
 
+    clicked = None
     while True:
 
         mx, my = pygame.mouse.get_pos()
@@ -48,28 +49,38 @@ def main_menu():
 
         if llbutton.collidepoint(mx, my) and clicked:
             pygame.event.wait()
-            pygame.event.wait()
-            play_human()
+            # pygame.event.wait()
+            # level_1_human()
+            # pygame.event.wait()
+            menu_template(level_1_human, non_created_yet, non_created_yet, non_created_yet)
 
         text_box("play (NEAT AI)", 10, screen, 2*WIDTH/5, 30 + HEIGHT / 2)
         pygame.draw.rect(screen, (255, 255, 255), lbutton)
         if lbutton.collidepoint(mx, my) and clicked:
-            play_NEAT()
+            pygame.event.wait()
+            menu_template(non_created_yet, non_created_yet, non_created_yet, non_created_yet)
+            # play_NEAT()
             print("l button")
 
         text_box("play (RLearn AI)", 10, screen, 3*WIDTH/5, 30 + HEIGHT / 2)
         pygame.draw.rect(screen, (255, 255, 255), mbutton)
         # print("playin")
         if mbutton.collidepoint(mx, my) and clicked:
-            print("m button")
-            play_r_learning()
+            pygame.event.wait()
+            menu_template(non_created_yet, non_created_yet, non_created_yet, non_created_yet)
+            # print("m button")
+            # play_r_learning()
 
         text_box("highscores", 10, screen, 4*WIDTH/5, 30 + HEIGHT / 2)
         pygame.draw.rect(screen, (255, 255, 255), rbutton)
+
+        # pygame.event.poll()
         if rbutton.collidepoint(mx, my) and clicked:
-            menu_template()
+            pygame.event.wait()
+            menu_template(non_created_yet, non_created_yet, non_created_yet, non_created_yet)
 
         clicked = False
+
         # an event is some interaction with the engine. eg mouseclick
         for event in pygame.event.get():
             # print("test")
@@ -94,9 +105,7 @@ def main_menu():
 
         CLOCK.tick(FPS)
 
-
-
-def play_human():
+def level_1_human():
 
     """
     Play the game (for humans)
@@ -285,7 +294,7 @@ def play_human():
         #     # cumulative_age = sum([pnt.age for pnt in planets])
         #     logging.info(f"Final Score = {(current_time() - start_time).__round__(2)}")
         #     have_displayed_score = True
-        if not have_displayed_score and cumulative_age > 200:
+        if not have_displayed_score and cumulative_age > 20:
             # cumulative_age = sum([pnt.age for pnt in planets])
             score = current_time() - start_time
             logging.info(f"Final Score = {score}")
@@ -316,6 +325,7 @@ def play_NEAT():
 
 def play_r_learning():
     pass
+
 # human player
 def human_template():
 
@@ -732,8 +742,7 @@ def ai_template():
 
         CLOCK.tick(FPS)
 
-def menu_template():
-
+def menu_template(function_1, function_2, function_3, function_4):
 
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     running = True
@@ -756,27 +765,36 @@ def menu_template():
 
         # TITLE AND BUTTONS
 
-        text_box("WIP", 50, screen, -200 + (WIDTH / 2), -200 + (HEIGHT / 2))
+        text_box("Level Selector", 50, screen, -350 + (WIDTH / 2), -200 + (HEIGHT / 2))
 
-        text_box("PLACEHOLDER 1", 10, screen, WIDTH / 5, 30 + HEIGHT / 2)
+        text_box("LEVEL 1", 10, screen, WIDTH / 5, 30 + HEIGHT / 2)
         pygame.draw.rect(screen, (255, 255, 255), llbutton)
 
         if llbutton.collidepoint(mx, my) and clicked:
+            pygame.event.wait()
+            function_1()
             logging.debug("llbutton")
 
-        text_box("PLACEHOLDER 2", 10, screen, 2 * WIDTH / 5, 30 + HEIGHT / 2)
+        text_box("LEVEL 2", 10, screen, 2 * WIDTH / 5, 30 + HEIGHT / 2)
         pygame.draw.rect(screen, (255, 255, 255), lbutton)
         if lbutton.collidepoint(mx, my) and clicked:
+            pygame.event.wait()
+            function_2()
             logging.debug("lbutton")
 
-        text_box("PLACEHOLDER 3", 10, screen, 3 * WIDTH / 5, 30 + HEIGHT / 2)
+        text_box("LEVEL 3", 10, screen, 3 * WIDTH / 5, 30 + HEIGHT / 2)
         pygame.draw.rect(screen, (255, 255, 255), rbutton)
         if rbutton.collidepoint(mx, my) and clicked:
+            pygame.event.wait()
+            function_3()
             logging.debug("rbutton")
 
-        text_box("PLACEHOLDER 4", 10, screen, 4 * WIDTH / 5, 30 + HEIGHT / 2)
+        text_box("LEVEL 4", 10, screen, 4 * WIDTH / 5, 30 + HEIGHT / 2)
         pygame.draw.rect(screen, (255, 255, 255), rrbutton)
         if rrbutton.collidepoint(mx, my) and clicked:
+            # if at start first event is clicking the button, we enter this thing and bug out
+            pygame.event.wait()
+            function_4()
             logging.debug("rrbutton")
 
         clicked = False
