@@ -73,7 +73,7 @@ def play_human():
 
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     running = True
-    bg = pygame.image.load("../data/gamebg1.png")
+    bg = pygame.image.load("../assets/gamebg1.png")
     pygame.display.set_icon(bg)
     star = Star(screen, WIDTH/2, HEIGHT/2, 40)
     planet1exists = False

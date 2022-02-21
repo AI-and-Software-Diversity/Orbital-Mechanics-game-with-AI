@@ -25,8 +25,8 @@ class Star:
 
     def draw(self):
         pygame.draw.circle(self.screen, (39, 176, 144), (self.x, self.y), self.r)
-        # screen.blit(pygame.image.load("../data/s10.png"), (self.x, self.y))
-        # pygame.image.load("../data/sun1.png")
+        # screen.blit(pygame.image.load("../assets/s10.png"), (self.x, self.y))
+        # pygame.image.load("../assets/sun1.png")
         # screen.blit(screen, (self.x,self.y))
 
 class Planet:
@@ -36,7 +36,7 @@ class Planet:
         logging.debug(f"initialising a planet")
         self.active = False
         self.alive = True
-        self.dt = 0.000001 # step size
+        self.dt = 0.000001 # step size = 0.000001
         self.x = x
         self.y = y
         self.r = r
@@ -75,8 +75,6 @@ class Planet:
         # done already in game loop
 
         # Then update momentum using the force*stepsize
-        # print("self.momentum:  {}".format(self.momentum))
-        # print("self.force:  {}".format(self.force))
         if self.mass != 0:
             self.momentum[0] = self.momentum[0] + self.force[0] * self.dt
             self.momentum[1] = self.momentum[1] + self.force[1] * self.dt
@@ -85,13 +83,6 @@ class Planet:
             self.x = self.x + self.momentum[0] / (self.mass * self.dt)
             self.y = self.y + self.momentum[1] / (self.mass * self.dt)
 
-
-            # l r t b
-            # if ((self.x <= self.r) or (self.x >= WIDTH)) and np.linalg.norm(self.velocity) == 0:
-            # if ((self.x <= self.r) or (self.x >= WIDTH) or (self.y <= self.r) or (self.y >= HEIGHT)) and np.linalg.norm(self.velocity) == 0 and self.alive == True:
-            # if ((self.x <= self.r) or (self.x >= WIDTH) or (self.y <= self.r) or (self.y >= HEIGHT)) and self.alive == True:
-            #     # cumulative_age += pnt.age
-            #     self.destroy(deathmsg="blasting off again...")
 
         # print("Pos:  {},{}".format(self.x, self.y))
         # print("Accl:  {},{}".format(self.acceleration[0], self.acceleration[1]))

@@ -23,7 +23,7 @@ def main_menu():
     pygame.display.set_caption("spooky outer space")
 
     # setting up bg
-    bg = pygame.image.load("../data/gamebg1.png")
+    bg = pygame.image.load("../assets/gamebg1.png")
     pygame.display.set_icon(bg)
 
     # menu buttons
@@ -42,7 +42,7 @@ def main_menu():
         # setting up backup background as well as image bg
         screen.blit(bg, (0, 0))
 
-        text_box("main menu", 50, screen, -200 + (WIDTH/2), -200+(HEIGHT/2))
+        text_box("main menu", 50, screen, -200 + (WIDTH/2), -200 + (HEIGHT/2))
 
         text_box("play (human)", 10, screen, WIDTH/5, 30 + HEIGHT / 2)
         pygame.draw.rect(screen, (255, 255, 255), llbutton)
@@ -123,7 +123,7 @@ def level_1_human():
     running = True
 
     # setting up bg
-    bg = pygame.image.load("../data/gamebg1.png")
+    bg = pygame.image.load("../assets/gamebg1.png")
     pygame.display.set_icon(bg)
 
     # menu buttons
@@ -235,31 +235,34 @@ def level_1_human():
             # pygame.event.wait()
             #p1
             if event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 0:
-                planet1 = Planet(screen, mx, my, 10, [0, 0], [0, 0])
+                clicks += 1
+                planet1 = Planet(screen, mx, my, 10)
                 prev_x, prev_y = mx, my
                 logging.info(f"P1 POS {mx, my}")
 
-            elif event.type == MOUSEBUTTONUP and event.button == 1 and clicks == 0:
+            elif event.type == MOUSEBUTTONUP and event.button == 1 and clicks == 1:
                 clicks += 1
                 planet1_momentum = scale_vectors((prev_x, prev_y), (mx, my), 0.2)
                 logging.info(f"P1M: {planet1_momentum}")
                 setattr(planet1, "momentum", planet1_momentum)
 
             #p2
-            elif event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 1:
-                planet2 = Planet(screen, mx, my, 10, [0, 0], [0, 0])
+            elif event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 2:
+                clicks += 1
+                planet2 = Planet(screen, mx, my, 10)
                 prev_x, prev_y = mx, my
                 logging.info(f"P2 POS {mx, my}")
 
-            elif event.type == MOUSEBUTTONUP and event.button == 1 and clicks == 1:
+            elif event.type == MOUSEBUTTONUP and event.button == 1 and clicks == 3:
                 clicks += 1
                 planet2_momentum = scale_vectors((prev_x, prev_y), (mx, my), 0.2)
                 logging.info(f"P2M: {planet2_momentum}")
                 setattr(planet2, "momentum", planet2_momentum)
 
             #p3
-            elif event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 2:
-                planet3 = Planet(screen, mx, my, 10, [0, 0], [0, 0])
+            elif event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 4:
+                clicks += 1
+                planet3 = Planet(screen, mx, my, 10)
                 prev_x, prev_y = mx, my
                 planets_in_motion = True
                 start_time = current_time()
@@ -271,7 +274,7 @@ def level_1_human():
 
 
 
-            elif event.type == MOUSEBUTTONUP and event.button == 1 and clicks == 2:
+            elif event.type == MOUSEBUTTONUP and event.button == 1 and clicks == 5:
                 planet3_momentum = scale_vectors((prev_x, prev_y), (mx, my), 0.2)
                 logging.info(f"P3M: {planet3_momentum}")
 
@@ -339,7 +342,7 @@ def human_template():
     running = True
 
     # setting up bg
-    bg = pygame.image.load("../data/gamebg1.png")
+    bg = pygame.image.load("../assets/gamebg1.png")
     pygame.display.set_icon(bg)
 
     # menu buttons
@@ -449,7 +452,8 @@ def human_template():
             ####################
             # p1
             if event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 0:
-                planet1 = Planet(screen, mx, my, 10, [0, 0], [0, 0])
+                # planet1 = Planet(screen, mx, my, 10, [0, 0], [0, 0])
+                planet1 = Planet(screen, mx, my, 10)
                 prev_x, prev_y = mx, my
                 logging.info(f"P1 POS {mx, my}")
 
@@ -461,7 +465,7 @@ def human_template():
 
             # p2
             elif event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 1:
-                planet2 = Planet(screen, mx, my, 10, [0, 0], [0, 0])
+                planet2 = Planet(screen, mx, my, 10)
                 prev_x, prev_y = mx, my
                 logging.info(f"P2 POS {mx, my}")
 
@@ -473,7 +477,7 @@ def human_template():
 
             # p3
             elif event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 2:
-                planet3 = Planet(screen, mx, my, 10, [0, 0], [0, 0])
+                planet3 = Planet(screen, mx, my, 10)
                 prev_x, prev_y = mx, my
                 planets_in_motion = True
                 start_time = current_time()
@@ -547,7 +551,7 @@ def ai_template():
     running = True
 
     # setting up bg
-    bg = pygame.image.load("../data/gamebg1.png")
+    bg = pygame.image.load("../assets/gamebg1.png")
     pygame.display.set_icon(bg)
 
     # menu buttons
@@ -657,7 +661,7 @@ def ai_template():
             ####################
             # p1
             if event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 0:
-                planet1 = Planet(screen, mx, my, 10, [0, 0], [0, 0])
+                planet1 = Planet(screen, mx, my, 10)
                 prev_x, prev_y = mx, my
                 logging.info(f"P1 POS {mx, my}")
 
@@ -669,7 +673,7 @@ def ai_template():
 
             # p2
             elif event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 1:
-                planet2 = Planet(screen, mx, my, 10, [0, 0], [0, 0])
+                planet2 = Planet(screen, mx, my, 10)
                 prev_x, prev_y = mx, my
                 logging.info(f"P2 POS {mx, my}")
 
@@ -681,7 +685,7 @@ def ai_template():
 
             # p3
             elif event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 2:
-                planet3 = Planet(screen, mx, my, 10, [0, 0], [0, 0])
+                planet3 = Planet(screen, mx, my, 10)
                 prev_x, prev_y = mx, my
                 planets_in_motion = True
                 start_time = current_time()
@@ -748,7 +752,7 @@ def menu_template(function_1, function_2, function_3, function_4):
     running = True
 
     # setting up bg
-    bg = pygame.image.load("../data/gamebg1.png")
+    bg = pygame.image.load("../assets/gamebg1.png")
     pygame.display.set_icon(bg)
 
     # menu buttons

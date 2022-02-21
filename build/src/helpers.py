@@ -23,7 +23,7 @@ def text_box(str, font, screen, x, y):
     :return:
     """
 
-    font = pygame.font.Font('../data/fonts/PressStart2P-vaV7.ttf', font)
+    font = pygame.font.Font('../assets/fonts/PressStart2P-vaV7.ttf', font)
     text = font.render(str, True, (255,255,255))
     screen.blit(text, (x, y))
 
