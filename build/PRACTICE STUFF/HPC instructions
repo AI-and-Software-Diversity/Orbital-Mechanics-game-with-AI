@@ -1,0 +1,28 @@
+# CONNECT TO THE VPN!!!!!!!!!!!
+
+
+    # To connect a host terminal
+ssh -N username@hpc-jump00.city.ac.uk -L 2000:hyperion.city.ac.uk:22
+    # To connect a client terminal (With host open)
+ssh -p2000 username@localhost
+    # So
+ssh -N adbg285@hpc-jump00.city.ac.uk -L 2000:hyperion.city.ac.uk:22
+ssh -p2000 adbg285@localhost
+
+
+    # Libraries
+pip3 install --proxy http://hpc-proxy00.city.ac.uk:3128 --user LIBRARY
+    # eg
+pip3 install --proxy http://hpc-proxy00.city.ac.uk:3128 --user tensorflow
+pip3 install --proxy http://hpc-proxy00.city.ac.uk:3128 --user stable-baselines3
+pip3 install --proxy http://hpc-proxy00.city.ac.uk:3128 --user gym
+
+
+    # Job setup instructions
+sbatch slurmsetup.sh
+sbatch setup1.sh
+
+    # Enabling git
+git config --global http.proxy http://hpc-proxy00.city.ac.uk:3128
+    # Then
+git clone https://github.com/AI-and-Software-Diversity/Orbital-Mechanics-game-with-AI.git
