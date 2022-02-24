@@ -836,7 +836,14 @@ def menu_template(function_1, function_2, function_3, function_4):
 WIDTH = 1400
 HEIGHT = 800
 
+def getHeight():
+    return HEIGHT
+
+def getWidth():
+    return WIDTH
+
 if __name__ == '__main__':
+
 
     fmt = '[%(levelname)s] %(asctime)s - %(message)s '
     # l1 = logging.basicConfig(filename="logs.log", level=logging.DEBUG, format=fmt)
