@@ -771,7 +771,9 @@ def menu_template(function_1, function_2, function_3, function_4):
     lbutton = pygame.Rect((2*WIDTH/5, HEIGHT / 2), (30, 10))
     rbutton = pygame.Rect((3*WIDTH/5, HEIGHT / 2), (30, 10))
     rrbutton = pygame.Rect((4*WIDTH/5, HEIGHT / 2), (30, 10))
-    # clicked = None
+
+    clicked = None
+
     while running:
 
         mx, my = pygame.mouse.get_pos()

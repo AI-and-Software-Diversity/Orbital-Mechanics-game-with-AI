@@ -64,14 +64,14 @@ class CustomEnv(gym.Env):
                 if euclidian_distance(self.star, pnt) <= self.star.r * 1.2:
                     # cumulative_age += pnt.age
                     pnt.destroy(deathmsg="eaten by sun")
-                    self.reward -= 10
+                    self.reward -= 50
 
             # planet clash
             for pnt1 in self.planets:
                 for pnt2 in self.planets:
                     if euclidian_distance(pnt1, pnt2) < (pnt1.r * 2.3 or pnt2.r * 2.3) and pnt1 != pnt2:
                         n = np.random.randint(0, 2)
-                        self.reward -= 10
+                        self.reward -= 50
                         if n == 1:
                             # cumulative_age += pnt.age
                             pnt1.destroy(deathmsg="multi-planet collision")
@@ -117,13 +117,26 @@ class CustomEnv(gym.Env):
 
             if self.started == 0:
 
-                self.planet1 = Planet(self.screen, np.abs(action[0]) * getWidth(), np.abs(action[1]) * getHeight(), 10)
-                self.planet2 = Planet(self.screen, np.abs(action[2]) * getWidth(), np.abs(action[3]) * getHeight(), 10)
-                self.planet3 = Planet(self.screen, np.abs(action[4]) * getWidth(), np.abs(action[5]) * getHeight(), 10)
+                self.position_scalar = 0.95
 
-                self.planet1_momentum = np.array(action[6], action[7])
-                self.planet2_momentum = np.array(action[8], action[9])
-                self.planet3_momentum = np.array(action[10], action[11])
+                self.planet1 = Planet(self.screen, self.position_scalar * np.abs(action[0]) * getWidth(), self.position_scalar * np.abs(action[1]) * getHeight(), 10)
+                logging.info(f"P1POS:{self.position_scalar * np.abs(action[0]) * getWidth(), self.position_scalar * np.abs(action[1]) * getHeight()}")
+
+                self.planet2 = Planet(self.screen, self.position_scalar * np.abs(action[2]) * getWidth(), self.position_scalar * np.abs(action[3]) * getHeight(), 10)
+                logging.info(f"P2POS:{self.position_scalar * np.abs(action[2]) * getWidth(), self.position_scalar * np.abs(action[3]) * getHeight()}")
+
+                self.planet3 = Planet(self.screen, self.position_scalar * np.abs(action[4]) * getWidth(), self.position_scalar * np.abs(action[5]) * getHeight(), 10)
+                logging.info(f"P3POS:{self.position_scalar * np.abs(action[4]) * getWidth(), self.position_scalar * np.abs(action[5]) * getHeight()}")
+
+                self.momentum_scalar = 0.05
+                self.planet1_momentum = np.array(action[6] * self.momentum_scalar, action[7] * self.momentum_scalar)
+                logging.info(f"P1M:{action[6] * self.momentum_scalar, action[7] * self.momentum_scalar}")
+
+                self.planet2_momentum = np.array(action[8] * self.momentum_scalar, action[9] * self.momentum_scalar)
+                logging.info(f"P2M:{action[8] * self.momentum_scalar, action[9] * self.momentum_scalar}")
+
+                self.planet3_momentum = np.array(action[10] * self.momentum_scalar, action[11] * self.momentum_scalar)
+                logging.info(f"P3M:{action[10] * self.momentum_scalar, action[11] * self.momentum_scalar}")
 
                 # Using Tuples, but doesnt work...
                 # self.planet1 = Planet(self.screen, action[1][0], action[2][0], 10)
@@ -232,29 +245,31 @@ class CustomEnv(gym.Env):
                 # cumulative_age = sum([pnt.age for pnt in planets])
                 self.score = current_time() - self.start_time
                 self.have_displayed_score = True
-                self.reward += 100
-                self.done = True
+                self.reward += 300
                 self.running = False
+                print(self.reward)
+                self.done = True
 
             # off screen
             for pnt in self.planets:
                 if ((pnt.x <= pnt.r) or (pnt.x >= getWidth()) or (pnt.y <= pnt.r) or (
                         pnt.y >= getHeight())) and pnt.alive == True:
                     # cumulative_age += pnt.age
-                    self.reward -= 10
+                    self.reward -= 50
                     pnt.destroy(deathmsg="blasting off again...")
 
             # updating cml score
             self.cumulative_age = sum([pnt.age for pnt in self.planets])
-            self.reward += self.cumulative_age / 10
+            self.reward += self.cumulative_age
 
             # ending game (failure)
             if all_planets_destroyed(self.planets) and self.planets_in_motion and not self.have_displayed_score:
                 logging.debug("failure")
                 self.running = False
-                self.done = True
+                self.reward -= 150
                 self.running = False
-                self.reward -= 100
+                print(self.reward)
+                self.done = True
 
             # update the bg
             pygame.display.update()
@@ -310,7 +325,7 @@ fmt = '[%(levelname)s] %(asctime)s - %(message)s '
 # l1 = logging.basicConfig(filename="logs.log", level=logging.DEBUG, format=fmt)
 
 # logging.basicConfig(filename="logs.log", level=logging.DEBUG, format=fmt)
-logging.basicConfig(level=logging.DEBUG, format=fmt)
+logging.basicConfig(level=logging.INFO, format=fmt)
 
 #################
 # TESTING START #
@@ -358,28 +373,29 @@ from stable_baselines3 import *
 """
 Remember to reference Sentdex and documentation here (stable_baselines3, gym)
 """
+
 start_time = time.time().real
 env = CustomEnv()
 
-filepath="TESTCALLBACK"
+import tensorflow as tf
+
+from stable_baselines3.common.callbacks import BaseCallback
+
+filepath="prev_trained_models"
 cb = ModelCheckpoint(filepath, monitor='accuracy')
 
 #################
 # Train a model #
 #################
-print("======")
 
-# MlpPolicy, MultiInputPolicy
+model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=filepath)
 
-model = PPO("MlpPolicy", env, verbose=0)
-# model = PPO("MultiInputPolicy", env, verbose=1)
-steps = 10_000
-print("======")
+# steps = 30_000
+steps = 1
+
 for i in range(3):
     model.learn(total_timesteps=steps)
-    if i % 1 == 0:
-        print(f"{steps*i} steps")
-        # model.save(f"{filepath}/model{time.time().__round__(0)}")
+    model.save(f"{filepath}/{time.strftime('%d%m%Y')}/model-{time.strftime('%X')}-{(1 + i) * steps}")
 
 ###################################
 # load a previously trained model #
