@@ -3,6 +3,10 @@ import time
 from tensorflow.keras.callbacks import ModelCheckpoint
 from stable_baselines3 import PPO, A2C
 
+"""
+Remember to reference Sentdex and documentation here (stable_baselines3, gym)
+"""
+
 start_time = time.time().real
 env = gym.make("CartPole-v1")
 filepath="TESTCALLBACK"

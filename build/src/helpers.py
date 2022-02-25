@@ -11,7 +11,7 @@ def euclidian_distance(body1, body2):
 
     return distance
 
-def text_box(str, font, screen, x, y):
+def text_box(str, font_size, screen, x, y):
     """
     https://www.fontspace.com/press-start-2p-font-f11591
 
@@ -23,7 +23,7 @@ def text_box(str, font, screen, x, y):
     :return:
     """
 
-    font = pygame.font.Font('../assets/fonts/PressStart2P-vaV7.ttf', font)
+    font = pygame.font.Font('../assets/fonts/PressStart2P-vaV7.ttf', font_size)
     text = font.render(str, True, (255,255,255))
     screen.blit(text, (x, y))
 

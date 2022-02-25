@@ -58,7 +58,7 @@ class Planet:
         """
         # print("drawing a planet")
         # text_box(f"{self.age}", 10, self.screen, self.x+10, self.y+10)
-        text_box(f"{self.age}", 10, self.screen, self.x+10, self.y+10)
+        # text_box(f"{self.age}", 10, self.screen, self.x+10, self.y+10)
 
         pygame.draw.circle(self.screen, (self.rd, self.gn, self.bu), (self.x, self.y), self.r)
 

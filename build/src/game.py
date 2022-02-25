@@ -13,7 +13,6 @@ def main_menu():
     https://www.youtube.com/watch?v=0RryiSjpJn0
     used to help implement main menus
     """
-
     pygame.init()
 
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -35,7 +34,17 @@ def main_menu():
     rbutton = pygame.Rect((4*WIDTH/5, HEIGHT / 2), (30, 10))
 
     clicked = None
+    frame_count = 0
+
+    test_time = time.time().real
     while True:
+
+        if frame_count == FPS:
+            frame_count = 0
+            print()
+        else:
+            frame_count += 1
+
 
         mx, my = pygame.mouse.get_pos()
 
@@ -60,7 +69,6 @@ def main_menu():
             pygame.event.wait()
             menu_template(non_created_yet, non_created_yet, non_created_yet, non_created_yet)
             # play_NEAT()
-            print("l button")
 
         text_box("play (RLearn AI)", 10, screen, 3*WIDTH/5, 30 + HEIGHT / 2)
         pygame.draw.rect(screen, (255, 255, 255), mbutton)
@@ -316,6 +324,8 @@ def level_1_human():
 
         # ending game
         if all_planets_destroyed(planets) and planets_in_motion and not have_displayed_score:
+            print("failure")
+
             running = False
 
         # update the bg
@@ -761,7 +771,7 @@ def menu_template(function_1, function_2, function_3, function_4):
     lbutton = pygame.Rect((2*WIDTH/5, HEIGHT / 2), (30, 10))
     rbutton = pygame.Rect((3*WIDTH/5, HEIGHT / 2), (30, 10))
     rrbutton = pygame.Rect((4*WIDTH/5, HEIGHT / 2), (30, 10))
-
+    # clicked = None
     while running:
 
         mx, my = pygame.mouse.get_pos()
