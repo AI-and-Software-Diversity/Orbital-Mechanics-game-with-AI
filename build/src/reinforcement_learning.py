@@ -1,6 +1,4 @@
 import gym
-import p3 as p3
-import started as started
 from gym import spaces
 # import numpy as np
 from gym.spaces import Box, Discrete
@@ -128,15 +126,18 @@ class CustomEnv(gym.Env):
                 self.planet3 = Planet(self.screen, self.position_scalar * np.abs(action[4]) * getWidth(), self.position_scalar * np.abs(action[5]) * getHeight(), 10)
                 logging.info(f"P3POS:{self.position_scalar * np.abs(action[4]) * getWidth(), self.position_scalar * np.abs(action[5]) * getHeight()}")
 
-                self.momentum_scalar = 0.05
-                self.planet1_momentum = np.array(action[6] * self.momentum_scalar, action[7] * self.momentum_scalar)
+                self.momentum_scalar = 0.0001
+                self.planet1_momentum = np.array([action[6] * self.momentum_scalar, action[7] * self.momentum_scalar])
                 logging.info(f"P1M:{action[6] * self.momentum_scalar, action[7] * self.momentum_scalar}")
+                setattr(self.planet1, "momentum", self.planet1_momentum)
 
-                self.planet2_momentum = np.array(action[8] * self.momentum_scalar, action[9] * self.momentum_scalar)
+                self.planet2_momentum = np.array([action[8] * self.momentum_scalar, action[9] * self.momentum_scalar])
                 logging.info(f"P2M:{action[8] * self.momentum_scalar, action[9] * self.momentum_scalar}")
+                setattr(self.planet2, "momentum", self.planet2_momentum)
 
-                self.planet3_momentum = np.array(action[10] * self.momentum_scalar, action[11] * self.momentum_scalar)
+                self.planet3_momentum = np.array([action[10] * self.momentum_scalar, action[11] * self.momentum_scalar])
                 logging.info(f"P3M:{action[10] * self.momentum_scalar, action[11] * self.momentum_scalar}")
+                setattr(self.planet3, "momentum", self.planet3_momentum)
 
                 # Using Tuples, but doesnt work...
                 # self.planet1 = Planet(self.screen, action[1][0], action[2][0], 10)
