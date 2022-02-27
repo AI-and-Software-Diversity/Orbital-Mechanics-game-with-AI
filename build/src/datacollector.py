@@ -11,3 +11,19 @@ class Collector:
 
         """
         pass
+
+
+class DataGenrator:
+
+    def __init__(self, WIDTH, HEIGHT, *args, **kwargs):
+        self.WIDTH = WIDTH
+        self.HEIGHT = HEIGHT
+        self.args = args
+        self.kwargs = kwargs
+
+
+
+    def getWidth(self):
+        return self.WIDTH
+
+    # ...

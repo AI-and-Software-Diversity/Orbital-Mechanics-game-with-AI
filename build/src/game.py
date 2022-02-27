@@ -865,5 +865,6 @@ if __name__ == '__main__':
     FPS = 144
     CLOCK = pygame.time.Clock()
 
+
     main_menu()
 

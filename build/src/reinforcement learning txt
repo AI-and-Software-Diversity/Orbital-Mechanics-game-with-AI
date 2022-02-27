@@ -1,0 +1,23 @@
+Observation Space (What does the agent need to know?)
+=====================================================
+How large the screen is.
+Where the other planets will be released from.
+The velocity that other planets will be projected in.
+What the mass of the sun and other planets will.
+
+Action Space(What should the agent be able to do?)
+==================================================
+Fire the planets in any direction with any momentum (Within a preset range).
+
+When to reward the agent?
+========================
+An increasing amount proportional to the length of time of the run.
+A large amount if it survives the whole run (Proportional to how many bodies survive).
+
+When to punish the agent?
+=========================
+If it fails to survive the entire run.
+If a planet dies:
+    offscreen.
+    2-planet crash.
+    planet-star crash.

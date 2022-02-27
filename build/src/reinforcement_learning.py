@@ -1,4 +1,7 @@
 import gym
+import planets as planets
+import self as self
+import torch
 from gym import spaces
 # import numpy as np
 from gym.spaces import Box, Discrete
@@ -31,9 +34,9 @@ class CustomEnv(gym.Env):
 
 
         # The things that the model knows before input
-        # For now,  star x/y pos, window h/w
-        N_DISCRETE_ACTIONS = 4
-        self.observation_space = spaces.Box(low=0, high=getWidth(), shape=(N_DISCRETE_ACTIONS,), dtype=np.float32)
+        # For now,  star x/y pos, p1 x/y pos, p2 x/y pos, p3 x/y pos, p1m, p2m, p3m
+        N_DISCRETE_ACTIONS = 16
+        self.observation_space = spaces.Box(low=0, high=getWidth(), shape=(N_DISCRETE_ACTIONS,))
 
         # This may get very complicated in future
 
@@ -42,6 +45,9 @@ class CustomEnv(gym.Env):
         self.started = 0
 
         while self.running:
+
+
+
 
             # set the age of each planet that is "active"
             for pnt in self.planets:
@@ -57,14 +63,14 @@ class CustomEnv(gym.Env):
             self.star.draw()
             self.CLICKED = False
 
-            # sun eats planets
+            # handle star-planet crash
             for pnt in self.planets:
                 if euclidian_distance(self.star, pnt) <= self.star.r * 1.2:
                     # cumulative_age += pnt.age
                     pnt.destroy(deathmsg="eaten by sun")
-                    self.reward -= 50
+                    self.reward -= 40
 
-            # planet clash
+            # handle planet-planet crash
             for pnt1 in self.planets:
                 for pnt2 in self.planets:
                     if euclidian_distance(pnt1, pnt2) < (pnt1.r * 2.3 or pnt2.r * 2.3) and pnt1 != pnt2:
@@ -110,9 +116,7 @@ class CustomEnv(gym.Env):
                     body.draw()
                     body.move()
 
-
-            #setup actions...
-
+            #setup actions of the agent
             if self.started == 0:
 
                 self.position_scalar = 0.95
@@ -126,7 +130,8 @@ class CustomEnv(gym.Env):
                 self.planet3 = Planet(self.screen, self.position_scalar * np.abs(action[4]) * getWidth(), self.position_scalar * np.abs(action[5]) * getHeight(), 10)
                 logging.info(f"P3POS:{self.position_scalar * np.abs(action[4]) * getWidth(), self.position_scalar * np.abs(action[5]) * getHeight()}")
 
-                self.momentum_scalar = 0.0001
+                # self.momentum_scalar = 0.0001
+                self.momentum_scalar = 0.00005
                 self.planet1_momentum = np.array([action[6] * self.momentum_scalar, action[7] * self.momentum_scalar])
                 logging.info(f"P1M:{action[6] * self.momentum_scalar, action[7] * self.momentum_scalar}")
                 setattr(self.planet1, "momentum", self.planet1_momentum)
@@ -161,92 +166,14 @@ class CustomEnv(gym.Env):
                 self.start_time = current_time()
                 self.planets_in_motion = True
                 self.started += 1
-            # planet star collision
-            # an event is some interaction with the engine. eg mouseclick
-            # for event in pygame.event.get():
-            #     # BUG: the window launches, and the event loop is entered after the first mousedown. Then
-            #
-            #     # quit logic
-            #     if event.type == pygame.QUIT:
-            #         pygame.quit()
-            #         sys.exit()
-            #
-            #     # back to main menu
-            #     if event.type == KEYDOWN and event.key == K_ESCAPE:
-            #         self.running = False
-            #
-            #     # creating planets
-            #
-            #     if (event.type == MOUSEBUTTONDOWN or event.type == MOUSEBUTTONUP) and event.button == 1:
-            #         self.CLICKED = True
-            #
-            #     ####################
-            #     # PLACING PLANETS ##
-            #     ####################
-            #     # pygame.event.wait()
-            #     # p1
-            #     if event.type == MOUSEBUTTONDOWN and event.button == 1 and self.clicks == 0:
-            #         self.clicks += 1
-            #         self.planet1 = Planet(self.screen, self.mx, self.my, 10)
-            #         self.prev_x, self.prev_y = self.mx, self.my
-            #
-            #     elif event.type == MOUSEBUTTONUP and event.button == 1 and self.clicks == 1:
-            #         self.clicks += 1
-            #         self.planet1_momentum = np.array(action[0][1])
-            #         setattr(self.planet1, "momentum", self.planet1_momentum)
-            #
-            #     # p2
-            #     elif event.type == MOUSEBUTTONDOWN and event.button == 1 and self.clicks == 2:
-            #         self.clicks += 1
-            #         self.planet2 = Planet(self.screen, self.mx, self.my, 10)
-            #         self.prev_x, self.prev_y = self.mx, self.my
-            #
-            #     elif event.type == MOUSEBUTTONUP and event.button == 1 and self.clicks == 3:
-            #         self.clicks += 1
-            #         self.planet2_momentum = action[1][1]
-            #         setattr(self.planet2, "momentum", self.planet2_momentum)
-            #
-            #     # p3
-            #     elif event.type == MOUSEBUTTONDOWN and event.button == 1 and self.clicks == 4:
-            #         self.clicks += 1
-            #         self.planet3 = Planet(self.screen, self.mx, self.my, 10)
-            #         self.prev_x, self.prev_y = self.mx, self.my
-            #         self.planets_in_motion = True
-            #         self.start_time = current_time()
-            #
-            #         self.planets.append(self.planet1)
-            #         self.planets.append(self.planet2)
-            #         self.planets.append(self.planet3)
-            #
-            #
-            #
-            #     elif event.type == MOUSEBUTTONUP and event.button == 1 and self.clicks == 5:
-            #         self.planet3_momentum = np.array(action[2][1])
-            #         # self.planet3_momentum = scale_vectors((self.prev_x, self.prev_y), (self.mx, self.my), 0.2)
-            #
-            #         setattr(self.planet3, "momentum", self.planet3_momentum)
-            #         for pnt in self.planets:
-            #             pnt.active = True
-            #         self.clicks += 1
-            #
-            #     ########################
-            #     # PLACING PLANETS END ##
-            #     ########################
-            #
-            #     # example click code
-            #     # if llbutton.collidepoint(mx, my) and CLICKED:
-            #     #     print("example")
 
-            # calculate the score
-            # if all_planets_destroyed(planets) and planets_in_motion and not have_displayed_score and cumulative_age > 200:
-            #     # cumulative_age = sum([pnt.age for pnt in planets])
-            #     have_displayed_score = True
-
-            if not self.have_displayed_score and self.cumulative_age > 20:
+            # Handle completing the game successfully.
+            if not self.have_displayed_score and self.cumulative_age > 15:
                 # cumulative_age = sum([pnt.age for pnt in planets])
                 self.score = current_time() - self.start_time
+                logging.info(f"{self.score}")
                 self.have_displayed_score = True
-                self.reward += 300
+                self.reward += len([pnt for pnt in self.planets if pnt.alive == True]) * (3000/self.score) + 500
                 self.running = False
                 print(self.reward)
                 self.done = True
@@ -256,21 +183,29 @@ class CustomEnv(gym.Env):
                 if ((pnt.x <= pnt.r) or (pnt.x >= getWidth()) or (pnt.y <= pnt.r) or (
                         pnt.y >= getHeight())) and pnt.alive == True:
                     # cumulative_age += pnt.age
-                    self.reward -= 50
-                    pnt.destroy(deathmsg="blasting off again...")
+                    if np.abs(time.time().real - self.start_time) < 1.2:
+                        self.reward -= 400
+                        pnt.destroy(deathmsg="Shot into space...")
+                    else:
+                        self.reward -= 100
+                        pnt.destroy(deathmsg="blasting off again...")
 
             # updating cml score
             self.cumulative_age = sum([pnt.age for pnt in self.planets])
-            self.reward += self.cumulative_age
+            self.reward += self.cumulative_age * 0.8
 
             # ending game (failure)
             if all_planets_destroyed(self.planets) and self.planets_in_motion and not self.have_displayed_score:
-                logging.debug("failure")
+                logging.debug("FAILED")
                 self.running = False
                 self.reward -= 150
                 self.running = False
                 print(self.reward)
                 self.done = True
+
+            # regularly update the reward every second.
+            if time.time().real.is_integer():
+                pass
 
             # update the bg
             pygame.display.update()
@@ -298,7 +233,7 @@ class CustomEnv(gym.Env):
         # For us: just the observation_space
         self.planets_in_motion = False
         self.have_displayed_score = False
-        self.start_time = 0
+        self.start_time = time.time().real
         self.cumulative_age = 0
         self.score = 0
         self.screen = pygame.display.set_mode((getWidth(), getHeight()))
@@ -318,8 +253,31 @@ class CustomEnv(gym.Env):
         self.stars = [self.star]
         self.clicks = 0
 
-        # self.observation = [self.stars[0].x, self.stars[0].y, getHeight(), getWidth()]
-        self.observation = np.array([self.stars[0].x, self.stars[0].y, getHeight(), getWidth()])
+        # new observation space
+        self.planet1_momentum = np.array([0, 0])
+        self.planet2_momentum = np.array([0, 0])
+        self.planet3_momentum = np.array([0, 0])
+
+        self.planet1 = Planet()
+        self.planet2 = Planet()
+        self.planet3 = Planet()
+
+        self.planet1.x = 0
+        self.planet1.y = 0
+        self.planet2.x = 0
+        self.planet2.y = 0
+        self.planet3.x = 0
+        self.planet3.y = 0
+
+        self.observation = np.array([
+            self.stars[0].x, self.stars[0].y, self.planet1.x, self.planet1.y,
+            self.planet2.x, self.planet2.y, self.planet3.x, self.planet3.y,
+            self.planet1_momentum[0], self.planet1_momentum[1], self.planet2_momentum[0],
+            self.planet2_momentum[1], self.planet3_momentum[0], self.planet3_momentum[1],
+            game.getWidth(), game.getHeight()
+        ])
+
+        # self.observation = np.array([self.stars[0].x, self.stars[0].y, getHeight(), getWidth()])
         return self.observation  # reward, done, info can't be included
 
 fmt = '[%(levelname)s] %(asctime)s - %(message)s '
@@ -370,59 +328,70 @@ import time
 from tensorflow.keras.callbacks import ModelCheckpoint
 # from stable_baselines3 import PPO, A2C, DQN, SAC
 from stable_baselines3 import *
+# from stable_baselines3.common.vec_env import VecEnv
+# from stable_baselines3.common import vec_env
+# from stable_baselines.ppo2 import PPO2
 
 """
 Remember to reference Sentdex and documentation here (stable_baselines3, gym)
 """
+if __name__ == '__main__':
+    start_time = time.time().real
 
-start_time = time.time().real
-env = CustomEnv()
+    # from stable_baselines.common.vec_env import DummyVecEnv
+    # cust_env = CustomEnv()
+    # env = DummyVecEnv([lambda: cust_env])
 
-import tensorflow as tf
+    # env = make_vec_env("CustomEnv", n_envs=1,seed=0)
+    # env = VecEnv("CustomEnv")
+    # env = vec_env("CustomEnv")
 
-from stable_baselines3.common.callbacks import BaseCallback
+    env = CustomEnv()
+    filepath="models"
+    cb = ModelCheckpoint(filepath, monitor='accuracy')
 
-filepath="prev_trained_models"
-cb = ModelCheckpoint(filepath, monitor='accuracy')
+    #################
+    # Train a model #
+    #################
 
-#################
-# Train a model #
-#################
+    # model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=filepath, n_steps=128, n_epochs=4)#n_envs=2), n_epochs=2
+    model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=filepath, n_steps=128)
 
-model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=filepath)
+    # steps = 30_000
+    steps = 1
 
-# steps = 30_000
-steps = 1
+    # training loop
+    for i in range(1_000_000):
+        print(f"training loop just looped. i={i}")
+        model.learn(total_timesteps=steps)
+        model.save(f"{filepath}/{time.strftime('%d%m%Y')}/model-{time.strftime('%X')}-{(1 + i) * steps}")
 
-for i in range(3):
-    model.learn(total_timesteps=steps)
-    model.save(f"{filepath}/{time.strftime('%d%m%Y')}/model-{time.strftime('%X')}-{(1 + i) * steps}")
+    ###################################
+    # load a previously trained model #
+    ###################################
 
-###################################
-# load a previously trained model #
-###################################
+    # model = PPO.load(f"{filepath}/26022022/model-01:38:45-2.zip")
+    # model = PPO.load(f"{filepath}/26022022/model-03:37:44-3.zip")
 
-# model = PPO.load(f"{filepath}/goodmodel")
+    #################################################
+    # Use a model that has just been loaded/trained #
+    #################################################
 
-#################################################
-# Use a model that has just been loaded/trained #
-#################################################
+    print("step 2")
 
-print("step 2")
-
-obs = env.reset()
-for i in range(1_000):
-    action, _states = model.predict(obs, deterministic=True)
-    obs, reward, done, info = env.step(action)
-    env.render()
-    if done:
-        obs = env.reset()
-        print("CLOSING")
+    obs = env.reset()
+    for i in range(20):
+        action, _states = model.predict(obs, deterministic=True)
+        obs, reward, done, info = env.step(action)
+        # env.render()
+        if done:
+            obs = env.reset()
+            print("CLOSING")
 
 
-env.close()
+    env.close()
 
-print(f"that took {time.time().real - start_time} seconds, and we expected about >55 seconds")
+    print(f"that took {time.time().real - start_time} seconds, and we expected about >55 seconds")
 
 
 

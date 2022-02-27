@@ -31,7 +31,7 @@ class Star:
 
 class Planet:
 
-    def __init__(self, screen, x, y, r, velocity=[0, 0], force=[0, 0], age=0):
+    def __init__(self, screen=None, x=None, y=None, r=None, velocity=[0, 0], force=[0, 0], age=0):
 
         logging.debug(f"initialising a planet")
         self.active = False
