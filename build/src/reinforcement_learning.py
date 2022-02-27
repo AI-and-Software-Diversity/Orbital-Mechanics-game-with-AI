@@ -1,10 +1,10 @@
 import gym
-import planets as planets
-import self as self
 import torch
 from gym import spaces
 # import numpy as np
 from gym.spaces import Box, Discrete
+from stable_baselines3.common.env_util import make_vec_env
+from stable_baselines3.common.vec_env import SubprocVecEnv
 
 import game
 import numpy as np
@@ -12,7 +12,34 @@ from game import *
 import pygame
 from helpers import *
 from bodies import *
+import stable_baselines3
 
+# def make_env(env_id, rank, seed=0):
+#     """
+#     Utility function for multiprocessed env.
+#
+#     :param env_id: (str) the environment ID
+#     :param num_env: (int) the number of environments you wish to have in subprocesses
+#     :param seed: (int) the inital seed for RNG
+#     :param rank: (int) index of the subprocess
+#     """
+#     def _init():
+#         env = gym.make(env_id)
+#         env.seed(seed + rank)
+#         return env
+#     set_random_seed(seed)
+#     return _init
+#
+# if __name__ == '__main__':
+#     env_id = "CartPole-v1"
+#     num_cpu = 4  # Number of processes to use
+#     # Create the vectorized environment
+#     env = SubprocVecEnv([make_env(env_id, i) for i in range(num_cpu)])
+
+print("==========")
+# https://stable-baselines3.readthedocs.io/en/master/guide/examples.html
+# env = make_vec_env("CustomEnv", n_envs=1, vec_env_cls=SubprocVecEnv)
+print("==========")
 class CustomEnv(gym.Env):
     """Custom Environment that follows gym interface"""
     metadata = {'render.modes': ['human']}
@@ -35,7 +62,7 @@ class CustomEnv(gym.Env):
 
         # The things that the model knows before input
         # For now,  star x/y pos, p1 x/y pos, p2 x/y pos, p3 x/y pos, p1m, p2m, p3m
-        N_DISCRETE_ACTIONS = 16
+        N_DISCRETE_ACTIONS = 20
         self.observation_space = spaces.Box(low=0, high=getWidth(), shape=(N_DISCRETE_ACTIONS,))
 
         # This may get very complicated in future
@@ -43,7 +70,8 @@ class CustomEnv(gym.Env):
     def step(self, action):
 
         self.started = 0
-
+        self.time_started = time.time().real
+        # self.start_time = time.time().real
         while self.running:
 
 
@@ -67,15 +95,21 @@ class CustomEnv(gym.Env):
             for pnt in self.planets:
                 if euclidian_distance(self.star, pnt) <= self.star.r * 1.2:
                     # cumulative_age += pnt.age
-                    pnt.destroy(deathmsg="eaten by sun")
-                    self.reward -= 40
+                    if np.abs(time.time().real - self.start_time) < 1.2:
+                        self.reward -= 4
+                        pnt.destroy(deathmsg="SHOT INTO DEATH")
+                    else:
+                        pnt.destroy(deathmsg="eaten by sun")
+
 
             # handle planet-planet crash
             for pnt1 in self.planets:
                 for pnt2 in self.planets:
                     if euclidian_distance(pnt1, pnt2) < (pnt1.r * 2.3 or pnt2.r * 2.3) and pnt1 != pnt2:
                         n = np.random.randint(0, 2)
-                        self.reward -= 50
+                        # PUNISH IF TOO SOON
+                        if np.abs(time.time().real - self.start_time) < 1.2:
+                            self.reward -= 4
                         if n == 1:
                             # cumulative_age += pnt.age
                             pnt1.destroy(deathmsg="multi-planet collision")
@@ -173,7 +207,7 @@ class CustomEnv(gym.Env):
                 self.score = current_time() - self.start_time
                 logging.info(f"{self.score}")
                 self.have_displayed_score = True
-                self.reward += len([pnt for pnt in self.planets if pnt.alive == True]) * (3000/self.score) + 500
+                self.reward += 50 + (len([pnt for pnt in self.planets if pnt.alive == True]) * 50) + (50 / self.score + 1)
                 self.running = False
                 print(self.reward)
                 self.done = True
@@ -184,28 +218,26 @@ class CustomEnv(gym.Env):
                         pnt.y >= getHeight())) and pnt.alive == True:
                     # cumulative_age += pnt.age
                     if np.abs(time.time().real - self.start_time) < 1.2:
-                        self.reward -= 400
-                        pnt.destroy(deathmsg="Shot into space...")
+                        self.reward -= 4
+                        pnt.destroy(deathmsg="SHOT INTO DEATH")
                     else:
-                        self.reward -= 100
                         pnt.destroy(deathmsg="blasting off again...")
 
-            # updating cml score
+            # updating cml age
             self.cumulative_age = sum([pnt.age for pnt in self.planets])
-            self.reward += self.cumulative_age * 0.8
+
+            # Passive reward condition:
+            # An increasing amount proportional to the length of time of the run.
+            self.reward += (self.cumulative_age/10)
 
             # ending game (failure)
             if all_planets_destroyed(self.planets) and self.planets_in_motion and not self.have_displayed_score:
                 logging.debug("FAILED")
                 self.running = False
-                self.reward -= 150
+                # self.reward -= 150
                 self.running = False
                 print(self.reward)
                 self.done = True
-
-            # regularly update the reward every second.
-            if time.time().real.is_integer():
-                pass
 
             # update the bg
             pygame.display.update()
@@ -217,7 +249,19 @@ class CustomEnv(gym.Env):
 
         # TODO SETUP THE OBSERVATION
         # For now,  star x/y pos, window h/w
-        self.observation = np.array([self.star.x, self.star.y, getHeight(), getWidth()])
+        # self.observation = np.array([self.star.x, self.star.y, getHeight(), getWidth()])
+        self.observation = np.array([
+            self.stars[0].x, self.stars[0].y, self.planet1.x, self.planet1.y,
+            self.planet2.x, self.planet2.y, self.planet3.x, self.planet3.y,
+            self.planet1_momentum[0], self.planet1_momentum[1], self.planet2_momentum[0],
+            self.planet2_momentum[1], self.planet3_momentum[0], self.planet3_momentum[1],
+            self.planet1.r,
+            self.planet2.r,
+            self.planet3.r,
+            self.stars[0].mass,
+            game.getWidth(), game.getHeight()
+        ])
+
 
         info = {}
 
@@ -230,6 +274,8 @@ class CustomEnv(gym.Env):
         So: star x/y pos, window h/w
         """
 
+        self.done = False
+
         # For us: just the observation_space
         self.planets_in_motion = False
         self.have_displayed_score = False
@@ -238,7 +284,8 @@ class CustomEnv(gym.Env):
         self.score = 0
         self.screen = pygame.display.set_mode((getWidth(), getHeight()))
         self.running = True
-        self.reward = -100
+        self.reward = 0
+        self.reward_scalar = 1
 
         self.FPS = 144
         self.CLOCK = pygame.time.Clock()
@@ -258,9 +305,9 @@ class CustomEnv(gym.Env):
         self.planet2_momentum = np.array([0, 0])
         self.planet3_momentum = np.array([0, 0])
 
-        self.planet1 = Planet()
-        self.planet2 = Planet()
-        self.planet3 = Planet()
+        self.planet1 = Planet(r=10)
+        self.planet2 = Planet(r=10)
+        self.planet3 = Planet(r=10)
 
         self.planet1.x = 0
         self.planet1.y = 0
@@ -274,10 +321,13 @@ class CustomEnv(gym.Env):
             self.planet2.x, self.planet2.y, self.planet3.x, self.planet3.y,
             self.planet1_momentum[0], self.planet1_momentum[1], self.planet2_momentum[0],
             self.planet2_momentum[1], self.planet3_momentum[0], self.planet3_momentum[1],
+            self.planet1.r,
+            self.planet2.r,
+            self.planet3.r,
+            self.stars[0].mass,
             game.getWidth(), game.getHeight()
         ])
 
-        # self.observation = np.array([self.stars[0].x, self.stars[0].y, getHeight(), getWidth()])
         return self.observation  # reward, done, info can't be included
 
 fmt = '[%(levelname)s] %(asctime)s - %(message)s '
@@ -346,7 +396,9 @@ if __name__ == '__main__':
     # env = VecEnv("CustomEnv")
     # env = vec_env("CustomEnv")
 
-    env = CustomEnv()
+    # env = CustomEnv()
+    # env = make_vec_env("CustomEnv", n_envs=2, seed=2, vec_env_cls=SubprocVecEnv)
+    env = make_vec_env(CustomEnv, n_envs=5, seed=2, vec_env_cls=SubprocVecEnv)
     filepath="models"
     cb = ModelCheckpoint(filepath, monitor='accuracy')
 
@@ -363,8 +415,8 @@ if __name__ == '__main__':
     # training loop
     for i in range(1_000_000):
         print(f"training loop just looped. i={i}")
-        model.learn(total_timesteps=steps)
-        model.save(f"{filepath}/{time.strftime('%d%m%Y')}/model-{time.strftime('%X')}-{(1 + i) * steps}")
+        model.learn(total_timesteps=1, reset_num_timesteps=False, tb_log_name="PPO_POWER")
+        model.save(f"{filepath}/{time.strftime('%d%m')}/model")
 
     ###################################
     # load a previously trained model #

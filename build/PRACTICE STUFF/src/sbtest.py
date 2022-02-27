@@ -19,10 +19,8 @@ time.strftime("%d/%m/%Y")
 model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=filepath)
 steps = 10_000
 for i in range(3):
-    model.learn(total_timesteps=steps)
-    if i % 1 == 0:
-        print("check")
-        model.save(f"{filepath}/{time.strftime('%d%m%Y')}/model-{time.strftime('%X')}-{(1+i)*steps}")
+    model.learn(total_timesteps=20, reset_num_timesteps=False, tb_log_name="P0p")
+    model.save(f"{filepath}/model")
 
 # (venv) (base) javonne@javonne-desktop:~/Uni/Orbital-Mechanics-game-with-AI/build/PRACTICE STUFF/src$ tensorboard --logdir=trained_models
 # TensorBoard 1.15.0 at http://javonne-desktop:6006/ (Press CTRL+C to quit)
