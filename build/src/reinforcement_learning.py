@@ -5,6 +5,7 @@ from gym import spaces
 from gym.spaces import Box, Discrete
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.vec_env import SubprocVecEnv
+from data_handler import Collector
 
 import game
 import numpy as np
@@ -14,32 +15,6 @@ from helpers import *
 from bodies import *
 import stable_baselines3
 
-# def make_env(env_id, rank, seed=0):
-#     """
-#     Utility function for multiprocessed env.
-#
-#     :param env_id: (str) the environment ID
-#     :param num_env: (int) the number of environments you wish to have in subprocesses
-#     :param seed: (int) the inital seed for RNG
-#     :param rank: (int) index of the subprocess
-#     """
-#     def _init():
-#         env = gym.make(env_id)
-#         env.seed(seed + rank)
-#         return env
-#     set_random_seed(seed)
-#     return _init
-#
-# if __name__ == '__main__':
-#     env_id = "CartPole-v1"
-#     num_cpu = 4  # Number of processes to use
-#     # Create the vectorized environment
-#     env = SubprocVecEnv([make_env(env_id, i) for i in range(num_cpu)])
-
-print("==========")
-# https://stable-baselines3.readthedocs.io/en/master/guide/examples.html
-# env = make_vec_env("CustomEnv", n_envs=1, vec_env_cls=SubprocVecEnv)
-print("==========")
 class CustomEnv(gym.Env):
     """Custom Environment that follows gym interface"""
     metadata = {'render.modes': ['human']}
@@ -48,6 +23,7 @@ class CustomEnv(gym.Env):
 
 
     def __init__(self):
+        # self.runs_completed = -1
         super(CustomEnv, self).__init__()
 
         # The possible decisions the agent can make
@@ -65,10 +41,11 @@ class CustomEnv(gym.Env):
         N_DISCRETE_ACTIONS = 20
         self.observation_space = spaces.Box(low=0, high=getWidth(), shape=(N_DISCRETE_ACTIONS,))
 
-        # This may get very complicated in future
+        self.collector = Collector(f"data.csv")
 
     def step(self, action):
-
+        print("step called")
+        # self.runs_completed += 1
         self.started = 0
         self.time_started = time.time().real
         # self.start_time = time.time().real
@@ -86,7 +63,9 @@ class CustomEnv(gym.Env):
 
             self.screen.blit(self.bg, (0, 0))
 
-            # text_box("human player", 15, self.screen, -50 + (getWidth() / 2), -350 + (getHeight() / 2))
+            # text_box(f"Reinforcement Learning", 15, self.screen, -600 + (getWidth() / 2), -350 + (getHeight() / 2))
+            # text_box(f"Runs Completed: {self.runs_completed}", 15, self.screen, -200 + (getWidth() / 2), -350 + (getHeight() / 2))
+            # text_box(f"CA: {self.cumulative_age.__round__(2)}", 15, self.screen, 500 + (getWidth() / 2), -350 + (getHeight() / 2))
 
             self.star.draw()
             self.CLICKED = False
@@ -273,9 +252,9 @@ class CustomEnv(gym.Env):
         This is where we get the observation
         So: star x/y pos, window h/w
         """
-
+        print("reset called")
         self.done = False
-
+        # pygame.init()
         # For us: just the observation_space
         self.planets_in_motion = False
         self.have_displayed_score = False
@@ -329,6 +308,9 @@ class CustomEnv(gym.Env):
         ])
 
         return self.observation  # reward, done, info can't be included
+
+    def render(self, mode="human"):
+        print("render")
 
 fmt = '[%(levelname)s] %(asctime)s - %(message)s '
 # l1 = logging.basicConfig(filename="logs.log", level=logging.DEBUG, format=fmt)
@@ -388,17 +370,10 @@ Remember to reference Sentdex and documentation here (stable_baselines3, gym)
 if __name__ == '__main__':
     start_time = time.time().real
 
-    # from stable_baselines.common.vec_env import DummyVecEnv
-    # cust_env = CustomEnv()
-    # env = DummyVecEnv([lambda: cust_env])
-
-    # env = make_vec_env("CustomEnv", n_envs=1,seed=0)
     # env = VecEnv("CustomEnv")
-    # env = vec_env("CustomEnv")
-
     # env = CustomEnv()
-    # env = make_vec_env("CustomEnv", n_envs=2, seed=2, vec_env_cls=SubprocVecEnv)
-    env = make_vec_env(CustomEnv, n_envs=5, seed=2, vec_env_cls=SubprocVecEnv)
+    # https://stable-baselines3.readthedocs.io/en/master/guide/examples.html
+    env = make_vec_env(CustomEnv, n_envs=2, seed=2, vec_env_cls=SubprocVecEnv)
     filepath="models"
     cb = ModelCheckpoint(filepath, monitor='accuracy')
 
@@ -411,12 +386,15 @@ if __name__ == '__main__':
 
     # steps = 30_000
     steps = 1
-
     # training loop
     for i in range(1_000_000):
         print(f"training loop just looped. i={i}")
-        model.learn(total_timesteps=1, reset_num_timesteps=False, tb_log_name="PPO_POWER")
-        model.save(f"{filepath}/{time.strftime('%d%m')}/model")
+
+        # model.learn(total_timesteps=1, reset_num_timesteps=False, tb_log_name="PPO_POWER")
+        # model.save(f"{filepath}/{time.strftime('%d%m')}/model")
+
+        model.learn(total_timesteps=1, reset_num_timesteps=False, tb_log_name="PPO_POUR")
+        model.save(f"{filepath}/{time.strftime('%d%m')}/model2")
 
     ###################################
     # load a previously trained model #

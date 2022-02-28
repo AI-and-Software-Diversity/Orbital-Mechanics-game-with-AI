@@ -127,6 +127,7 @@ def level_1_human():
     score = 0
     # logging.info(f"sum age = {cumulative_age}")
     # clock = pygame.time.Clock()
+    pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     running = True
 
@@ -866,5 +867,6 @@ if __name__ == '__main__':
     CLOCK = pygame.time.Clock()
 
 
-    main_menu()
+    # main_menu()
+    level_1_human()
 
