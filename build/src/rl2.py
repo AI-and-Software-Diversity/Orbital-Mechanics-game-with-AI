@@ -61,7 +61,6 @@ class CustomEnv(gym.Env):
 
             # self.mx, self.my = pygame.mouse.get_pos()
 
-            self.screen.blit(self.bg, (0, 0))
 
             # text_box(f"Reinforcement Learning", 15, self.screen, -600 + (getWidth() / 2), -350 + (getHeight() / 2))
             # text_box(f"Runs Completed: {self.runs_completed}", 15, self.screen, -200 + (getWidth() / 2), -350 + (getHeight() / 2))
@@ -123,11 +122,7 @@ class CustomEnv(gym.Env):
                     if body1 != body2:
                         body1.force += law_of_gravitation(body2, body1)
 
-            # move and draw planets
-            for body in self.planets:
-                if body.active:  # and body.mass != 0:
-                    body.draw()
-                    body.move()
+
 
             #setup actions of the agent
             if self.started == 0:
@@ -218,9 +213,6 @@ class CustomEnv(gym.Env):
                 print(self.reward)
                 self.done = True
 
-            # update the bg
-            pygame.display.update()
-
             # TODO remove all game.'s
             self.CLOCK.tick(self.FPS)
 
@@ -309,7 +301,29 @@ class CustomEnv(gym.Env):
 
         return self.observation  # reward, done, info can't be included
 
+    def render(self, mode="human"):
+        print("render")
+        pygame.display.update()
+        while self.running:
 
+            self.screen.blit(self.bg, (0, 0))
+
+            text_box(f"Reinforcement Learning", 15, self.screen, -600 + (getWidth() / 2), -350 + (getHeight() / 2))
+            text_box(f"Runs Completed: {self.runs_completed}", 15, self.screen, -200 + (getWidth() / 2), -350 + (getHeight() / 2))
+            text_box(f"CA: {self.cumulative_age.__round__(2)}", 15, self.screen, 500 + (getWidth() / 2), -350 + (getHeight() / 2))
+
+            self.star.draw()
+
+            # move and draw planets
+            for body in self.planets:
+                if body.active:  # and body.mass != 0:
+                    body.draw()
+                    body.move()
+
+            # update the bg
+            pygame.display.update()
+
+#=========
 fmt = '[%(levelname)s] %(asctime)s - %(message)s '
 # l1 = logging.basicConfig(filename="logs.log", level=logging.DEBUG, format=fmt)
 
@@ -371,7 +385,7 @@ if __name__ == '__main__':
     # env = VecEnv("CustomEnv")
     # env = CustomEnv()
     # https://stable-baselines3.readthedocs.io/en/master/guide/examples.html
-    env = make_vec_env(CustomEnv, n_envs=2, seed=2, vec_env_cls=SubprocVecEnv)
+    env = make_vec_env(CustomEnv, n_envs=1, seed=2, vec_env_cls=SubprocVecEnv)
     filepath="models"
     cb = ModelCheckpoint(filepath, monitor='accuracy')
 
@@ -391,6 +405,7 @@ if __name__ == '__main__':
         # model.learn(total_timesteps=1, reset_num_timesteps=False, tb_log_name="PPO_POWER")
         # model.save(f"{filepath}/{time.strftime('%d%m')}/model")
 
+        # env.render()
         model.learn(total_timesteps=1, reset_num_timesteps=False, tb_log_name="PPO_POUR")
         model.save(f"{filepath}/{time.strftime('%d%m')}/model2")
 

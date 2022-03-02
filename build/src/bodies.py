@@ -67,8 +67,6 @@ class Planet:
         move a planet
         """
 
-        # print(self.x, self.y)
-
         # Euler-Cromer method to new position:
 
         # First calculate the force on the body using the newtonian ...

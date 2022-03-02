@@ -41,7 +41,6 @@ def main_menu():
 
         if frame_count == FPS:
             frame_count = 0
-            print()
         else:
             frame_count += 1
 
@@ -141,7 +140,9 @@ def level_1_human():
     planets = []
     stars = [star]
     clicks = 0
-
+    clks = 0
+    planets_placed = 0
+    peas = []
     print("\n")
     logging.info(f"STARTING")
 
@@ -235,62 +236,126 @@ def level_1_human():
             # creating planets
 
             if (event.type == MOUSEBUTTONDOWN or event.type == MOUSEBUTTONUP) and event.button == 1:
-                logging.info("*CLICK*")
+                # logging.info("*CLICK*")
                 CLICKED = True
 
             ####################
             # PLACING PLANETS ##
             ####################
             # pygame.event.wait()
-            #p1
-            if event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 0:
-                clicks += 1
-                planet1 = Planet(screen, mx, my, 10)
-                prev_x, prev_y = mx, my
-                logging.info(f"P1 POS {mx, my}")
 
-            elif event.type == MOUSEBUTTONUP and event.button == 1 and clicks == 1:
-                clicks += 1
-                planet1_momentum = scale_vectors((prev_x, prev_y), (mx, my), 0.2)
-                logging.info(f"P1M: {planet1_momentum}")
-                setattr(planet1, "momentum", planet1_momentum)
+            # planets with a loop TODO add this to rlearn
 
-            #p2
-            elif event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 2:
-                clicks += 1
-                planet2 = Planet(screen, mx, my, 10)
-                prev_x, prev_y = mx, my
-                logging.info(f"P2 POS {mx, my}")
+            if ((event.type == MOUSEBUTTONDOWN and event.button == 1) or (event.type == MOUSEBUTTONUP and event.button == 1)) and (clks < 2*4):
+                print(F"clikcs: {clks}")
+                # mouse down
+                if clks % 2 == 0:
+                    print("mouse down")
+                    prev_x, prev_y = mx, my
+                    logging.info(f"P{clks} POS {mx, my}")
+                    print("=======")
+                    print(len(peas))
+                    print(clks)
+                    print("=======")
+                    planets_placed += 1
+                    clks += 1
 
-            elif event.type == MOUSEBUTTONUP and event.button == 1 and clicks == 3:
-                clicks += 1
-                planet2_momentum = scale_vectors((prev_x, prev_y), (mx, my), 0.2)
-                logging.info(f"P2M: {planet2_momentum}")
-                setattr(planet2, "momentum", planet2_momentum)
-
-            #p3
-            elif event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 4:
-                clicks += 1
-                planet3 = Planet(screen, mx, my, 10)
-                prev_x, prev_y = mx, my
-                planets_in_motion = True
-                start_time = current_time()
-                logging.info(f"P3 POS {mx, my}")
-
-                planets.append(planet1)
-                planets.append(planet2)
-                planets.append(planet3)
+                # mouse up
+                elif clks % 2 == 1:
+                    peas.append(Planet(screen, mx, my, 10))
+                    print("mouse up")
+                    print("=======")
+                    print(len(peas))
+                    print(clks)
+                    print("=======")
+                    planet_momentum = scale_vectors((prev_x, prev_y), (mx, my), 0.2)
+                    logging.info(f"P{clks}M: {planet_momentum}")
 
 
+                    setattr(peas[planets_placed-1], "momentum", planet_momentum)
+                    clks += 1
 
-            elif event.type == MOUSEBUTTONUP and event.button == 1 and clicks == 5:
-                planet3_momentum = scale_vectors((prev_x, prev_y), (mx, my), 0.2)
-                logging.info(f"P3M: {planet3_momentum}")
-
-                setattr(planet3, "momentum", planet3_momentum)
+            if clks == 2*4:
+                print("setting active")
                 for pnt in planets:
                     pnt.active = True
-                clicks += 1
+                clks += 1
+
+
+            # print(f"{clks}")
+
+
+            # peas = []
+            # while clks < 2*3-1:
+            #     # p1
+            #     if event.type == MOUSEBUTTONDOWN and event.button == 1:
+            #         clicks += 1
+            #         peas.append(Planet(screen, mx, my, 10))
+            #         prev_x, prev_y = mx, my
+            #         logging.info(f"P POS {mx, my}")
+            #         clks += 1
+            #
+            #     elif event.type == MOUSEBUTTONUP and event.button == 1:
+            #         clicks += 1
+            #         planet_momentum = scale_vectors((prev_x, prev_y), (mx, my), 0.2)
+            #         logging.info(f"P{clks}M: {planet_momentum}")
+            #         setattr(peas[clks], "momentum", planet_momentum)
+            #
+            #         if clks == 2*3-1:
+            #             for pnt in planets:
+            #                 pnt.active = True
+            #         clks += 1
+            planets = peas
+
+
+            #p1
+            # if event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 0:
+            #     clicks += 1
+            #     planet1 = Planet(screen, mx, my, 10)
+            #     prev_x, prev_y = mx, my
+            #     logging.info(f"P1 POS {mx, my}")
+            #
+            # elif event.type == MOUSEBUTTONUP and event.button == 1 and clicks == 1:
+            #     clicks += 1
+            #     planet1_momentum = scale_vectors((prev_x, prev_y), (mx, my), 0.2)
+            #     logging.info(f"P1M: {planet1_momentum}")
+            #     setattr(planet1, "momentum", planet1_momentum)
+            #
+            # #p2
+            # elif event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 2:
+            #     clicks += 1
+            #     planet2 = Planet(screen, mx, my, 10)
+            #     prev_x, prev_y = mx, my
+            #     logging.info(f"P2 POS {mx, my}")
+            #
+            # elif event.type == MOUSEBUTTONUP and event.button == 1 and clicks == 3:
+            #     clicks += 1
+            #     planet2_momentum = scale_vectors((prev_x, prev_y), (mx, my), 0.2)
+            #     logging.info(f"P2M: {planet2_momentum}")
+            #     setattr(planet2, "momentum", planet2_momentum)
+            #
+            # #p3
+            # elif event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 4:
+            #     clicks += 1
+            #     planet3 = Planet(screen, mx, my, 10)
+            #     prev_x, prev_y = mx, my
+            #     planets_in_motion = True
+            #     start_time = current_time()
+            #     logging.info(f"P3 POS {mx, my}")
+            #
+            #     planets.append(planet1)
+            #     planets.append(planet2)
+            #     planets.append(planet3)
+            #
+            #
+            # elif event.type == MOUSEBUTTONUP and event.button == 1 and clicks == 5:
+            #     planet3_momentum = scale_vectors((prev_x, prev_y), (mx, my), 0.2)
+            #     logging.info(f"P3M: {planet3_momentum}")
+            #
+            #     setattr(planet3, "momentum", planet3_momentum)
+            #     for pnt in planets:
+            #         pnt.active = True
+            #     clicks += 1
 
             ########################
             # PLACING PLANETS END ##
@@ -455,7 +520,7 @@ def human_template():
             # creating planets
 
             if (event.type == MOUSEBUTTONDOWN or event.type == MOUSEBUTTONUP) and event.button == 1:
-                logging.info("*CLICK*")
+                # logging.info("*CLICK*")
                 CLICKED = True
 
             ####################
@@ -664,7 +729,7 @@ def ai_template():
             # creating planets
 
             if (event.type == MOUSEBUTTONDOWN or event.type == MOUSEBUTTONUP) and event.button == 1:
-                logging.info("*CLICK*")
+                # logging.info("*CLICK*")
                 CLICKED = True
 
             ####################
@@ -833,7 +898,7 @@ def menu_template(function_1, function_2, function_3, function_4):
             #     print("example")
 
             if event.type == MOUSEBUTTONDOWN and event.button == 1:
-                logging.debug("*click*")
+                # logging.debug("*click*")
                 clicked = True
 
         # ending game
