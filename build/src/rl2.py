@@ -15,11 +15,15 @@ from helpers import *
 from bodies import *
 import stable_baselines3
 
+import data_handler
+
+count_env = 2
+
 class CustomEnv(gym.Env):
     """Custom Environment that follows gym interface"""
     metadata = {'render.modes': ['human']}
 
-    # font = pygame.font.Font('../assets/fonts/PressStart2P-vaV7.ttf', font)
+
 
 
     def __init__(self):
@@ -28,20 +32,20 @@ class CustomEnv(gym.Env):
 
         # The possible decisions the agent can make
         # planet x/y Momentum, planet x/y Pos
-        N_PLANETS = 3 # N_PLANETS = len(game.planets)
 
         self.action_space = spaces.Box(low=-1, high=1, shape=(12,), dtype=np.float32)
         # p1x, p1y, p2x, p2y, p3x, p3y p1xm, p1ym, p2xm, p2ym, p3xm, p3ym
 
+        self.runs_completed = 0
 
-
+        collector = data_handler.Collector("rl2")
 
         # The things that the model knows before input
         # For now,  star x/y pos, p1 x/y pos, p2 x/y pos, p3 x/y pos, p1m, p2m, p3m
         N_DISCRETE_ACTIONS = 20
         self.observation_space = spaces.Box(low=0, high=getWidth(), shape=(N_DISCRETE_ACTIONS,))
 
-        self.collector = Collector(f"data.csv")
+        self.collector = Collector(f"rl2")
 
     def step(self, action):
         print("step called")
@@ -49,6 +53,8 @@ class CustomEnv(gym.Env):
         self.started = 0
         self.time_started = time.time().real
         # self.start_time = time.time().real
+        self.runs_completed += 1
+        pygame.init()
         while self.running:
 
 
@@ -61,10 +67,13 @@ class CustomEnv(gym.Env):
 
             # self.mx, self.my = pygame.mouse.get_pos()
 
+            self.screen.blit(self.bg, (0, 0))
 
-            # text_box(f"Reinforcement Learning", 15, self.screen, -600 + (getWidth() / 2), -350 + (getHeight() / 2))
-            # text_box(f"Runs Completed: {self.runs_completed}", 15, self.screen, -200 + (getWidth() / 2), -350 + (getHeight() / 2))
-            # text_box(f"CA: {self.cumulative_age.__round__(2)}", 15, self.screen, 500 + (getWidth() / 2), -350 + (getHeight() / 2))
+            text_box(f"Reinforcement Learning", 15, self.screen, -600 + (getWidth() / 2), -350 + (getHeight() / 2))
+            text_box(f"Runs Completed: {self.runs_completed} ({count_env})", 15, self.screen, -200 + (getWidth() / 2), -350 + (getHeight() / 2))
+            text_box(f"CA: {self.cumulative_age.__round__(2)}", 15, self.screen, 500 + (getWidth() / 2), -350 + (getHeight() / 2))
+
+
 
             self.star.draw()
             self.CLICKED = False
@@ -122,7 +131,11 @@ class CustomEnv(gym.Env):
                     if body1 != body2:
                         body1.force += law_of_gravitation(body2, body1)
 
-
+            # move and draw planets
+            for body in self.planets:
+                if body.active:  # and body.mass != 0:
+                    body.draw()
+                    body.move()
 
             #setup actions of the agent
             if self.started == 0:
@@ -184,6 +197,7 @@ class CustomEnv(gym.Env):
                 self.reward += 50 + (len([pnt for pnt in self.planets if pnt.alive == True]) * 50) + (50 / self.score + 1)
                 self.running = False
                 print(self.reward)
+                self.collector.add_to_csv([self.runs_completed, self.cumulative_age])
                 self.done = True
 
             # off screen
@@ -211,7 +225,11 @@ class CustomEnv(gym.Env):
                 # self.reward -= 150
                 self.running = False
                 print(self.reward)
+                self.collector.add_to_csv([self.runs_completed, self.cumulative_age])
                 self.done = True
+
+            # update the bg
+            pygame.display.update()
 
             # TODO remove all game.'s
             self.CLOCK.tick(self.FPS)
@@ -269,6 +287,7 @@ class CustomEnv(gym.Env):
         self.star = Star(self.screen, getWidth() / 2, getHeight() / 2, 40)
         self.planets = []
         self.stars = [self.star]
+
         self.clicks = 0
 
         # new observation space
@@ -301,29 +320,7 @@ class CustomEnv(gym.Env):
 
         return self.observation  # reward, done, info can't be included
 
-    def render(self, mode="human"):
-        print("render")
-        pygame.display.update()
-        while self.running:
 
-            self.screen.blit(self.bg, (0, 0))
-
-            text_box(f"Reinforcement Learning", 15, self.screen, -600 + (getWidth() / 2), -350 + (getHeight() / 2))
-            text_box(f"Runs Completed: {self.runs_completed}", 15, self.screen, -200 + (getWidth() / 2), -350 + (getHeight() / 2))
-            text_box(f"CA: {self.cumulative_age.__round__(2)}", 15, self.screen, 500 + (getWidth() / 2), -350 + (getHeight() / 2))
-
-            self.star.draw()
-
-            # move and draw planets
-            for body in self.planets:
-                if body.active:  # and body.mass != 0:
-                    body.draw()
-                    body.move()
-
-            # update the bg
-            pygame.display.update()
-
-#=========
 fmt = '[%(levelname)s] %(asctime)s - %(message)s '
 # l1 = logging.basicConfig(filename="logs.log", level=logging.DEBUG, format=fmt)
 
@@ -385,7 +382,7 @@ if __name__ == '__main__':
     # env = VecEnv("CustomEnv")
     # env = CustomEnv()
     # https://stable-baselines3.readthedocs.io/en/master/guide/examples.html
-    env = make_vec_env(CustomEnv, n_envs=1, seed=2, vec_env_cls=SubprocVecEnv)
+    env = make_vec_env(CustomEnv, n_envs=count_env, seed=2, vec_env_cls=SubprocVecEnv)
     filepath="models"
     cb = ModelCheckpoint(filepath, monitor='accuracy')
 
@@ -405,7 +402,6 @@ if __name__ == '__main__':
         # model.learn(total_timesteps=1, reset_num_timesteps=False, tb_log_name="PPO_POWER")
         # model.save(f"{filepath}/{time.strftime('%d%m')}/model")
 
-        # env.render()
         model.learn(total_timesteps=1, reset_num_timesteps=False, tb_log_name="PPO_POUR")
         model.save(f"{filepath}/{time.strftime('%d%m')}/model2")
 

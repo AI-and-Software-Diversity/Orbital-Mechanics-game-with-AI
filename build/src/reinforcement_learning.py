@@ -15,11 +15,13 @@ from helpers import *
 from bodies import *
 import stable_baselines3
 
+count_env = 2
+
 class CustomEnv(gym.Env):
     """Custom Environment that follows gym interface"""
     metadata = {'render.modes': ['human']}
 
-    # font = pygame.font.Font('../assets/fonts/PressStart2P-vaV7.ttf', font)
+
 
 
     def __init__(self):
@@ -28,12 +30,11 @@ class CustomEnv(gym.Env):
 
         # The possible decisions the agent can make
         # planet x/y Momentum, planet x/y Pos
-        N_PLANETS = 3 # N_PLANETS = len(game.planets)
 
         self.action_space = spaces.Box(low=-1, high=1, shape=(12,), dtype=np.float32)
         # p1x, p1y, p2x, p2y, p3x, p3y p1xm, p1ym, p2xm, p2ym, p3xm, p3ym
 
-
+        self.runs_completed = 0
 
 
         # The things that the model knows before input
@@ -49,6 +50,8 @@ class CustomEnv(gym.Env):
         self.started = 0
         self.time_started = time.time().real
         # self.start_time = time.time().real
+        self.runs_completed += 1
+        pygame.init()
         while self.running:
 
 
@@ -63,9 +66,11 @@ class CustomEnv(gym.Env):
 
             self.screen.blit(self.bg, (0, 0))
 
-            # text_box(f"Reinforcement Learning", 15, self.screen, -600 + (getWidth() / 2), -350 + (getHeight() / 2))
-            # text_box(f"Runs Completed: {self.runs_completed}", 15, self.screen, -200 + (getWidth() / 2), -350 + (getHeight() / 2))
-            # text_box(f"CA: {self.cumulative_age.__round__(2)}", 15, self.screen, 500 + (getWidth() / 2), -350 + (getHeight() / 2))
+            text_box(f"Reinforcement Learning", 15, self.screen, -600 + (getWidth() / 2), -350 + (getHeight() / 2))
+            text_box(f"Runs Completed: {self.runs_completed} ({count_env})", 15, self.screen, -200 + (getWidth() / 2), -350 + (getHeight() / 2))
+            text_box(f"CA: {self.cumulative_age.__round__(2)}", 15, self.screen, 500 + (getWidth() / 2), -350 + (getHeight() / 2))
+
+
 
             self.star.draw()
             self.CLICKED = False
@@ -277,6 +282,7 @@ class CustomEnv(gym.Env):
         self.star = Star(self.screen, getWidth() / 2, getHeight() / 2, 40)
         self.planets = []
         self.stars = [self.star]
+
         self.clicks = 0
 
         # new observation space
@@ -371,7 +377,7 @@ if __name__ == '__main__':
     # env = VecEnv("CustomEnv")
     # env = CustomEnv()
     # https://stable-baselines3.readthedocs.io/en/master/guide/examples.html
-    env = make_vec_env(CustomEnv, n_envs=2, seed=2, vec_env_cls=SubprocVecEnv)
+    env = make_vec_env(CustomEnv, n_envs=count_env, seed=2, vec_env_cls=SubprocVecEnv)
     filepath="models"
     cb = ModelCheckpoint(filepath, monitor='accuracy')
 

@@ -4,6 +4,8 @@ import numpy as np
 import planet as planet
 import self
 
+from src.game import getWidth, getHeight
+
 
 class Collector:
 
@@ -32,15 +34,18 @@ class Collector:
         """
 
         # ADDING THE NEW DATA
-        print("MEWWWWWWWWWWWWWWWW")
         one_line = ""
         for var in data_to_add:
-            one_line += var + ","
-
+            one_line += str(var) + ","
+        one_line = one_line[0:-1]
         with open(f"../data/{self.file_to_use}.csv", "a", newline="\n") as file:
-            file.write(data_to_add + "\n")
+            file.write(one_line + "\n")
+
 collector = Collector(f"ghgd")
-collector.add_to_csv("1")
+var1 = "1"
+var2 = 2
+var3 = 3
+collector.add_to_csv([var1, var2])
 
 class DataGenrator:
     """
@@ -54,7 +59,7 @@ class DataGenrator:
     """
 
     order="[xPosS1..,yPosS1..,xPosP1...,yPosP1...,xMomP1..,yMomP1..,H,W,TargetTimeGame,MassP1...,MassS1...," + \
-    "StepSizeP,num_planets,num_stars, Score,OptimalScore," \  
+    "StepSizeP,num_planets,num_stars, Score,OptimalScore," + \
     "FinalScore%DistanceFromOptimalScore, " + \
     "avgSpeedP1...,avgAgeP,avgAgeP1..,StepSizeP,bigG]"
     # everything from the last 2 must come from the write to csv method.
@@ -67,7 +72,7 @@ class DataGenrator:
         self.height = height
         self.n_planets = n_planets
         self.n_stars = n_stars
-        self.optimal_game_time = self.target_game_time / n_planets
+        self.optimal_game_time = target_game_time / n_planets
         self.planet_mom_scaler = planet_mom_scalar
         self.planet_mass = planet_rad
         self.star_x_pos = star_x_pos
@@ -94,9 +99,10 @@ data_genrator = DataGenrator(
     n_stars=1,
     planet_mom_scalar = 0.00005,
     planet_rad = [10, 10, 10],
-    star_x_pos = [self.width/2],
-    star_y_pos = [self.height/2],
+    star_x_pos = [getWidth()/2],
+    star_y_pos = [getHeight()/2],
     star_mass = [40],
+    star_rad=[40],
     width = 1400,
     height = 800,
     target_game_time = 20

@@ -136,9 +136,15 @@ def level_1_human():
 
     # menu buttons
     # (x, y), (l, w)
-    star = Star(screen, WIDTH/2, HEIGHT/2, 40)
+    # star = Star(screen, WIDTH/2, HEIGHT/2, 40)
     planets = []
-    stars = [star]
+    num_stars = 2
+    stars = []
+    for i in range(num_stars):
+        if i == 0:
+            stars.append(Star(screen, WIDTH / 2, HEIGHT / 2, 40))
+        else:
+            stars.append(Star(screen, 100*i + WIDTH / 2, 100*i + HEIGHT / 2, 40))
     clicks = 0
     clks = 0
     planets_placed = 0
@@ -160,15 +166,18 @@ def level_1_human():
 
         text_box("human player", 15, screen, -50 + (WIDTH / 2), -350 + (HEIGHT / 2))
 
-        star.draw()
+        for star in stars:
+            star.draw()
+
         CLICKED = False
 
         # sun eats planets
         for pnt in planets:
-            if euclidian_distance(star, pnt) <= star.r * 1.2:
-                # cumulative_age += pnt.age
-                logging.info(f"current cml: {cumulative_age}")
-                pnt.destroy(deathmsg="eaten by sun")
+            for star in stars:
+                if euclidian_distance(star, pnt) <= star.r * 1.2:
+                    # cumulative_age += pnt.age
+                    logging.info(f"current cml: {cumulative_age}")
+                    pnt.destroy(deathmsg="eaten by sun")
 
         # planet clash
         for pnt1 in planets:
@@ -245,8 +254,8 @@ def level_1_human():
             # pygame.event.wait()
 
             # planets with a loop TODO add this to rlearn
-
-            if ((event.type == MOUSEBUTTONDOWN and event.button == 1) or (event.type == MOUSEBUTTONUP and event.button == 1)) and (clks < 2*4):
+            num_planets = 3
+            if ((event.type == MOUSEBUTTONDOWN and event.button == 1) or (event.type == MOUSEBUTTONUP and event.button == 1)) and (clks < 2*num_planets):
                 print(F"clikcs: {clks}")
                 # mouse down
                 if clks % 2 == 0:
@@ -263,11 +272,6 @@ def level_1_human():
                 # mouse up
                 elif clks % 2 == 1:
                     peas.append(Planet(screen, mx, my, 10))
-                    print("mouse up")
-                    print("=======")
-                    print(len(peas))
-                    print(clks)
-                    print("=======")
                     planet_momentum = scale_vectors((prev_x, prev_y), (mx, my), 0.2)
                     logging.info(f"P{clks}M: {planet_momentum}")
 
@@ -275,7 +279,7 @@ def level_1_human():
                     setattr(peas[planets_placed-1], "momentum", planet_momentum)
                     clks += 1
 
-            if clks == 2*4:
+            if clks == 2*num_planets:
                 print("setting active")
                 for pnt in planets:
                     pnt.active = True
