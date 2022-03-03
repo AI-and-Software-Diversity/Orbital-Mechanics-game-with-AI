@@ -17,7 +17,12 @@ import stable_baselines3
 
 import data_handler
 
-count_env = 2
+"""
+Add recognition to stable baselines api
+
+And to sentdex tutorial
+"""
+
 
 class CustomEnv(gym.Env):
     """Custom Environment that follows gym interface"""
@@ -38,14 +43,15 @@ class CustomEnv(gym.Env):
 
         self.runs_completed = 0
 
-        collector = data_handler.Collector("rl2")
+        # self.collector = data_handler.Collector(f"{time.time().real}")
+        self.collector = Collector(f"rl2")
 
         # The things that the model knows before input
         # For now,  star x/y pos, p1 x/y pos, p2 x/y pos, p3 x/y pos, p1m, p2m, p3m
-        N_DISCRETE_ACTIONS = 20
+        N_DISCRETE_ACTIONS = 3*data_handler.GLBVARS.n_stars + 5*data_handler.GLBVARS.n_planets + 2
         self.observation_space = spaces.Box(low=0, high=getWidth(), shape=(N_DISCRETE_ACTIONS,))
 
-        self.collector = Collector(f"rl2")
+
 
     def step(self, action):
         print("step called")
@@ -70,7 +76,7 @@ class CustomEnv(gym.Env):
             self.screen.blit(self.bg, (0, 0))
 
             text_box(f"Reinforcement Learning", 15, self.screen, -600 + (getWidth() / 2), -350 + (getHeight() / 2))
-            text_box(f"Runs Completed: {self.runs_completed} ({count_env})", 15, self.screen, -200 + (getWidth() / 2), -350 + (getHeight() / 2))
+            text_box(f"Runs Completed: {self.runs_completed} ({data_handler.GLBVARS.n_envs})", 15, self.screen, -200 + (getWidth() / 2), -350 + (getHeight() / 2))
             text_box(f"CA: {self.cumulative_age.__round__(2)}", 15, self.screen, 500 + (getWidth() / 2), -350 + (getHeight() / 2))
 
 
@@ -235,7 +241,7 @@ class CustomEnv(gym.Env):
             self.CLOCK.tick(self.FPS)
 
 
-
+            #o = [pnt.y for pnt in self.planets]
         # TODO SETUP THE OBSERVATION
         # For now,  star x/y pos, window h/w
         # self.observation = np.array([self.star.x, self.star.y, getHeight(), getWidth()])
@@ -250,7 +256,7 @@ class CustomEnv(gym.Env):
             self.stars[0].mass,
             game.getWidth(), game.getHeight()
         ])
-
+        # 3*stars + 5*planets + 2
 
         info = {}
 
@@ -315,7 +321,7 @@ class CustomEnv(gym.Env):
             self.planet2.r,
             self.planet3.r,
             self.stars[0].mass,
-            game.getWidth(), game.getHeight()
+            data_handler.GLBVARS.width, data_handler.GLBVARS.height
         ])
 
         return self.observation  # reward, done, info can't be included
@@ -382,7 +388,7 @@ if __name__ == '__main__':
     # env = VecEnv("CustomEnv")
     # env = CustomEnv()
     # https://stable-baselines3.readthedocs.io/en/master/guide/examples.html
-    env = make_vec_env(CustomEnv, n_envs=count_env, seed=2, vec_env_cls=SubprocVecEnv)
+    env = make_vec_env(CustomEnv, n_envs=data_handler.GLBVARS.n_envs, seed=2, vec_env_cls=SubprocVecEnv)
     filepath="models"
     cb = ModelCheckpoint(filepath, monitor='accuracy')
 

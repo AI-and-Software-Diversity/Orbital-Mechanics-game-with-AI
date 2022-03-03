@@ -15,7 +15,15 @@ from helpers import *
 from bodies import *
 import stable_baselines3
 
+import data_handler
+
 count_env = 2
+
+"""
+Add recognition to stable baselines api 
+
+And to sentdex tutorial
+"""
 
 class CustomEnv(gym.Env):
     """Custom Environment that follows gym interface"""
@@ -36,13 +44,14 @@ class CustomEnv(gym.Env):
 
         self.runs_completed = 0
 
+        collector = data_handler.Collector("rl2")
 
         # The things that the model knows before input
         # For now,  star x/y pos, p1 x/y pos, p2 x/y pos, p3 x/y pos, p1m, p2m, p3m
         N_DISCRETE_ACTIONS = 20
         self.observation_space = spaces.Box(low=0, high=getWidth(), shape=(N_DISCRETE_ACTIONS,))
 
-        self.collector = Collector(f"data.csv")
+        self.collector = Collector(f"rl2")
 
     def step(self, action):
         print("step called")
@@ -194,6 +203,7 @@ class CustomEnv(gym.Env):
                 self.reward += 50 + (len([pnt for pnt in self.planets if pnt.alive == True]) * 50) + (50 / self.score + 1)
                 self.running = False
                 print(self.reward)
+                self.collector.add_to_csv([self.runs_completed, self.cumulative_age])
                 self.done = True
 
             # off screen
@@ -221,6 +231,7 @@ class CustomEnv(gym.Env):
                 # self.reward -= 150
                 self.running = False
                 print(self.reward)
+                self.collector.add_to_csv([self.runs_completed, self.cumulative_age])
                 self.done = True
 
             # update the bg
