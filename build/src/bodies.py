@@ -1,9 +1,9 @@
 import numpy as np
 import pygame
 import logging
-import time
-from helpers import *
-from game import *
+import helpers
+
+
 
 class Star:
     """
@@ -21,7 +21,7 @@ class Star:
         self.mass = r
         self.screen = screen
         # surface, color, center, radius
-        self.rd, self.gn, self.bu = np.random.randint(0,254), np.random.randint(0,254), np.random.randint(0,254)
+        self.rd, self.gn, self.bu = np.random.randint(0, 254), np.random.randint(0, 254), np.random.randint(0, 254)
 
     def draw(self):
         pygame.draw.circle(self.screen, (39, 176, 144), (self.x, self.y), self.r)
@@ -47,8 +47,8 @@ class Planet:
         self.force = force
         # self.momentum = [0.0001, 0]
         self.momentum = [0, 0]
-        self.birthtime = current_time().__round__(2)
-        self.age = (current_time() - self.birthtime).__round__(2)
+        self.birthtime = helpers.current_time().__round__(2)
+        self.age = (helpers.current_time() - self.birthtime).__round__(2)
         # surface, color, center, radius
         self.rd, self.gn, self.bu = np.random.randint(0, 254), np.random.randint(0, 254), np.random.randint(0, 254)
 
@@ -90,7 +90,8 @@ class Planet:
         """
         destroy any planet that goes offscreen
         """
-        logging.info(deathmsg)
+        # logging.info(deathmsg)
+        print(f"{deathmsg}")
 
         x, y = np.random.randint(200, 300), np.random.randint(200, 300)
         self.r, self.x, self.y, self.velocity, self.momentum, self.alive, self.mass = 0, -x, -y, [0, 0], [0, 0], False, 0

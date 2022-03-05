@@ -1,11 +1,4 @@
-# import game
 import os
-import numpy as np
-import planet as planet
-import self
-
-from src.game import getWidth, getHeight
-
 
 class Collector:
 
@@ -108,6 +101,23 @@ GLBVARS = DataGenrator(
     star_rad=[40],
     width = 1400,
     height = 800,
-    target_game_time = 20,
-    n_envs=2
+    target_game_time = 10,
+    n_envs=1
+)
+
+GLBVARS = DataGenrator(
+    n_planets=3,
+    n_stars=2,
+    planet_mom_scalar = 0.00005,
+    planet_rad = [10, 10, 10],
+    # star_x_pos = [getWidth()/2],
+    # star_y_pos = [getHeight()/2],
+    star_x_pos = [1400/2, 900],
+    star_y_pos = [800/2, 500],
+    star_mass = [40, 50],
+    star_rad=[40, 50],
+    width = 1400,
+    height = 800,
+    target_game_time = 10,
+    n_envs=1
 )

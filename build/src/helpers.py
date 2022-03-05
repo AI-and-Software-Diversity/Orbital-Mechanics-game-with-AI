@@ -81,7 +81,7 @@ def scale_vectors(vec1, vec2, factor):
 
     return (resultant_vec) * factor
 
-def non_created_yet():
+def not_created_yet():
     print("THIS HAS NOT YET BEEN IMPLEMENTED")
 
 if __name__ == '__main__':
