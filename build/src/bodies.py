@@ -3,8 +3,6 @@ import pygame
 import logging
 import helpers
 
-
-
 class Star:
     """
     https://www.youtube.com/watch?v=G8MYGDf_9ho

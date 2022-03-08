@@ -39,14 +39,16 @@ class CustomEnv(gym.Env):
     metadata = {'render.modes': ['human']}
 
     def __init__(self):
+        print("instatiating--------------")
         # self.runs_completed = -1
         super(CustomEnv, self).__init__()
 
         # The possible decisions the agent can make
         # planet x/y Momentum, planet x/y Pos
 
-        self.action_space = spaces.Box(low=-1, high=1, shape=(12,), dtype=np.float32)
-        # p1x, p1y, p2x, p2y, p3x, p3y p1xm, p1ym, p2xm, p2ym, p3xm, p3ym
+        self.action_space = spaces.Box(low=-1, high=1, shape=(4*data_handler.GLBVARS.n_planets,), dtype=np.float32)
+        # 4 * n_planets
+        # planet_N_x_position, planet_N_y_position, planet_N_x_momentum, planet_N_y_momentum # possibly planet_N_mass
 
         self.runs_completed = 0
 
@@ -56,6 +58,7 @@ class CustomEnv(gym.Env):
         # The things that the model knows before input
         # For now,  star x/y pos, p1 x/y pos, p2 x/y pos, p3 x/y pos, p1m, p2m, p3m
         N_DISCRETE_ACTIONS = 4 * data_handler.GLBVARS.n_stars + 5 * data_handler.GLBVARS.n_planets + 2
+        N_DISCRETE_ACTIONS = 4 * data_handler.GLBVARS.n_stars + 2
         self.observation_space = spaces.Box(low=0, high=data_handler.GLBVARS.width, shape=(N_DISCRETE_ACTIONS,))
 
     def step(self, action):
@@ -151,63 +154,109 @@ class CustomEnv(gym.Env):
 
             # setup actions of the agent
             if self.started == 0:
-                self.position_scalar = 0.95
 
-                self.planet1 = bodies.Planet(self.screen,
-                                             self.position_scalar * np.abs(action[0]) * data_handler.GLBVARS.width,
-                                             self.position_scalar * np.abs(action[1]) * data_handler.GLBVARS.height, 10)
-                logging.info(
-                    f"P1POS:{self.position_scalar * np.abs(action[0]) * data_handler.GLBVARS.width, self.position_scalar * np.abs(action[1]) * data_handler.GLBVARS.height}")
+                position_scalar = 0.95
+                momentum_scalar = data_handler.GLBVARS.planet_mom_scaler
+                width = data_handler.GLBVARS.width
+                height = data_handler.GLBVARS.height
 
-                self.planet2 = bodies.Planet(self.screen,
-                                             self.position_scalar * np.abs(action[2]) * data_handler.GLBVARS.width,
-                                             self.position_scalar * np.abs(action[3]) * data_handler.GLBVARS.height, 10)
-                logging.info(
-                    f"P2POS:{self.position_scalar * np.abs(action[2]) * data_handler.GLBVARS.width, self.position_scalar * np.abs(action[3]) * data_handler.GLBVARS.height}")
+                # decide the position of of planet
+                print(action)
+                planet_num = 0
+                for i in range(0, 4*data_handler.GLBVARS.n_planets,4):
+                    self.planets.append(
+                        bodies.Planet(
+                            self.screen,
+                            position_scalar * np.abs(action[i]) * width,
+                            position_scalar * np.abs(action[i+1]) * height,
+                            data_handler.GLBVARS.planet_mass[planet_num]
+                        )
+                    )
 
-                self.planet3 = bodies.Planet(self.screen,
-                                             self.position_scalar * np.abs(action[4]) * data_handler.GLBVARS.width,
-                                             self.position_scalar * np.abs(action[5]) * data_handler.GLBVARS.height, 10)
-                logging.info(
-                    f"P3POS:{self.position_scalar * np.abs(action[4]) * data_handler.GLBVARS.width, self.position_scalar * np.abs(action[5]) * data_handler.GLBVARS.height}")
+                    # decide the momentum of the planet
+                    momentum = np.array(
+                        [action[i+2] * momentum_scalar,
+                         action[i+3] * momentum_scalar]
+                    )
 
-                # self.momentum_scalar = 0.0001
-                self.momentum_scalar = 0.00005
-                self.planet1_momentum = np.array([action[6] * self.momentum_scalar, action[7] * self.momentum_scalar])
-                logging.info(f"P1M:{action[6] * self.momentum_scalar, action[7] * self.momentum_scalar}")
-                setattr(self.planet1, "momentum", self.planet1_momentum)
+                    setattr(self.planets[planet_num], "momentum", momentum)
+                    print(f"MOMENTUM={momentum}]")
 
-                self.planet2_momentum = np.array([action[8] * self.momentum_scalar, action[9] * self.momentum_scalar])
-                logging.info(f"P2M:{action[8] * self.momentum_scalar, action[9] * self.momentum_scalar}")
-                setattr(self.planet2, "momentum", self.planet2_momentum)
+                    planet_num += 1
 
-                self.planet3_momentum = np.array([action[10] * self.momentum_scalar, action[11] * self.momentum_scalar])
-                logging.info(f"P3M:{action[10] * self.momentum_scalar, action[11] * self.momentum_scalar}")
-                setattr(self.planet3, "momentum", self.planet3_momentum)
-
-                # Using Tuples, but doesnt work...
-                # self.planet1 = Planet(self.screen, action[1][0], action[2][0], 10)
-                # self.planet2 = Planet(self.screen, action[1][1], action[2][1], 10)
-                # self.planet3 = Planet(self.screen, action[1][2], action[2][2], 10)
-
-                # self.planet1_momentum = np.array(action[0][0], action[0][1])
-                # self.planet2_momentum = np.array(action[0][2], action[0][3])
-                # self.planet3_momentum = np.array(action[0][4], action[0][5])
-
-                self.planets.append(self.planet1)
-                self.planets.append(self.planet2)
-                self.planets.append(self.planet3)
-
-                self.planet1.active = True
-                self.planet2.active = True
-                self.planet3.active = True
-                # pnt.active = True for pnt in self.planets
+                for pnt in self.planets:
+                    pnt.active = True
 
                 self.start_time = helpers.current_time()
                 self.planets_in_motion = True
+                # i += 4
                 self.started += 1
 
-            # Handle completing the game successfully.
+
+            # setup actions of the agent
+            # if self.started == 0:
+            #
+            #     self.position_scalar = 0.95
+            #     width = data_handler.GLBVARS.width
+            #     height = data_handler.GLBVARS.height
+            #
+            #     self.planet1 = bodies.Planet(self.screen,
+            #                                  self.position_scalar * np.abs(action[0]) * width,
+            #                                  self.position_scalar * np.abs(action[1]) * height,
+            #                                  10)
+            #     logging.info(
+            #         f"P1POS:{self.position_scalar * np.abs(action[0]) * width, self.position_scalar * np.abs(action[1]) * height}")
+            #
+            #     self.planet2 = bodies.Planet(self.screen,
+            #                                  self.position_scalar * np.abs(action[2]) * width,
+            #                                  self.position_scalar * np.abs(action[3]) * height, 10)
+            #     logging.info(
+            #         f"P2POS:{self.position_scalar * np.abs(action[2]) * width, self.position_scalar * np.abs(action[3]) * height}")
+            #
+            #     self.planet3 = bodies.Planet(self.screen,
+            #                                  self.position_scalar * np.abs(action[4]) * width,
+            #                                  self.position_scalar * np.abs(action[5]) * height, 10)
+            #     logging.info(
+            #         f"P3POS:{self.position_scalar * np.abs(action[4]) * width, self.position_scalar * np.abs(action[5]) * height}")
+            #
+            #     # self.momentum_scalar = 0.0001
+            #     self.momentum_scalar = 0.00005
+            #
+            #     self.planet1_momentum = np.array([action[6] * self.momentum_scalar, action[7] * self.momentum_scalar])
+            #     logging.info(f"P1M:{action[6] * self.momentum_scalar, action[7] * self.momentum_scalar}")
+            #     setattr(self.planet1, "momentum", self.planet1_momentum)
+            #
+            #     self.planet2_momentum = np.array([action[8] * self.momentum_scalar, action[9] * self.momentum_scalar])
+            #     logging.info(f"P2M:{action[8] * self.momentum_scalar, action[9] * self.momentum_scalar}")
+            #     setattr(self.planet2, "momentum", self.planet2_momentum)
+            #
+            #     self.planet3_momentum = np.array([action[10] * self.momentum_scalar, action[11] * self.momentum_scalar])
+            #     logging.info(f"P3M:{action[10] * self.momentum_scalar, action[11] * self.momentum_scalar}")
+            #     setattr(self.planet3, "momentum", self.planet3_momentum)
+            #
+            #     # Using Tuples, but doesnt work...
+            #     # self.planet1 = Planet(self.screen, action[1][0], action[2][0], 10)
+            #     # self.planet2 = Planet(self.screen, action[1][1], action[2][1], 10)
+            #     # self.planet3 = Planet(self.screen, action[1][2], action[2][2], 10)
+            #
+            #     # self.planet1_momentum = np.array(action[0][0], action[0][1])
+            #     # self.planet2_momentum = np.array(action[0][2], action[0][3])
+            #     # self.planet3_momentum = np.array(action[0][4], action[0][5])
+            #
+            #     self.planets.append(self.planet1)
+            #     self.planets.append(self.planet2)
+            #     self.planets.append(self.planet3)
+            #
+            #     self.planet1.active = True
+            #     self.planet2.active = True
+            #     self.planet3.active = True
+            #     # pnt.active = True for pnt in self.planets
+            #
+            #     self.start_time = helpers.current_time()
+            #     self.planets_in_motion = True
+            #     self.started += 1
+
+                #    Handle completing the game successfully.
             if not self.have_displayed_score and self.cumulative_age > data_handler.GLBVARS.target_game_time:
                 # cumulative_age = sum([pnt.age for pnt in planets])
                 self.score = helpers.current_time() - self.start_time
@@ -256,7 +305,6 @@ class CustomEnv(gym.Env):
             # TODO remove all game.'s
             self.CLOCK.tick(self.FPS)
 
-            # o = [pnt.y for pnt in self.planets]
         # TODO SETUP THE OBSERVATION
         star_info = data_handler.GLBVARS.star_x_pos + data_handler.GLBVARS.star_y_pos \
                     + data_handler.GLBVARS.star_mass + data_handler.GLBVARS.star_rad
@@ -271,7 +319,8 @@ class CustomEnv(gym.Env):
                        self.planet3.r]
 
         other_info = [data_handler.GLBVARS.width, data_handler.GLBVARS.height]
-        observation_list = star_info + planet_info + other_info
+        # observation_list = star_info + planet_info + other_info
+        observation_list = star_info + other_info
 
         self.observation = np.array(observation_list)
         # 4*stars + 5*planets + 2
@@ -340,6 +389,11 @@ class CustomEnv(gym.Env):
                     + data_handler.GLBVARS.star_mass + data_handler.GLBVARS.star_rad
 
         # planet_info = [data_handler.GLBVARS. + data_handler.GLBVARS. + data_handler.GLBVARS.]
+        # planet_info = [pnt.x and pnt.y for pnt in self.planets] + []
+        # print("========================================")
+        # print([pnt.x and pnt.y for pnt in self.planets])
+        # print([pnt.x for pnt in self.planets])
+        # print("========================================")
         planet_info = [self.planet1.x, self.planet1.y,
             self.planet2.x, self.planet2.y, self.planet3.x, self.planet3.y,
             self.planet1_momentum[0], self.planet1_momentum[1], self.planet2_momentum[0],
@@ -349,7 +403,8 @@ class CustomEnv(gym.Env):
             self.planet3.r]
 
         other_info = [data_handler.GLBVARS.width, data_handler.GLBVARS.height]
-        observation_list = star_info + planet_info + other_info
+        # observation_list = star_info + planet_info + other_info
+        observation_list = star_info + other_info
 
         self.observation = np.array(observation_list)
 
