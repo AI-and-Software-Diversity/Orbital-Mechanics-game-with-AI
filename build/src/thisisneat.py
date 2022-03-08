@@ -11,7 +11,7 @@ import neat
 import numpy as np
 from OrbitEnv import OrbitEnv
 
-runs_per_net = 4
+runs_per_net = 3
 
 # Use the NN network phenotype and the discrete actuator force function.
 def eval_genome(genome, config):
@@ -32,9 +32,7 @@ def eval_genome(genome, config):
 
             action = net.activate(observation)
             observation, reward, done, info = env.step(action)
-            print("---------action----------")
-            print(reward)
-            print("---------action----------")
+
             fitness += reward
 
         fitnesses.append(fitness)
@@ -66,9 +64,10 @@ def run():
     winner = pop.run(pe.evaluate)
 
     # Save the winner.
-    with open('winner-feedforward', 'wb') as f:
+    with open('winner-feedforwardT8BLFIRSTMODEL', 'wb') as f:
         pickle.dump(winner, f)
 
+    stats.save()
     print(winner)
 
     # visualize.plot_stats(stats, ylog=True, view=True, filename="feedforward-fitness.svg")
@@ -78,11 +77,11 @@ def run():
     # visualize.draw_net(config, winner, True, node_names=node_names)
     #
     # visualize.draw_net(config, winner, view=True, node_names=node_names,
-    #                    filename="winner-feedforward.gv")
+    #                    filename="winner-feedforwardT8BLFIRSTMODEL.gv")
     # visualize.draw_net(config, winner, view=True, node_names=node_names,
-    #                    filename="winner-feedforward-enabled.gv", show_disabled=False)
+    #                    filename="winner-feedforwardT8BLFIRSTMODEL-enabled.gv", show_disabled=False)
     # visualize.draw_net(config, winner, view=True, node_names=node_names,
-    #                    filename="winner-feedforward-enabled-pruned.gv", show_disabled=False, prune_unused=True)
+    #                    filename="winner-feedforwardT8BLFIRSTMODEL-enabled-pruned.gv", show_disabled=False, prune_unused=True)
 
 
 if __name__ == '__main__':

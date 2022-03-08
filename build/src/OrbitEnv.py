@@ -238,11 +238,11 @@ class OrbitEnv(gym.Env):
 
         other_info = [data_handler.VARS.width, data_handler.VARS.height]
         observation_list = star_info + planet_info + other_info
-        print("------------step-----------")
-        print(star_info)
-        print(planet_info)
-        print(other_info)
-        print("------------step-----------")
+        # print("------------step-----------")
+        # print(star_info)
+        # print(planet_info)
+        # print(other_info)
+        # print("------------step-----------")
 
         self.observation = np.array(observation_list)
 
@@ -300,11 +300,11 @@ class OrbitEnv(gym.Env):
 
         observation_list = star_info + planet_info + other_info
 
-        print("------------reset-----------")
-        print(star_info)
-        print(planet_info)
-        print(other_info)
-        print("------------reset-----------")
+        # print("------------reset-----------")
+        # print(star_info)
+        # print(planet_info)
+        # print(other_info)
+        # print("------------reset-----------")
 
         self.observation = np.array(observation_list)
 
