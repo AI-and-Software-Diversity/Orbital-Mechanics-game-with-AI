@@ -16,6 +16,7 @@ I learnt how to implement callbacks following a tutorial series online by "Sentd
 
 Remember to reference Sentdex and documentation here (stable_baselines3, gym)
 """
+
 if __name__ == '__main__':
 
     fmt = '[%(levelname)s] %(asctime)s - %(message)s '
@@ -36,14 +37,17 @@ if __name__ == '__main__':
     # we only need one step to make the initial decisions (position and velocity of planets) so keep at 1
     steps = 1
     # training loop
-    for i in range(1_000_000):
+    i = 0
+    while i > -1:
         print(f"training loop just looped. i={i}")
 
         # model.learn(total_timesteps=1, reset_num_timesteps=False, tb_log_name="PPO_POWER")
         # model.save(f"{filepath}/{time.strftime('%d%m')}/model")
 
         model.learn(total_timesteps=1, reset_num_timesteps=False, tb_log_name="PPO_POUR")
+        # if i % 5 == 0:
         model.save(f"{filepath}/{time.strftime('%d%m')}/model2")
+        i += 1
 
     ###################################
     # load a previously trained model #
