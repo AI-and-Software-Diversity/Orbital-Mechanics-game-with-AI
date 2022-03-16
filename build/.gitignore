@@ -2,6 +2,10 @@
 #/PRACTICE STUFF/src/TESTCALLBACK
 venv/
 #venv
-.idea
-venv
-venv/*
+*.idea
+/venv
+/venv/*
+/build/venv/
+build/venv/
+/build/venv/*
+build/venv/*
