@@ -145,13 +145,13 @@ def level_1_human():
     # (x, y), (l, w)
     # star = Star(screen, WIDTH/2, HEIGHT/2, 40)
     planets = []
-    num_stars = 2
+    num_stars = 1
     stars = []
     for i in range(num_stars):
-        if i == 0:
-            stars.append(bodies.Star(screen, WIDTH / 2, HEIGHT / 2, 40))
-        else:
-            stars.append(bodies.Star(screen, 100*i + WIDTH / 2, 100*i + HEIGHT / 2, 40))
+        stars.append(bodies.Star(screen,
+                                 np.random.randint(data_handler.VARS.star_x_pos[0], data_handler.VARS.star_x_pos[1]),
+                                 np.random.randint(data_handler.VARS.star_y_pos[0], data_handler.VARS.star_y_pos[1]),
+                                 np.random.randint(data_handler.VARS.star_rad[0], data_handler.VARS.star_rad[1])))
     clicks = 0
     clks = 0
     planets_placed = 0
@@ -172,6 +172,10 @@ def level_1_human():
         screen.blit(bg, (0, 0))
 
         helpers.text_box("human player", 15, screen, -50 + (WIDTH / 2), -350 + (HEIGHT / 2))
+
+        helpers.text_box(f"CA: {cumulative_age.__round__(2)}/{data_handler.VARS.target_game_time}", 15,
+                         screen, 500 + (data_handler.VARS.width / 2),
+                         -350 + (data_handler.VARS.height / 2))
 
         for star in stars:
             star.draw()
@@ -319,70 +323,15 @@ def level_1_human():
             planets = peas
 
 
-            #p1
-            # if event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 0:
-            #     clicks += 1
-            #     planet1 = Planet(screen, mx, my, 10)
-            #     prev_x, prev_y = mx, my
-            #     logging.info(f"P1 POS {mx, my}")
-            #
-            # elif event.type == MOUSEBUTTONUP and event.button == 1 and clicks == 1:
-            #     clicks += 1
-            #     planet1_momentum = scale_vectors((prev_x, prev_y), (mx, my), 0.2)
-            #     logging.info(f"P1M: {planet1_momentum}")
-            #     setattr(planet1, "momentum", planet1_momentum)
-            #
-            # #p2
-            # elif event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 2:
-            #     clicks += 1
-            #     planet2 = Planet(screen, mx, my, 10)
-            #     prev_x, prev_y = mx, my
-            #     logging.info(f"P2 POS {mx, my}")
-            #
-            # elif event.type == MOUSEBUTTONUP and event.button == 1 and clicks == 3:
-            #     clicks += 1
-            #     planet2_momentum = scale_vectors((prev_x, prev_y), (mx, my), 0.2)
-            #     logging.info(f"P2M: {planet2_momentum}")
-            #     setattr(planet2, "momentum", planet2_momentum)
-            #
-            # #p3
-            # elif event.type == MOUSEBUTTONDOWN and event.button == 1 and clicks == 4:
-            #     clicks += 1
-            #     planet3 = Planet(screen, mx, my, 10)
-            #     prev_x, prev_y = mx, my
-            #     planets_in_motion = True
-            #     start_time = current_time()
-            #     logging.info(f"P3 POS {mx, my}")
-            #
-            #     planets.append(planet1)
-            #     planets.append(planet2)
-            #     planets.append(planet3)
-            #
-            #
-            # elif event.type == MOUSEBUTTONUP and event.button == 1 and clicks == 5:
-            #     planet3_momentum = scale_vectors((prev_x, prev_y), (mx, my), 0.2)
-            #     logging.info(f"P3M: {planet3_momentum}")
-            #
-            #     setattr(planet3, "momentum", planet3_momentum)
-            #     for pnt in planets:
-            #         pnt.active = True
-            #     clicks += 1
+
 
             ########################
             # PLACING PLANETS END ##
             ########################
 
-
-            # example click code
-            # if llbutton.collidepoint(mx, my) and CLICKED:
-            #     print("example")
-
         # calculate the score
-        # if all_planets_destroyed(planets) and planets_in_motion and not have_displayed_score and cumulative_age > 200:
-        #     # cumulative_age = sum([pnt.age for pnt in planets])
-        #     logging.info(f"Final Score = {(current_time() - start_time).__round__(2)}")
-        #     have_displayed_score = True
-        if not have_displayed_score and cumulative_age > 20:
+
+        if not have_displayed_score and cumulative_age > data_handler.VARS.target_game_time:
             # cumulative_age = sum([pnt.age for pnt in planets])
             score = helpers.current_time() - start_time
             logging.info(f"Final Score = {score}")
@@ -391,13 +340,20 @@ def level_1_human():
 
         # off screen
         for pnt in planets:
-            if ((pnt.x <= pnt.r) or (pnt.x >= WIDTH) or (pnt.y <= pnt.r) or (pnt.y >= HEIGHT)) and pnt.alive == True:
+            # u d l r
+            if ((pnt.y < 0) or (pnt.y > data_handler.VARS.height)
+                or (pnt.x < 0) or (pnt.x > data_handler.VARS.width)) and pnt.alive == True:
+
                 # cumulative_age += pnt.age
-                logging.info(f"current cml: {cumulative_age}")
-                pnt.destroy(deathmsg="blasting off again...")
+                if np.abs(time.time().real - start_time) < 1.2:
+                    pnt.destroy(deathmsg="SHOT INTO DEATH")
+                else:
+                    pnt.destroy(deathmsg="blasting off again...")
 
         # updating cml score
-        cumulative_age = sum([pnt.age for pnt in planets])
+        # print([pnt.alive for pnt in planets])
+        if len([pnt.alive for pnt in planets]) > 0:
+            cumulative_age = sum([pnt.age for pnt in planets])
 
         # ending game
         if helpers.all_planets_destroyed(planets) and planets_in_motion and not have_displayed_score:

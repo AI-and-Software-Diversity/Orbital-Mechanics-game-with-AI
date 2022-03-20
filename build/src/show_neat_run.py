@@ -3,7 +3,7 @@ import pickle
 import neat
 import numpy as np
 # load the winner
-from src.OrbitEnv import OrbitEnv
+from OrbitEnv import OrbitEnv
 
 """
 give credit to sentdex and gh library
@@ -11,12 +11,12 @@ give credit to sentdex and gh library
 # model_name = ""
 # model_folder = ""
 
-# model_folder = "../src"
-model_folder = "NeuroEvolution/models"
+model_folder = ""
+# model_folder = "NeuroEvolution/models"
 # model_name = ""
-model_name = "1647046913.5703568"
+model_name = "neat-checkpoint-8-checkpoint"
 
-with open(f'{model_folder}/{model_name}', 'rb') as f:
+with open(f'{model_name}', 'rb') as f:
     c = pickle.load(f)
 
 print('Loaded genome:')

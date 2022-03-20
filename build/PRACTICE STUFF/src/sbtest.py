@@ -18,7 +18,7 @@ cb = ModelCheckpoint(filepath, monitor='accuracy')
 time.strftime("%d/%m/%Y")
 model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=filepath)
 steps = 10_000
-for i in range(3):
+for i in range(10):
     model.learn(total_timesteps=20, reset_num_timesteps=False, tb_log_name="P0p")
     model.save(f"{filepath}/model")
 

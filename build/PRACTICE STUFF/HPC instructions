@@ -14,9 +14,11 @@ ssh -p2000 adbg285@localhost
 pip3 install --proxy http://hpc-proxy00.city.ac.uk:3128 --user LIBRARY
 
     # eg
-pip3 install --proxy http://hpc-proxy00.city.ac.uk:3128 --user tensorflow
-pip3 install --proxy http://hpc-proxy00.city.ac.uk:3128 --user stable-baselines3
-pip3 install --proxy http://hpc-proxy00.city.ac.uk:3128 --user gym
+pip3 install --proxy http://hpc-proxy00.city.ac.uk:3128 --user tensorflow=2.8.0
+pip3 install --proxy http://hpc-proxy00.city.ac.uk:3128 --user stable-baselines3=1.4.0
+pip3 install --proxy http://hpc-proxy00.city.ac.uk:3128 --user neat-python=0.92
+pip3 install --proxy http://hpc-proxy00.city.ac.uk:3128 --user gym=0.19.0
+pip3 install --proxy http://hpc-proxy00.city.ac.uk:3128 --user pygame=2.1.2
 
     #  venv stuff
 python -m venv venv/
@@ -31,3 +33,7 @@ sbatch setup1.sh
 git config --global http.proxy http://hpc-proxy00.city.ac.uk:3128
     # Then
 git clone https://github.com/AI-and-Software-Diversity/Orbital-Mechanics-game-with-AI.git
+
+
+pip3 install --proxy http://hpc-proxy00.city.ac.uk:3128 --upgrade pip
+python3 -m pip install --proxy http://hpc-proxy00.city.ac.uk:3128 stable-baselines3

@@ -352,7 +352,7 @@ class CustomEnv(gym.Env):
         self.CLOCK = pygame.time.Clock()
 
         # setting up bg
-        self.bg = pygame.image.load("../assets/gamebg1.png")
+        self.bg = pygame.image.load("../../assets/gamebg1.png")
         pygame.display.set_icon(self.bg)
         self.stars = []
         # menu buttons
@@ -440,7 +440,7 @@ if __name__ == '__main__':
     # env = CustomEnv()
     # https://stable-baselines3.readthedocs.io/en/master/guide/examples.html
     env = make_vec_env(CustomEnv, n_envs=data_handler.GLBVARS.n_envs, seed=2, vec_env_cls=SubprocVecEnv)
-    filepath = "models"
+    filepath = "../models"
     cb = ModelCheckpoint(filepath, monitor='accuracy')
 
     #################

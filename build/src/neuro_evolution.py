@@ -1,11 +1,13 @@
 """
-Single-pole balancing experiment using a feed-forward neural network.
-thisisneat
+give credit to sentdex and gh library
 """
 
 import multiprocessing
 import os
 import pickle
+# from datetime import time
+import time
+
 import gym
 import neat
 import numpy as np
@@ -52,10 +54,12 @@ def run():
     local_dir = os.path.dirname(__file__)
     config_path = os.path.join(local_dir, 'config')
     config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
-                         neat.DefaultSpeciesSet, neat.DefaultStagnation,
-                         config_path)
+                                    neat.DefaultSpeciesSet, neat.DefaultStagnation,
+                                    config_path)
 
     pop = neat.Population(config)
+    callbacks = neat.Checkpointer(generation_interval=1)
+    pop.add_reporter(callbacks)
     stats = neat.StatisticsReporter()
     pop.add_reporter(stats)
     pop.add_reporter(neat.StdOutReporter(True))
@@ -64,25 +68,46 @@ def run():
     winner = pop.run(pe.evaluate)
 
     # Save the winner.
-    with open('winner-feedforwardT8BLFIRSTMODEL', 'wb') as f:
+    path_to_mmodels = "NeuroEvolution/models"
+    with open(f'{path_to_mmodels}/{time.time().real}', 'wb') as f:
         pickle.dump(winner, f)
 
     stats.save()
     print(winner)
 
-    # visualize.plot_stats(stats, ylog=True, view=True, filename="feedforward-fitness.svg")
-    # visualize.plot_species(stats, view=True, filename="feedforward-speciation.svg")
-    #
-    # node_names = {-1: 'x', -2: 'dx', -3: 'theta', -4: 'dtheta', 0: 'control'}
-    # visualize.draw_net(config, winner, True, node_names=node_names)
-    #
-    # visualize.draw_net(config, winner, view=True, node_names=node_names,
-    #                    filename="winner-feedforwardT8BLFIRSTMODEL.gv")
-    # visualize.draw_net(config, winner, view=True, node_names=node_names,
-    #                    filename="winner-feedforwardT8BLFIRSTMODEL-enabled.gv", show_disabled=False)
-    # visualize.draw_net(config, winner, view=True, node_names=node_names,
-    #                    filename="winner-feedforwardT8BLFIRSTMODEL-enabled-pruned.gv", show_disabled=False, prune_unused=True)
+def continue_from_checkpoint(checkpoint_name, n_runs=0):
+
+
+
+    # Load the config file, which is assumed to live in
+    # the same directory as this script.
+    local_dir = os.path.dirname(__file__)
+    config_path = os.path.join(local_dir, 'config')
+    config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
+                                    neat.DefaultSpeciesSet, neat.DefaultStagnation,
+                                    config_path)
+
+    pop = neat.Population(config)
+    cb = neat.Checkpointer(generation_interval=2)
+    # checkpoint_name = "neat-checkpoint-9 zipped"
+    # checkpoint_name = "neat-checkpoint-19 zipp"
+    pop = cb.restore_checkpoint(checkpoint_name)
+    pop.add_reporter(neat.StdOutReporter(True))
+    pe = neat.ParallelEvaluator(multiprocessing.cpu_count(), eval_genome)
+    # To train according to config specs
+    if n_runs < 1:
+        winner = pop.run(pe.evaluate)
+    else:
+        winner = pop.run(pe.evaluate, n_runs)
+
+    # Save the winner.
+    with open(checkpoint_name+"-checkpoint", 'wb') as f:
+        pickle.dump(winner, f)
+
+    print(winner)
+
 
 
 if __name__ == '__main__':
     run()
+    # continue_from_checkpoint("neat-checkpoint-24")

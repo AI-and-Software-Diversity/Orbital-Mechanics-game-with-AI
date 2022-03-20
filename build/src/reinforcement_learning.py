@@ -32,33 +32,36 @@ if __name__ == '__main__':
     # Train a model #
     #################
 
-    model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=filepath, n_steps=128)
+    # model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=filepath, n_steps=256)
 
     # we only need one step to make the initial decisions (position and velocity of planets) so keep at 1
     steps = 1
     # training loop
     i = 0
-    while i > -1:
-        print(f"training loop just looped. i={i}")
-
-        # model.learn(total_timesteps=1, reset_num_timesteps=False, tb_log_name="PPO_POWER")
-        # model.save(f"{filepath}/{time.strftime('%d%m')}/model")
-
-        model.learn(total_timesteps=1, reset_num_timesteps=False, tb_log_name="PPO_POUR")
-        # if i % 5 == 0:
-        model.save(f"{filepath}/{time.strftime('%d%m')}/model2")
-        i += 1
+    # comment to train
+    # i = -1
+    # while i > -1:
+    #     print(f"training loop just looped. i={i}")
+    #
+    #     # model.learn(total_timesteps=1, reset_num_timesteps=False, tb_log_name="PPO_POWER")
+    #     # model.save(f"{filepath}/{time.strftime('%d%m')}/model")
+    #
+    #     model.learn(total_timesteps=1, reset_num_timesteps=False, tb_log_name="PPO_POUR")
+    #     # if i % 5 == 0:
+    #     model.save(f"{filepath}/{time.strftime('%d%m')}/model")
+    #     i += 1
 
     ###################################
     # load a previously trained model #
     ###################################
 
     # model = PPO.load(f"{filepath}/26022022/model-01:38:45-2.zip")
+    model = PPO.load('models/model.zip')
 
     #################################################
     # Use a model that has just been loaded/trained #
     #################################################
-
+    env = OrbitEnv()
     obs = env.reset()
     for i in range(20):
         action, _states = model.predict(obs, deterministic=True)

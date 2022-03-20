@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from gym import spaces
 from data_handler import Collector
 import logging
@@ -46,7 +48,7 @@ class OrbitEnv(gym.Env):
         self.runs_completed = 0
 
         # self.collector = data_handler.Collector(f"{time.time().real}")
-        self.collector = Collector(f"initial")
+        self.collector = Collector(f"data{time.time().real.__round__(0)}")
 
         # The things that the model knows before input
         # For now,  star x/y pos, p1 x/y pos, p2 x/y pos, p3 x/y pos, p1m, p2m, p3m
@@ -54,7 +56,7 @@ class OrbitEnv(gym.Env):
         self.observation_space = spaces.Box(low=0, high=data_handler.VARS.width, shape=(N_DISCRETE_OBSERVATIONS,))
 
     def step(self, action):
-        print("step called")
+        # print("step called")
         # self.runs_completed += 1
         self.started = 0
         self.time_started = time.time().real
@@ -188,11 +190,15 @@ class OrbitEnv(gym.Env):
                 self.score = helpers.current_time() - self.start_time
                 logging.info(f"SCORE :::   {self.score}")
                 self.have_displayed_score = True
-                self.reward += 50 + (len([pnt for pnt in self.planets if pnt.alive == True]) * 50) + (
-                            50 / self.score + 1)
+                self.reward += 100 + (len([pnt for pnt in self.planets if pnt.alive == True]) * 50) + (
+                            self.score / 50)
                 self.running = False
                 print(f"SUCCESS, SCORE: {self.reward}")
-                self.collector.add_to_csv([self.runs_completed, self.cumulative_age])
+                self.collector.add_to_csv([1,
+                                           self.reward,
+                                           self.cumulative_age,
+                                           data_handler.VARS.target_game_time,
+                                           self.runs_completed])
                 self.done = True
 
             # PLANET GOES OFF SCREEN
@@ -219,10 +225,16 @@ class OrbitEnv(gym.Env):
             if helpers.all_planets_destroyed(self.planets) and self.planets_in_motion and not self.have_displayed_score:
                 logging.debug("FAILED")
                 self.running = False
-                # self.reward -= 150
+                # test with off for story in dissotation
+                self.reward -= 80
                 self.running = False
-                print(f"FAILED, SCORE: {self.reward}")
-                self.collector.add_to_csv([self.runs_completed, self.cumulative_age])
+                # print(f"FAILED, SCORE: {self.reward}")
+                self.collector.add_to_csv([0,
+                                           self.reward,
+                                           self.cumulative_age,
+                                           data_handler.VARS.target_game_time,
+                                           self.runs_completed])
+
                 self.done = True
 
             # update the bg
@@ -255,7 +267,7 @@ class OrbitEnv(gym.Env):
         This is where we get the observation
         So: star x/y pos, window h/w
         """
-        print("reset called")
+        # print("reset called")
         self.done = False
         # pygame.init()
         # For us: just the observation_space
