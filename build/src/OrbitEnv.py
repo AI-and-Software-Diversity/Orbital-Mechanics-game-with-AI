@@ -1,12 +1,12 @@
 from gym import spaces
-from build.src.Game.data_handler import Collector
+from data_handler import Collector
 import logging
 import gym
 import pygame
 import numpy as np
-import build.src.Game.data_handler as data_handler
-import build.src.Game.helpers as helpers
-import build.src.Game.bodies as bodies
+import data_handler
+import helpers
+import bodies
 import time
 import random
 
@@ -38,19 +38,21 @@ class OrbitEnv(gym.Env):
         # The possible decisions the agent can make
         # planet x/y Momentum, planet x/y Pos
 
-        N_DISCRETE_ACTIONS = 4 * data_handler.VARS.n_planets
+        N_DISCRETE_ACTIONS = 4 * data_handler.GLBVARS.n_planets
         self.action_space = spaces.Box(low=-1, high=1, shape=(N_DISCRETE_ACTIONS,), dtype=np.float32)
         # 4 * n_planets
         # planet_N_x_position, planet_N_y_position, planet_N_x_momentum, planet_N_y_momentum # possibly planet_N_mass
 
         self.runs_completed = 0
 
-        self.collector = Collector(f"data_neat", "neat")
+        # self.collector = Collector(f"data_neat", "neat")
+        self.collector = Collector(f"data_rlearn", "rlearn")
+
 
         # The things that the model knows before input
         # For now,  star x/y pos, p1 x/y pos, p2 x/y pos, p3 x/y pos, p1m, p2m, p3m
-        N_DISCRETE_OBSERVATIONS = 3 * data_handler.VARS.n_stars + 1 * data_handler.VARS.n_planets + 2
-        self.observation_space = spaces.Box(low=0, high=data_handler.VARS.width, shape=(N_DISCRETE_OBSERVATIONS,))
+        N_DISCRETE_OBSERVATIONS = 3 * data_handler.GLBVARS.n_stars + 1 * data_handler.GLBVARS.n_planets + 2
+        self.observation_space = spaces.Box(low=0, high=data_handler.GLBVARS.width, shape=(N_DISCRETE_OBSERVATIONS,))
 
     def step(self, action):
         # print("step called")
@@ -60,7 +62,9 @@ class OrbitEnv(gym.Env):
         self.runs_completed += 1
         pygame.init()
 
+
         while self.running:
+
 
             # set the age of each planet that is "active"
             for pnt in self.planets:
@@ -69,16 +73,18 @@ class OrbitEnv(gym.Env):
 
             # self.mx, self.my = pygame.mouse.get_pos()
 
+            self.screen.fill((0,0,0))
             self.screen.blit(self.bg, (0, 0))
 
-            helpers.text_box(f"Reinforcement Learning", 15, self.screen, -600 + (data_handler.VARS.width / 2),
-                             -350 + (data_handler.VARS.height / 2))
-            helpers.text_box(f"Runs Completed: {self.runs_completed} ({data_handler.VARS.n_envs})", 15, self.screen,
-                             -200 + (data_handler.VARS.width / 2), -350 + (data_handler.VARS.height / 2))
-            helpers.text_box(f"CA: {self.cumulative_age.__round__(2)}/{data_handler.VARS.target_game_time}", 15,
-                             self.screen, 500 + (data_handler.VARS.width / 2),
-                             -350 + (data_handler.VARS.height / 2))
+            helpers.text_box(f"Non-human Agent", 15, self.screen, -600 + (data_handler.GLBVARS.width / 2),
+                             -350 + (data_handler.GLBVARS.height / 2))
 
+            helpers.text_box(f"Time eplapsed: {(helpers.current_time() - self.start_time).__round__(2)} ", 15, self.screen,
+                             -200 + (data_handler.GLBVARS.width / 2), -350 + (data_handler.GLBVARS.height / 2))
+
+            helpers.text_box(f"CS: {self.cumulative_timesteps.__round__(2)}/{data_handler.GLBVARS.total_steps}", 15,
+                             self.screen, 500 + (data_handler.GLBVARS.width / 2),
+                             -350 + (data_handler.GLBVARS.height / 2))
             for star in self.stars:
                 star.draw()
 
@@ -90,7 +96,7 @@ class OrbitEnv(gym.Env):
                     if helpers.euclidian_distance(star, pnt) <= star.r * 1.2:
                         # cumulative_age += pnt.age
                         if np.abs(time.time().real - self.start_time) < 1.2:
-                            self.reward -= 4
+                            self.reward -= 40
                             pnt.destroy(deathmsg="SHOT INTO DEATH")
                         else:
                             pnt.destroy(deathmsg="eaten by sun")
@@ -102,7 +108,7 @@ class OrbitEnv(gym.Env):
                         n = np.random.randint(0, 2)
                         # PUNISH IF TOO SOON
                         if np.abs(time.time().real - self.start_time) < 1.2:
-                            self.reward -= 4
+                            self.reward -= 60
                         if n == 1:
                             # cumulative_age += pnt.age
                             pnt1.destroy(deathmsg="multi-planet collision")
@@ -147,13 +153,13 @@ class OrbitEnv(gym.Env):
             if self.started == 0:
 
                 position_scalar = 0.95
-                momentum_scalar = data_handler.VARS.planet_mom_scaler
-                width = data_handler.VARS.width
-                height = data_handler.VARS.height
+                momentum_scalar = data_handler.GLBVARS.planet_mom_scaler
+                width = data_handler.GLBVARS.width
+                height = data_handler.GLBVARS.height
 
                 # decide the position of of planet
                 planet_num = 0
-                for i in range(0, 4 * data_handler.VARS.n_planets, 4):
+                for i in range(0, 4 * data_handler.GLBVARS.n_planets, 4):
                     self.planets.append(
                         bodies.Planet(
                             self.screen,
@@ -181,32 +187,32 @@ class OrbitEnv(gym.Env):
                 # i += 4
                 self.started += 1
 
-                #    Handle completing the game successfully.
-            if not self.have_displayed_score and self.cumulative_age > data_handler.VARS.target_game_time:
-                # cumulative_age = sum([pnt.age for pnt in planets])
+            n_planets_alive = len([pnt for pnt in self.planets if pnt.alive == True])
+            self.cumulative_timesteps += 1 * n_planets_alive
+
+            # ending game (success)
+            if not self.have_displayed_score and self.cumulative_timesteps > data_handler.GLBVARS.total_steps:
                 self.score = helpers.current_time() - self.start_time
-                logging.info(f"SCORE :::   {self.score}")
                 self.have_displayed_score = True
-                self.reward += 100 + (len([pnt for pnt in self.planets if pnt.alive == True]) * 50) + (
-                            self.score / 50)
+                self.reward += 100 + (n_planets_alive * 50) + (self.score / 50)
+                print(f"SUCCESS, REWARD: {self.reward}, CS: {self.cumulative_timesteps}")
                 self.running = False
-                print(f"SUCCESS, SCORE: {self.reward}")
                 self.collector.add_to_csv([1,
                                            self.reward,
                                            self.cumulative_age,
-                                           data_handler.VARS.target_game_time,
+                                           data_handler.GLBVARS.total_steps,
                                            self.runs_completed])
                 self.done = True
 
             # PLANET GOES OFF SCREEN
             for pnt in self.planets:
                 # u d l r
-                if ((pnt.y < 0) or (pnt.y > data_handler.VARS.height)
-                    or (pnt.x < 0) or (pnt.x > data_handler.VARS.width)) and pnt.alive == True:
+                if ((pnt.y < 0) or (pnt.y > data_handler.GLBVARS.height)
+                    or (pnt.x < 0) or (pnt.x > data_handler.GLBVARS.width)) and pnt.alive == True:
 
-                    # cumulative_age += pnt.age
+                    # Big punishment if planets are killed too soon
                     if np.abs(time.time().real - self.start_time) < 1.2:
-                        self.reward -= 4
+                        self.reward -= 200
                         pnt.destroy(deathmsg="SHOT INTO DEATH")
                     else:
                         pnt.destroy(deathmsg="blasting off again...")
@@ -214,22 +220,30 @@ class OrbitEnv(gym.Env):
             # updating cml age
             self.cumulative_age = sum([pnt.age for pnt in self.planets])
 
+
             # Passive reward condition:
             # An increasing amount proportional to the length of time of the run.
-            self.reward += (self.cumulative_age / 10)
+            # increase the reward every 5s
+
+            interval = 40
+            self.n_loops_passed += 1
+            if self.n_loops_passed >= interval:
+                self.n_loops_passed = 0
+                self.reward += 4 * n_planets_alive
 
             # ending game (failure)
             if helpers.all_planets_destroyed(self.planets) and self.planets_in_motion and not self.have_displayed_score:
+                print(f"FAILURE, REWARD: {self.reward}, CS: {self.cumulative_timesteps}")
                 logging.debug("FAILED")
                 self.running = False
-                # test with off for story in dissotation
+                # test with off for story in disso
                 self.reward -= 80
                 self.running = False
                 # print(f"FAILED, SCORE: {self.reward}")
                 self.collector.add_to_csv([0,
                                            self.reward,
                                            self.cumulative_age,
-                                           data_handler.VARS.target_game_time,
+                                           data_handler.GLBVARS.target_game_time,
                                            self.runs_completed])
 
                 self.done = True
@@ -245,7 +259,7 @@ class OrbitEnv(gym.Env):
         star_info = [star.x for star in self.stars] + [star.y for star in self.stars] + [star.r for star in self.stars]
         planet_info = list(self.planet_masses)
 
-        other_info = [data_handler.VARS.width, data_handler.VARS.height]
+        other_info = [data_handler.GLBVARS.width, data_handler.GLBVARS.height]
         observation_list = star_info + planet_info + other_info
         # print("------------step-----------")
         # print(star_info)
@@ -266,6 +280,8 @@ class OrbitEnv(gym.Env):
         """
         # print("reset called")
         self.done = False
+        self.n_loops_passed = 0
+        self.cumulative_timesteps = 0
         # pygame.init()
         # For us: just the observation_space
         self.planets_in_motion = False
@@ -273,31 +289,33 @@ class OrbitEnv(gym.Env):
         self.start_time = time.time().real
         self.cumulative_age = 0
         self.score = 0
-        self.screen = pygame.display.set_mode((data_handler.VARS.width, data_handler.VARS.height))
+        self.screen = pygame.display.set_mode((data_handler.GLBVARS.width, data_handler.GLBVARS.height))
         self.running = True
         self.reward = 0
         self.reward_scalar = 1
+        self.reward_tracker = 0
+
 
         self.FPS = 144
         self.CLOCK = pygame.time.Clock()
 
         # setting up bg
-        self.bg = pygame.image.load("../../assets/gamebg1.png")
+        self.bg = pygame.image.load(f"assets/gamebg1.png")
         pygame.display.set_icon(self.bg)
         self.stars = []
         # menu buttons
         # creating starts
-        for i in range(data_handler.VARS.n_stars):
+        for i in range(data_handler.GLBVARS.n_stars):
             self.stars.append(
                 bodies.Star(self.screen,
-                            random.randint(data_handler.VARS.star_x_pos[0], data_handler.VARS.star_x_pos[1]),
-                            random.randint(data_handler.VARS.star_y_pos[0], data_handler.VARS.star_y_pos[1]),
-                            random.randint(data_handler.VARS.star_rad[0], data_handler.VARS.star_rad[1])
+                            random.randint(data_handler.GLBVARS.star_x_pos[0], data_handler.GLBVARS.star_x_pos[1]),
+                            random.randint(data_handler.GLBVARS.star_y_pos[0], data_handler.GLBVARS.star_y_pos[1]),
+                            random.randint(data_handler.GLBVARS.star_rad[0], data_handler.GLBVARS.star_rad[1])
                             )
             )
-        self.planet_masses = np.random.randint(data_handler.VARS.planet_mass[0],
-                                               data_handler.VARS.planet_mass[1],
-                                               size=(data_handler.VARS.n_planets,))
+        self.planet_masses = np.random.randint(data_handler.GLBVARS.planet_mass[0],
+                                               data_handler.GLBVARS.planet_mass[1],
+                                               size=(data_handler.GLBVARS.n_planets,))
         self.planets = []
 
         self.clicks = 0
@@ -305,7 +323,7 @@ class OrbitEnv(gym.Env):
         # new observation space
         star_info = [star.x for star in self.stars] + [star.y for star in self.stars] + [star.r for star in self.stars]
         planet_info = list(self.planet_masses)
-        other_info = [data_handler.VARS.width, data_handler.VARS.height]
+        other_info = [data_handler.GLBVARS.width, data_handler.GLBVARS.height]
 
         observation_list = star_info + planet_info + other_info
 

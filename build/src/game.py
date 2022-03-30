@@ -21,23 +21,23 @@ def main_menu():
     """
     pygame.init()
 
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    screen = pygame.display.set_mode((data_handler.GLBVARS.width, data_handler.GLBVARS.height))
     # running = True
 
     # window title
     pygame.display.set_caption("spooky outer space")
 
     # setting up bg
-    bg = pygame.image.load("../../assets/gamebg1.png")
+    bg = pygame.image.load("../assets/gamebg1.png")
     pygame.display.set_icon(bg)
 
     # menu buttons
     # (x, y), (l, w)
 
-    llbutton = pygame.Rect((WIDTH/5, HEIGHT / 2), (30, 10))
-    lbutton = pygame.Rect((2*WIDTH/5, HEIGHT / 2), (30, 10))
-    mbutton = pygame.Rect((3*WIDTH/5, HEIGHT / 2), (30, 10))
-    rbutton = pygame.Rect((4*WIDTH/5, HEIGHT / 2), (30, 10))
+    llbutton = pygame.Rect((data_handler.GLBVARS.width / 5, data_handler.GLBVARS.height / 2), (30, 10))
+    lbutton = pygame.Rect((2 * data_handler.GLBVARS.width / 5, data_handler.GLBVARS.height / 2), (30, 10))
+    mbutton = pygame.Rect((3 * data_handler.GLBVARS.width / 5, data_handler.GLBVARS.height / 2), (30, 10))
+    rbutton = pygame.Rect((4 * data_handler.GLBVARS.width / 5, data_handler.GLBVARS.height / 2), (30, 10))
 
     clicked = None
     frame_count = 0
@@ -56,9 +56,10 @@ def main_menu():
         # setting up backup background as well as image bg
         screen.blit(bg, (0, 0))
 
-        helpers.text_box("main menu", 50, screen, -200 + (WIDTH / 2), -200 + (HEIGHT / 2))
+        helpers.text_box("main menu", 50, screen, -200 + (data_handler.GLBVARS.width / 2), -200 + (
+                    data_handler.GLBVARS.height / 2))
 
-        helpers.text_box("play (human)", 10, screen, WIDTH / 5, 30 + HEIGHT / 2)
+        helpers.text_box("play (human)", 10, screen, data_handler.GLBVARS.width / 5, 30 + data_handler.GLBVARS.height / 2)
         pygame.draw.rect(screen, (255, 255, 255), llbutton)
 
         if llbutton.collidepoint(mx, my) and clicked:
@@ -68,14 +69,14 @@ def main_menu():
             # pygame.event.wait()
             menu_template(level_1_human, helpers.not_created_yet, helpers.not_created_yet, helpers.not_created_yet)
 
-        helpers.text_box("play (NEAT AI)", 10, screen, 2 * WIDTH / 5, 30 + HEIGHT / 2)
+        helpers.text_box("play (NEAT AI)", 10, screen, 2 * data_handler.GLBVARS.width / 5, 30 + data_handler.GLBVARS.height / 2)
         pygame.draw.rect(screen, (255, 255, 255), lbutton)
         if lbutton.collidepoint(mx, my) and clicked:
             pygame.event.wait()
             menu_template(helpers.not_created_yet, helpers.not_created_yet, helpers.not_created_yet, helpers.not_created_yet)
             # play_NEAT()
 
-        helpers.text_box("play (RLearn AI)", 10, screen, 3 * WIDTH / 5, 30 + HEIGHT / 2)
+        helpers.text_box("play (RLearn AI)", 10, screen, 3 * data_handler.GLBVARS.width / 5, 30 + data_handler.GLBVARS.height / 2)
         pygame.draw.rect(screen, (255, 255, 255), mbutton)
         # print("playin")
         if mbutton.collidepoint(mx, my) and clicked:
@@ -84,7 +85,7 @@ def main_menu():
             # print("m button")
             # play_r_learning()
 
-        helpers.text_box("highscores", 10, screen, 4 * WIDTH / 5, 30 + HEIGHT / 2)
+        helpers.text_box("highscores", 10, screen, 4 * data_handler.GLBVARS.width / 5, 30 + data_handler.GLBVARS.height / 2)
         pygame.draw.rect(screen, (255, 255, 255), rbutton)
 
         # pygame.event.poll()
@@ -148,9 +149,9 @@ def level_1_human():
     stars = []
     for i in range(num_stars):
         stars.append(bodies.Star(screen,
-                                 np.random.randint(data_handler.VARS.star_x_pos[0], data_handler.VARS.star_x_pos[1]),
-                                 np.random.randint(data_handler.VARS.star_y_pos[0], data_handler.VARS.star_y_pos[1]),
-                                 np.random.randint(data_handler.VARS.star_rad[0], data_handler.VARS.star_rad[1])))
+                                 np.random.randint(data_handler.GLBVARS.star_x_pos[0], data_handler.GLBVARS.star_x_pos[1]),
+                                 np.random.randint(data_handler.GLBVARS.star_y_pos[0], data_handler.GLBVARS.star_y_pos[1]),
+                                 np.random.randint(data_handler.GLBVARS.star_rad[0], data_handler.GLBVARS.star_rad[1])))
     clicks = 0
     clks = 0
     planets_placed = 0
@@ -167,14 +168,15 @@ def level_1_human():
 
         # logging.info(helpers.current_time_s)
         mx, my = pygame.mouse.get_pos()
-
+        screen.fill(color=(0,0,0))
         screen.blit(bg, (0, 0))
 
-        helpers.text_box("human player", 15, screen, -50 + (WIDTH / 2), -350 + (HEIGHT / 2))
+        helpers.text_box("human player", 15, screen, -50 + (data_handler.GLBVARS.width / 2), -350 + (
+                    data_handler.GLBVARS.height / 2))
 
-        helpers.text_box(f"CA: {cumulative_age.__round__(2)}/{data_handler.VARS.target_game_time}", 15,
-                         screen, 500 + (data_handler.VARS.width / 2),
-                         -350 + (data_handler.VARS.height / 2))
+        helpers.text_box(f"CA: {cumulative_age.__round__(2)}/{data_handler.GLBVARS.target_game_time}", 15,
+                         screen, 500 + (data_handler.GLBVARS.width / 2),
+                         -350 + (data_handler.GLBVARS.height / 2))
 
         for star in stars:
             star.draw()
@@ -329,25 +331,31 @@ def level_1_human():
             ########################
 
         # calculate the score
-
-        if not have_displayed_score and cumulative_age > data_handler.VARS.target_game_time:
+        if not have_displayed_score and cumulative_age > data_handler.GLBVARS.target_game_time:
             # cumulative_age = sum([pnt.age for pnt in planets])
             score = helpers.current_time() - start_time
             logging.info(f"Final Score = {score}")
             have_displayed_score = True
             running = False
 
-        # off screen
+        # # off screen
+        # for pnt in planets:
+        #     # u d l r
+        #     if ((pnt.y < 0) or (pnt.y > data_handler.VARS.height)
+        #         or (pnt.x < 0) or (pnt.x > data_handler.VARS.width)) and pnt.alive == True:
+        #
+        #         # cumulative_age += pnt.age
+        #         if np.abs(time.time().real - start_time) < 1.2:
+        #             pnt.destroy(deathmsg="SHOT INTO DEATH")
+        #         else:
+        #             pnt.destroy(deathmsg="blasting off again...")
         for pnt in planets:
+            print("off screen")
             # u d l r
-            if ((pnt.y < 0) or (pnt.y > data_handler.VARS.height)
-                or (pnt.x < 0) or (pnt.x > data_handler.VARS.width)) and pnt.alive == True:
+            if ((pnt.y < 0) or (pnt.y > data_handler.GLBVARS.height)
+                or (pnt.x < 0) or (pnt.x > data_handler.GLBVARS.width)) and pnt.alive == True:
 
-                # cumulative_age += pnt.age
-                if np.abs(time.time().real - start_time) < 1.2:
-                    pnt.destroy(deathmsg="SHOT INTO DEATH")
-                else:
-                    pnt.destroy(deathmsg="blasting off again...")
+                pnt.destroy(deathmsg="SHOT INTO DEATH")
 
         # updating cml score
         # print([pnt.alive for pnt in planets])
@@ -794,7 +802,7 @@ def menu_template(function_1, function_2, function_3, function_4):
     running = True
 
     # setting up bg
-    bg = pygame.image.load("../../assets/gamebg1.png")
+    bg = pygame.image.load("../assets/gamebg1.png")
     pygame.display.set_icon(bg)
 
     # menu buttons
@@ -877,14 +885,7 @@ def menu_template(function_1, function_2, function_3, function_4):
 
         CLOCK.tick(FPS)
 
-WIDTH = 1400
-HEIGHT = 800
 
-def getHeight():
-    return HEIGHT
-
-def getWidth():
-    return WIDTH
 
 if __name__ == '__main__':
 

@@ -1,11 +1,11 @@
 #!/bin/bash
-#SBATCH -D /users/adbg285/HPCWORKSNOW/build
-#SBATCH --job-name NEAT_orbit
+#SBATCH -D /users/adbg285/HPCWORKSNOW/buildneat
+#SBATCH --job-name neat_orbit
 #SBATCH --partition=nodes
-#SBATCH --nodes=2
-#SBATCH --ntasks-per-node=16
-#SBATCH --mem=36MB
-#SBATCH --time=2:00:00
+#SBATCH --nodes=6
+#SBATCH --ntasks-per-node=20
+#SBATCH --mem=48MB
+#SBATCH --time=12:00:00
 #SBATCH -e results/%x_%j.e
 #SBATCH -o results/%x_%j.o
 
@@ -16,8 +16,7 @@ flight env activate gridware
 #Modules required
 #This is an example you need to select the modules your code needs.
 
-module load python/3.7.12
 module load libs/nvidia-cuda/11.2.0/bin
 
 #Run your script.
-python3 src/NeuroEvolution/neuro_evolution.py
+python3 src/neuro_evolution.py

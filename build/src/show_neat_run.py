@@ -1,8 +1,8 @@
 import os
 import pickle
 import neat
-import numpy as np
 # load the winner
+from OrbitEnvNoGFX import OrbitEnv
 from OrbitEnv import OrbitEnv
 
 """
@@ -14,10 +14,16 @@ give credit to sentdex and gh library
 model_folder = ""
 # model_folder = "NeuroEvolution/models"
 # model_name = ""
-model_name = "neat-checkpoint-8-checkpoint"
+model_name = "../../data/neat/models/neat-checkpoint-3"
 
-with open(f'{model_name}', 'rb') as f:
-    c = pickle.load(f)
+# with open('serialized.pkl', 'rb') as f:
+#     data = pickle.load(f)
+
+
+with open(f'data/neat/models/winner1648593083.1729188', 'rb') as f:
+# with open(f'../../data/neat/models/neat-checkpoint-69', 'rb') as f:
+    agent = pickle.load(f)
+    # agent = f
 
 print('Loaded genome:')
 
@@ -29,7 +35,7 @@ config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                                 neat.DefaultSpeciesSet, neat.DefaultStagnation,
                                 config_path)
 
-net = neat.nn.FeedForwardNetwork.create(c, config)
+net = neat.nn.FeedForwardNetwork.create(agent, config)
 
 env = OrbitEnv()
 observation = env.reset()

@@ -7,13 +7,16 @@ import os
 import pickle
 # from datetime import time
 import time
-
-import gym
 import neat
 import numpy as np
-from build.src.Envs.OrbitEnv import OrbitEnv
+import gym
+hpc = True
 
-runs_per_net = 3
+from OrbitEnv import OrbitEnv
+from OrbitEnvNoGFX import OrbitEnv
+
+
+runs_per_net = 6
 
 # Use the NN network phenotype and the discrete actuator force function.
 def eval_genome(genome, config):
@@ -25,6 +28,7 @@ def eval_genome(genome, config):
         # env = gym.make("CartPole-v1")
         # env = gym.make("BipedalWalker-v3")
         env = OrbitEnv()
+        # env = gym.make("CartPole-v1")
 
         observation = env.reset()
         # Run the given simulation for up to num_steps time steps.
@@ -39,7 +43,8 @@ def eval_genome(genome, config):
 
         fitnesses.append(fitness)
 
-    # The genome's fitness is its worst performance across all runs.
+    # The genome's fitness is its mean performance across all runs.
+    # print(np.mean(fitnesses))
     return np.mean(fitnesses)
 
 
@@ -57,19 +62,22 @@ def run():
                                     neat.DefaultSpeciesSet, neat.DefaultStagnation,
                                     config_path)
 
+    path_to_models = "data/neat/models"
+
     pop = neat.Population(config)
-    callbacks = neat.Checkpointer(generation_interval=1, filename_prefix='../../data/neat/models/neat-checkpoint-')
-    pop.add_reporter(callbacks)
+
+    callbacks = neat.Checkpointer(generation_interval=1, filename_prefix=f"{path_to_models}/neat-checkpoint-")
     stats = neat.StatisticsReporter()
-    # pop.add_reporter(stats)
-    # pop.add_reporter(neat.StdOutReporter(True))
+
+    pop.add_reporter(stats)
+    pop.add_reporter(neat.StdOutReporter(True))
+    pop.add_reporter(callbacks)
 
     pe = neat.ParallelEvaluator(multiprocessing.cpu_count(), eval_genome)
     winner = pop.run(pe.evaluate)
 
     # Save the winner.
-    path_to_models = "../../data/neat/models"
-    with open(f'{path_to_models}/{time.time().real}', 'wb') as f:
+    with open(f'{path_to_models}/winner{time.time().real}', 'wb') as f:
         pickle.dump(winner, f)
 
     stats.save()
@@ -101,7 +109,7 @@ def continue_from_checkpoint(checkpoint_name, n_runs=0):
         winner = pop.run(pe.evaluate, n_runs)
 
     # Save the winner.
-    with open(checkpoint_name+"-checkpoint", 'wb') as f:
+    with open("data/neat/models/"+checkpoint_name+"-checkpoint", 'wb') as f:
         pickle.dump(winner, f)
 
     print(winner)
@@ -110,4 +118,3 @@ def continue_from_checkpoint(checkpoint_name, n_runs=0):
 
 if __name__ == '__main__':
     run()
-    # continue_from_checkpoint("neat-checkpoint-24")

@@ -1,7 +1,5 @@
 /PRACTICE STUFF/src/TESTCALLBACK/
-#/PRACTICE STUFF/src/TESTCALLBACK
 ../venv/
-#venv
 *.idea
 /build/venv
 /venv/*

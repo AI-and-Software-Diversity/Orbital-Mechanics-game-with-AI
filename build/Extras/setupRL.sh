@@ -1,11 +1,11 @@
 #!/bin/bash
-#SBATCH -D /users/adbg285/HPCWORKSNOW/build
+#SBATCH -D /users/adbg285/HPCWORKSNOW/buildrl
 #SBATCH --job-name rlearning_orbit
-#SBATCH --partition=nodes
-#SBATCH --nodes=4
-#SBATCH --ntasks-per-node=16
-#SBATCH --mem=48MB
-#SBATCH --time=10:00:00
+#SBATCH --partition=gengpu
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=20
+#SBATCH --mem=64MB
+#SBATCH --time=24:00:00
 #SBATCH -e results/%x_%j.e
 #SBATCH -o results/%x_%j.o
 
@@ -16,8 +16,7 @@ flight env activate gridware
 #Modules required
 #This is an example you need to select the modules your code needs.
 
-module load python/3.7.12
 module load libs/nvidia-cuda/11.2.0/bin
 
 #Run your script.
-python3 src/RLearning/reinforcement_learning.py
+python3 src/reinforcement_learning.py
