@@ -25,14 +25,13 @@ https://youtu.be/EEUXKG97YRw
 https://www.youtube.com/watch?v=HN5d490_KKk 
 """
 
-
 class OrbitEnv(gym.Env):
     """Custom Environment that follows gym interface"""
 
     metadata = {'render.modes': ['human']}
 
-    def __init__(self):
-        # self.runs_completed = -1
+    def __init__(self, mode=None):
+
         super(OrbitEnv, self).__init__()
 
         # The possible decisions the agent can make
@@ -45,8 +44,12 @@ class OrbitEnv(gym.Env):
 
         self.runs_completed = 0
 
-        self.collector = Collector(f"data_neat", "neat")
-        # self.collector = Collector(f"data_rlearn", "rlearn")
+        if mode == "neat":
+            self.collector = Collector(f"data_neat", "neat")
+
+        # if mode == "rlearn":
+        else:
+            self.collector = Collector(f"data_rlearn", "rlearn")
 
 
         # The things that the model knows before input
@@ -139,6 +142,7 @@ class OrbitEnv(gym.Env):
                 # decide the position of of planet
                 planet_num = 0
                 for i in range(0, 4 * data_handler.GLBVARS.n_planets, 4):
+                # for i in range(0, 12, 4):
                     self.planets.append(
                         bodies.Planet(
                             x=position_scalar * np.abs(action[i]) * width,

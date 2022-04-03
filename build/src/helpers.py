@@ -85,4 +85,10 @@ def not_created_yet():
     print("THIS HAS NOT YET BEEN IMPLEMENTED")
 
 if __name__ == '__main__':
-    pass
+    neat_values = get_collumn_from_csv(
+        file="data/neat/csvs/data_neat.csv",
+        chosen_col=2,
+        show_graph=True
+    )
+
+    print(neat_values)

@@ -68,12 +68,14 @@ if __name__ == '__main__':
     # Use a model that has just been loaded/trained #
     #################################################
 
-    env = OrbitEnv()
+    env = OrbitEnv(mode="rlearn")
+    # setattr(env.collector, "file_to_use", f"data_rlearn")
+    # setattr(env.collector, "model_type", f"rlearn")
     obs = env.reset()
 
     if see_sample_run:
         # show 3 sample runs with the chosen model
-        for i in range(300):
+        for i in range(100):
 
             action, _states = model.predict(obs, deterministic=True)
             obs, reward, done, info = env.step(action)

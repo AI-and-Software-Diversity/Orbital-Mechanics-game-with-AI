@@ -31,7 +31,7 @@ class OrbitEnv(gym.Env):
 
     metadata = {'render.modes': ['human']}
 
-    def __init__(self):
+    def __init__(self, mode=None):
         # self.runs_completed = -1
         super(OrbitEnv, self).__init__()
 
@@ -45,8 +45,13 @@ class OrbitEnv(gym.Env):
 
         self.runs_completed = 0
 
-        # self.collector = Collector(f"data_neat", "neat")
-        self.collector = Collector(f"data_rlearn", "rlearn")
+        # choose agent mode
+        if mode == "neat":
+            self.collector = Collector(f"data_neat", "neat")
+
+        # if mode == "rlearn":
+        else:
+            self.collector = Collector(f"data_rlearn", "rlearn")
 
 
         # The things that the model knows before input

@@ -1,7 +1,7 @@
 import os
 import pickle
 import neat
-# load the winner
+from OrbitEnv import OrbitEnv
 from OrbitEnvNoGFX import OrbitEnv
 from OrbitEnv import OrbitEnv
 
@@ -37,12 +37,17 @@ config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
 
 net = neat.nn.FeedForwardNetwork.create(agent, config)
 
-env = OrbitEnv()
+env = OrbitEnv(mode="neat")
+# setattr(env.collector, "file_to_use", f"data_neat")
+# setattr(env.collector, "model_type", f"neat")
 observation = env.reset()
 
 done = False
+for i in range(100):
+    while not done:
+        action = net.activate(observation)
 
-while not done:
-    action = net.activate(observation)
-    observation, reward, done, info = env.step(action)
-    # env.render()
+        observation, reward, done, info = env.step(action)
+        print(f"Done. reward: {reward}")
+    done = False
+    env.reset()

@@ -28,7 +28,7 @@ def main_menu():
     pygame.display.set_caption("spooky outer space")
 
     # setting up bg
-    bg = pygame.image.load("../assets/gamebg1.png")
+    bg = pygame.image.load("assets/gamebg1.png")
     pygame.display.set_icon(bg)
 
     # menu buttons
@@ -138,7 +138,7 @@ def level_1_human():
     running = True
 
     # setting up bg
-    bg = pygame.image.load("../assets/gamebg1.png")
+    bg = pygame.image.load("assets/gamebg1.png")
     pygame.display.set_icon(bg)
 
     # menu buttons
@@ -392,7 +392,7 @@ def level_1_human():
 #     running = True
 #
 #     # setting up bg
-#     bg = pygame.image.load("../assets/gamebg1.png")
+#     bg = pygame.image.load("assets/gamebg1.png")
 #     pygame.display.set_icon(bg)
 #
 #     # menu buttons
@@ -601,7 +601,7 @@ def level_1_human():
 #     running = True
 #
 #     # setting up bg
-#     bg = pygame.image.load("../assets/gamebg1.png")
+#     bg = pygame.image.load("assets/gamebg1.png")
 #     pygame.display.set_icon(bg)
 #
 #     # menu buttons
@@ -802,7 +802,7 @@ def menu_template(function_1, function_2, function_3, function_4):
     running = True
 
     # setting up bg
-    bg = pygame.image.load("../assets/gamebg1.png")
+    bg = pygame.image.load("assets/gamebg1.png")
     pygame.display.set_icon(bg)
 
     # menu buttons

@@ -10,12 +10,12 @@ class Collector:
         #                     "StepSizeP,num_planets,num_stars, Score,OptimalScore,FinalScore%DistanceFromOptimalScore, " +\
         #                     "avgSpeedP1...,avgAgeP,avgAgeP1..,StepSizeP,bigG]"
 
-        self.csv_format = "was succesful, reward, actual ca, target ca, runs completed"
+        self.csv_format = "was succesful, reward, actual steps, target steps, runs completed"
 
-        # ADDING THE DATA FORMAT SPECIFIED TO EMPTY CSV
-        if not os.path.isfile(f"data/{self.model_type}/csvs/{self.file_to_use}.csv"):
-            with open(f"data/{self.model_type}/csvs/{self.file_to_use}.csv", "a", newline="\n" ) as file:
-                file.write(self.csv_format)
+        # # ADDING THE DATA FORMAT SPECIFIED TO EMPTY CSV
+        # # if not os.path.isfile(f"data/{self.model_type}/csvs/{self.file_to_use}.csv"):
+        with open(f"data/{self.model_type}/csvs/{self.file_to_use}.csv", "w", newline="\n" ) as file:
+            file.write(self.csv_format)
 
     def add_to_csv(self, data_to_add):
         """
@@ -28,6 +28,10 @@ class Collector:
 
         Be sure to use setattr() if you want to use a different default file format...
         """
+
+        # # ADDING THE DATA FORMAT SPECIFIED TO EMPTY CSV
+        # with open(f"data/{self.model_type}/csvs/{self.file_to_use}.csv", "w", newline="\n" ) as file:
+        #     file.write(self.csv_format)
 
         # ADDING THE NEW DATA
         one_line = ""

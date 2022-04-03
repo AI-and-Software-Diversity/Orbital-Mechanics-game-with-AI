@@ -71,6 +71,7 @@ def run():
 
     pop.add_reporter(stats)
     pop.add_reporter(neat.StdOutReporter(True))
+    pop.add_reporter(neat.Checkpointer(True))
     pop.add_reporter(callbacks)
 
     pe = neat.ParallelEvaluator(multiprocessing.cpu_count(), eval_genome)
