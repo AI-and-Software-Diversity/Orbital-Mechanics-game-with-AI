@@ -2,6 +2,7 @@ import numpy as np
 import pygame
 import logging
 import time
+import data_handler
 
 def euclidian_distance(body1, body2):
 
@@ -83,6 +84,44 @@ def scale_vectors(vec1, vec2, factor):
 
 def not_created_yet():
     print("THIS HAS NOT YET BEEN IMPLEMENTED")
+
+def get_collumn_from_csv(file, chosen_col, show_graph):
+    """
+    Returns a numpy array of data from a csv column (Not including the first line read)
+
+    file: the filepath of the csv
+    chosen_col: the index of the column you want
+    index's:
+        0:was successful,
+        1:reward,
+        2:actual
+        3:steps,
+        4:target steps,
+        5:runs completed
+    """
+
+    import pandas as pd
+    import matplotlib.pyplot as plt
+
+    df = pd.read_csv(file)
+
+    full_col = df.to_numpy().transpose()[chosen_col]
+    # print(col[-1])
+
+
+    if show_graph:
+
+        print()
+        plt.xlabel(f"run number")
+        plt.ylabel(f"{df.columns[chosen_col]}")
+        plt.scatter([i for i in range(len(full_col))], full_col)
+        plt.show()
+
+    return full_col
+
+
+
+    pass
 
 if __name__ == '__main__':
     neat_values = get_collumn_from_csv(

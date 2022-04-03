@@ -60,16 +60,13 @@ class OrbitEnv(gym.Env):
         self.observation_space = spaces.Box(low=0, high=data_handler.GLBVARS.width, shape=(N_DISCRETE_OBSERVATIONS,))
 
     def step(self, action):
-        # print("step called")
-        # self.runs_completed += 1
+
         self.started = 0
         self.time_started = time.time().real
         self.runs_completed += 1
         pygame.init()
 
-
         while self.running:
-
 
             # set the age of each planet that is "active"
             for pnt in self.planets:
@@ -204,7 +201,7 @@ class OrbitEnv(gym.Env):
                 self.running = False
                 self.collector.add_to_csv([1,
                                            self.reward,
-                                           self.cumulative_age,
+                                           self.cumulative_timesteps,
                                            data_handler.GLBVARS.total_steps,
                                            self.runs_completed])
                 self.done = True
@@ -247,7 +244,7 @@ class OrbitEnv(gym.Env):
                 # print(f"FAILED, SCORE: {self.reward}")
                 self.collector.add_to_csv([0,
                                            self.reward,
-                                           self.cumulative_age,
+                                           self.cumulative_timesteps,
                                            data_handler.GLBVARS.target_game_time,
                                            self.runs_completed])
 

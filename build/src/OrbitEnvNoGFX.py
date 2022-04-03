@@ -26,6 +26,7 @@ https://www.youtube.com/watch?v=HN5d490_KKk
 """
 
 class OrbitEnv(gym.Env):
+
     """Custom Environment that follows gym interface"""
 
     metadata = {'render.modes': ['human']}
@@ -171,7 +172,7 @@ class OrbitEnv(gym.Env):
                 self.started += 1
 
             n_planets_alive = len([pnt for pnt in self.planets if pnt.alive == True])
-            self.cumulative_steps += 1 * n_planets_alive
+            self.cumulative_steps += 1
 
             # ending game (success)
             if not self.have_displayed_score and self.cumulative_steps > data_handler.GLBVARS.total_steps:
@@ -224,7 +225,7 @@ class OrbitEnv(gym.Env):
                 # print(f"FAILED, SCORE: {self.reward}")
                 self.collector.add_to_csv([0,
                                            self.reward,
-                                           self.cumulative_age,
+                                           self.cumulative_steps,
                                            data_handler.GLBVARS.total_steps,
                                            self.runs_completed])
 
