@@ -8,8 +8,8 @@ import time
 from stable_baselines3 import *
 import data_handler
 # import OrbitEnv
-from OrbitEnv import OrbitEnv
 from OrbitEnvNoGFX import OrbitEnv
+from OrbitEnv import OrbitEnv
 
 """
 The training loop in this file in the main function was copied from the stable_baselines3 api:
@@ -34,20 +34,22 @@ if __name__ == '__main__':
     new_logger = configure(filepath, ["stdout", "csv", "tensorboard"])
 
     # decide what kind of model you want to preview
-    use_saved_model, train_new_model = True, False
-    # use_saved_model, train_new_model = False, True
-    see_sample_run = True
-    # see_sample_run = False
+    # use_saved_model, train_new_model = True, False
+    use_saved_model, train_new_model = False, True
+    # see_sample_run = True
+    see_sample_run = False
 
     #################
     # Train a model #
     #################
     if train_new_model:
 
-        # model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=filepath, n_steps=4)
-        # model2 = PPO("MlpPolicy", env, verbose=1, tensorboard_log=filepath, n_steps=4)
+        # train a new model
+        model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=filepath, n_steps=2)
 
-        model = PPO.load('data/rlearn/models/model205')
+        # train a model from a checkpoint
+        # model = PPO.load(path='data/rlearn/models/model205.zip',
+        #                  env=OrbitEnv(mode="rlearn"))
 
         # model.set_logger(new_logger)
         # we only need one step to make the initial decisions (position and velocity of planets) so keep at 1
@@ -60,10 +62,12 @@ if __name__ == '__main__':
         while i > -1:
 
             model.learn(total_timesteps=1, reset_num_timesteps=False, tb_log_name="PPO")
-
+            timestamp = time.strftime("%m%d%H%M")
             if i % 5 == 0:
-                model.save(f"{filepath}/model{i}")
-                print(f"Jut saved model{i}")
+                model.save(
+                    f"{filepath}/model{i}-{timestamp}"
+                )
+                print(f"Jut saved model{i}-{timestamp}")
                 i += 1
 
     ###################################
@@ -71,7 +75,6 @@ if __name__ == '__main__':
     ###################################
 
     if use_saved_model:
-        # model = PPO.load('data/rlearn/models/model597')
         model = PPO.load('data/rlearn/models/model205')
 
     #################################################
@@ -85,7 +88,7 @@ if __name__ == '__main__':
 
     if see_sample_run:
         # show 3 sample runs with the chosen model
-        for i in range(100):
+        for i in range(10):
 
             action, _states = model.predict(obs, deterministic=True)
 

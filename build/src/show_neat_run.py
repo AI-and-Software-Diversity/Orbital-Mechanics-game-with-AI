@@ -15,9 +15,6 @@ model_folder = ""
 # model_name = ""
 model_name = "../../data/neat/models/neat-checkpoint-3"
 
-# with open('serialized.pkl', 'rb') as f:
-#     data = pickle.load(f)
-
 with open(f'data/neat/models/winner1648952884.8555834', 'rb') as f:
     agent = pickle.load(f)
 

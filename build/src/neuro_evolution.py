@@ -17,6 +17,8 @@ from OrbitEnvNoGFX import OrbitEnv
 
 
 runs_per_net = 6
+runs_per_net = 1
+env = OrbitEnv(mode="neat")
 
 # Use the NN network phenotype and the discrete actuator force function.
 def eval_genome(genome, config):
@@ -25,10 +27,6 @@ def eval_genome(genome, config):
     fitnesses = []
 
     for runs in range(runs_per_net):
-        # env = gym.make("CartPole-v1")
-        # env = gym.make("BipedalWalker-v3")
-        env = OrbitEnv()
-        # env = gym.make("CartPole-v1")
 
         observation = env.reset()
         # Run the given simulation for up to num_steps time steps.
@@ -44,7 +42,6 @@ def eval_genome(genome, config):
         fitnesses.append(fitness)
 
     # The genome's fitness is its mean performance across all runs.
-    # print(np.mean(fitnesses))
     return np.mean(fitnesses)
 
 
@@ -65,20 +62,20 @@ def run():
     path_to_models = "data/neat/models"
 
     pop = neat.Population(config)
-
     callbacks = neat.Checkpointer(generation_interval=1, filename_prefix=f"{path_to_models}/neat-checkpoint-")
     stats = neat.StatisticsReporter()
 
     pop.add_reporter(stats)
     pop.add_reporter(neat.StdOutReporter(True))
-    pop.add_reporter(neat.Checkpointer(True))
-    pop.add_reporter(callbacks)
+    # pop.add_reporter(neat.Checkpointer(True))
+    # pop.add_reporter(callbacks)
 
     pe = neat.ParallelEvaluator(multiprocessing.cpu_count(), eval_genome)
+    pe = neat.ParallelEvaluator(1, eval_genome)
     winner = pop.run(pe.evaluate)
 
     # Save the winner.
-    with open(f'{path_to_models}/winner{time.time().real}', 'wb') as f:
+    with open(f'{path_to_models}/winner{time.strftime("%m%d%H%M")}', 'wb') as f:
         pickle.dump(winner, f)
 
     stats.save()

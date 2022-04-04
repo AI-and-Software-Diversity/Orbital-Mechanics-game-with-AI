@@ -90,7 +90,6 @@ class Planet:
         destroy any planet that goes offscreen
         """
         # logging.info(deathmsg)
-
         x, y = np.random.randint(200, 300), np.random.randint(200, 300)
         self.r, self.x, self.y, self.velocity, self.momentum, self.alive, self.mass = 0, -x, -y, [0, 0], [0, 0], False, 0
 

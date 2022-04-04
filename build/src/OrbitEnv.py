@@ -32,6 +32,7 @@ class OrbitEnv(gym.Env):
     metadata = {'render.modes': ['human']}
 
     def __init__(self, mode=None):
+        self.mode = mode
         # self.runs_completed = -1
         super(OrbitEnv, self).__init__()
 
@@ -39,20 +40,21 @@ class OrbitEnv(gym.Env):
         # planet x/y Momentum, planet x/y Pos
 
         N_DISCRETE_ACTIONS = 4 * data_handler.GLBVARS.n_planets
+        # N_DISCRETE_ACTIONS = 4 * 5
+        # This is only important to rlearn. The neat equiv to this is expected outputs
         self.action_space = spaces.Box(low=-1, high=1, shape=(N_DISCRETE_ACTIONS,), dtype=np.float32)
-        # 4 * n_planets
-        # planet_N_x_position, planet_N_y_position, planet_N_x_momentum, planet_N_y_momentum # possibly planet_N_mass
 
         self.runs_completed = 0
 
         # choose agent mode
         if mode == "neat":
+            print(mode)
             self.collector = Collector(f"data_neat", "neat")
 
         # if mode == "rlearn":
         else:
+            print(mode)
             self.collector = Collector(f"data_rlearn", "rlearn")
-
 
         # The things that the model knows before input
         # For now,  star x/y pos, p1 x/y pos, p2 x/y pos, p3 x/y pos, p1m, p2m, p3m
@@ -161,7 +163,8 @@ class OrbitEnv(gym.Env):
 
                 # decide the position of of planet
                 planet_num = 0
-                for i in range(0, 4 * data_handler.GLBVARS.n_planets, 4):
+                # creating planets
+                for i in range(0, 4*data_handler.GLBVARS.n_planets, 4):
                     self.planets.append(
                         bodies.Planet(
                             self.screen,
@@ -328,7 +331,6 @@ class OrbitEnv(gym.Env):
         other_info = [data_handler.GLBVARS.width, data_handler.GLBVARS.height]
 
         observation_list = star_info + planet_info + other_info
-
         # print("------------reset-----------")
         # print(star_info)
         # print(planet_info)

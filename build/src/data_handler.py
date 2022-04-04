@@ -18,6 +18,7 @@ class Collector:
             file.write(self.csv_format)
 
     def add_to_csv(self, data_to_add):
+        print("adding to csv")
         """
         Reference:
                 https://www.youtube.com/watch?v=MWYRGLKMzAQ
@@ -82,79 +83,36 @@ class DataGenrator:
         self.total_steps = total_steps
         self.n_envs = n_envs
 
-
-    # self.stars[0].x, self.stars[0].y, self.planet1.x, self.planet1.y,
-    # self.planet2.x, self.planet2.y, self.planet3.x, self.planet3.y,
-    # self.planet1_momentum[0], self.planet1_momentum[1], self.planet2_momentum[0],
-    # self.planet2_momentum[1], self.planet3_momentum[0], self.planet3_momentum[1],
-    # self.planet1.r,
-    # self.planet2.r,
-    # self.planet3.r,
-    # self.stars[0].mass,
-    # game.getWidth(), game.getHeight()
-
 size = 1600
 restriction_x = 400
 restriction_y = 250
 
+# GLBVARS = DataGenrator(
+#     n_planets=3,
+#     n_stars=1,
+#     planet_mom_scalar=0.00005,
+#     planet_rad=[9, 12],
+#     star_x_pos=[restriction_x, size - restriction_x],
+#     star_y_pos=[restriction_y, int(size / 1.75) - restriction_y],
+#     star_rad=[65, 80],
+#     width=size,
+#     height=size / 1.75,
+#     target_game_time=50,
+#     total_steps=2300,
+#     n_envs=1
+# )
+
 GLBVARS = DataGenrator(
-    n_planets=3,
+    n_planets=5,
     n_stars=1,
     planet_mom_scalar=0.00005,
-    # planet_rad=[6, 15],
     planet_rad=[9, 12],
     star_x_pos=[restriction_x, size - restriction_x],
     star_y_pos=[restriction_y, int(size / 1.75) - restriction_y],
-    star_rad=[65, 80],
+    star_rad=[55, 70],
     width=size,
     height=size / 1.75,
     target_game_time=50,
     total_steps=2300,
     n_envs=1
 )
-#
-# VARS = DataGenrator(
-#     n_planets=3,
-#     n_stars=1,
-#     planet_mom_scalar=0.00005,
-#     planet_rad=[5, 15],
-#     star_x_pos=[600, 700],
-#     star_y_pos=[300, 400],
-#     star_rad=[30, 60],
-#     width=1400,
-#     height=800,
-#     target_game_time=20,
-#     n_envs=1
-# )
-
-# VARS = DataGenrator(
-#     n_planets=3,
-#     n_stars=1,
-#     planet_mom_scalar=0.00005,
-#     planet_rad=[5, 15],
-#     star_x_pos=[600, 700],
-#     star_y_pos=[300, 400],
-#     star_rad=[30, 60],
-#     width=1400,
-#     height=800,
-#     target_game_time=40,
-#     n_envs=1
-# )
-
-
-# GLBVARS = DataGenrator(
-#     n_planets=3,
-#     n_stars=2,
-#     planet_mom_scalar = 0.00005,
-#     planet_rad = [10, 10, 10],
-#     # star_x_pos = [getWidth()/2],
-#     # star_y_pos = [getHeight()/2],
-#     star_x_pos = [1400/2, 900],
-#     star_y_pos = [800/2, 500],
-#     star_mass = [40, 50],
-#     star_rad=[40, 50],
-#     width = 1400,
-#     height = 800,
-#     target_game_time = 10,
-#     n_envs=1
-# )

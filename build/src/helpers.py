@@ -117,17 +117,22 @@ def get_collumn_from_csv(file, chosen_col, show_graph):
         plt.scatter([i for i in range(len(full_col))], full_col)
         plt.show()
 
-    return full_col
+    return np.array(full_col)
 
 
 
     pass
 
 if __name__ == '__main__':
-    neat_values = get_collumn_from_csv(
-        file="data/neat/csvs/data_neat.csv",
-        chosen_col=2,
-        show_graph=True
-    )
-
-    print(neat_values)
+    # neat_values = get_collumn_from_csv(
+    #     file="data/neat/csvs/data_neat.csv",
+    #     chosen_col=0,
+    #     show_graph=True
+    # )
+    #
+    # i = 0
+    # for val in neat_values:
+    #     if val == 1:
+    #         i+=1
+    # print(i)
+    print()

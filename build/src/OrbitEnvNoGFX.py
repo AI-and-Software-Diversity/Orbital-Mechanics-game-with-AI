@@ -142,8 +142,9 @@ class OrbitEnv(gym.Env):
 
                 # decide the position of of planet
                 planet_num = 0
-                for i in range(0, 4 * data_handler.GLBVARS.n_planets, 4):
-                # for i in range(0, 12, 4):
+                # for i in range(0, 15, 4):
+                # for i in range(0, 4 * data_handler.GLBVARS.n_planets, 4):
+                for i in range(0, 12, 4):
                     self.planets.append(
                         bodies.Planet(
                             x=position_scalar * np.abs(action[i]) * width,
@@ -152,6 +153,7 @@ class OrbitEnv(gym.Env):
                             screen=None
                         )
                     )
+
 
                     # decide the momentum of the planet
                     momentum = np.array(
