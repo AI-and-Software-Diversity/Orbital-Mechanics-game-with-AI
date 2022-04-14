@@ -63,12 +63,14 @@ if __name__ == '__main__':
 
             model.learn(total_timesteps=1, reset_num_timesteps=False, tb_log_name="PPO")
             timestamp = time.strftime("%m%d%H%M")
-            if i % 5 == 0:
+
+            if i % 4 == 0:
                 model.save(
                     f"{filepath}/model{i}-{timestamp}"
                 )
                 print(f"Jut saved model{i}-{timestamp}")
-                i += 1
+
+            i += 1
 
     ###################################
     # load a previously trained model #
@@ -82,8 +84,6 @@ if __name__ == '__main__':
     #################################################
 
     env = OrbitEnv(mode="rlearn")
-    # setattr(env.collector, "file_to_use", f"data_rlearn")
-    # setattr(env.collector, "model_type", f"rlearn")
     obs = env.reset()
 
     if see_sample_run:

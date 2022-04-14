@@ -68,7 +68,8 @@ class DataGenrator:
     # def __init__(self, xPosS1, yPosS1, xPosP1, xPosP2, xPosP3, yPosP1, yPosP2, yPosP3, xMomP1, xMomP2, xMomP3, yMomP1, yMomP2, yMomP3, WIDTH, HEIGHT, target_game_time, massS1, massP1, massP2, massP3):
 
     def __init__(self, n_planets, n_stars, planet_mom_scalar, planet_rad, star_x_pos, star_y_pos,
-                 star_rad, width, height, target_game_time, total_steps, n_envs):
+                 star_rad, width, height, target_game_time, total_steps, n_envs, min_distance_stars,
+                 max_distance_stars):
         self.width = width
         self.height = height
         self.n_planets = n_planets
@@ -82,10 +83,12 @@ class DataGenrator:
         self.target_game_time = target_game_time
         self.total_steps = total_steps
         self.n_envs = n_envs
+        self.min_distance_stars = min_distance_stars
+        self.max_distance_stars = max_distance_stars
 
 size = 1600
-restriction_x = 400
-restriction_y = 250
+restriction_x = 200
+restriction_y = 150
 
 # GLBVARS = DataGenrator(
 #     n_planets=3,
@@ -103,16 +106,18 @@ restriction_y = 250
 # )
 
 GLBVARS = DataGenrator(
-    n_planets=5,
-    n_stars=1,
+    n_planets=1,
+    n_stars=3,
     planet_mom_scalar=0.00005,
-    planet_rad=[9, 12],
+    planet_rad=[6, 9],
     star_x_pos=[restriction_x, size - restriction_x],
     star_y_pos=[restriction_y, int(size / 1.75) - restriction_y],
-    star_rad=[55, 70],
+    star_rad=[40, 55],
     width=size,
     height=size / 1.75,
     target_game_time=50,
     total_steps=2300,
-    n_envs=1
+    n_envs=1,
+    min_distance_stars = 400,
+    max_distance_stars=600
 )

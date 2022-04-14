@@ -12,7 +12,6 @@ reset_on_extinction   = True
 [DefaultGenome]
 num_inputs              = 10
 num_hidden              = 8
-num_outputs             = 20
 initial_connection      = partial_direct 0.5
 feed_forward            = True
 compatibility_disjoint_coefficient    = 1.0

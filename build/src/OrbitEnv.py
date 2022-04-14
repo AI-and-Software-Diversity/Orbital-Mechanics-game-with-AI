@@ -99,7 +99,7 @@ class OrbitEnv(gym.Env):
                 for pnt in self.planets:
                     if helpers.euclidian_distance(star, pnt) <= star.r * 1.2:
                         # cumulative_age += pnt.age
-                        if np.abs(time.time().real - self.start_time) < 1.2:
+                        if self.cumulative_timesteps < 150:
                             self.reward -= 40
                             pnt.destroy(deathmsg="SHOT INTO DEATH")
                         else:
@@ -111,7 +111,7 @@ class OrbitEnv(gym.Env):
                     if helpers.euclidian_distance(pnt1, pnt2) < (pnt1.r * 2.3 or pnt2.r * 2.3) and pnt1 != pnt2:
                         n = np.random.randint(0, 2)
                         # PUNISH IF TOO SOON
-                        if np.abs(time.time().real - self.start_time) < 1.2:
+                        if self.cumulative_timesteps < 150 < 1.2:
                             self.reward -= 60
                         if n == 1:
                             # cumulative_age += pnt.age
@@ -164,7 +164,7 @@ class OrbitEnv(gym.Env):
                 # decide the position of of planet
                 planet_num = 0
                 # creating planets
-                for i in range(0, 4*data_handler.GLBVARS.n_planets, 4):
+                for i in range(0, 4 * data_handler.GLBVARS.n_planets, 4):
                     self.planets.append(
                         bodies.Planet(
                             self.screen,
@@ -216,7 +216,7 @@ class OrbitEnv(gym.Env):
                     or (pnt.x < 0) or (pnt.x > data_handler.GLBVARS.width)) and pnt.alive == True:
 
                     # Big punishment if planets are killed too soon
-                    if np.abs(time.time().real - self.start_time) < 1.2:
+                    if self.cumulative_timesteps < 150:
                         self.reward -= 200
                         pnt.destroy(deathmsg="SHOT INTO DEATH")
                     else:
@@ -299,8 +299,6 @@ class OrbitEnv(gym.Env):
         self.reward = 0
         self.reward_scalar = 1
         self.reward_tracker = 0
-
-
         self.FPS = 144
         self.CLOCK = pygame.time.Clock()
 
@@ -309,15 +307,49 @@ class OrbitEnv(gym.Env):
         pygame.display.set_icon(self.bg)
         self.stars = []
         # menu buttons
+
+        # choosing the positions of all stars
+        star_xs = []
+        star_ys = []
+
+        while True:
+            starsWithValidPositions = 0
+            star_xs.clear()
+            star_ys.clear()
+            for i in range(data_handler.GLBVARS.n_stars):
+                # generate n points
+                star_xs.append(random.randint(data_handler.GLBVARS.star_x_pos[0], data_handler.GLBVARS.star_x_pos[1]))
+                star_ys.append(random.randint(data_handler.GLBVARS.star_y_pos[0], data_handler.GLBVARS.star_y_pos[1]))
+
+            # checking if points are suitable.....
+
+            # specify min/max distance
+            mids = data_handler.GLBVARS.min_distance_stars
+            mads = data_handler.GLBVARS.max_distance_stars
+
+            # check suitability
+            for i in range(len(star_xs)-1):
+                for j in range(i+1, len(star_xs)):
+                    distance = np.linalg.norm(np.array([star_xs[i], star_ys[i]]) - np.array([star_xs[j], star_ys[j]]) )
+                    if distance > mids and distance < mads:
+                        starsWithValidPositions += 1
+
+            if starsWithValidPositions == data_handler.GLBVARS.n_stars:
+                break
+
         # creating starts
         for i in range(data_handler.GLBVARS.n_stars):
+
             self.stars.append(
-                bodies.Star(self.screen,
-                            random.randint(data_handler.GLBVARS.star_x_pos[0], data_handler.GLBVARS.star_x_pos[1]),
-                            random.randint(data_handler.GLBVARS.star_y_pos[0], data_handler.GLBVARS.star_y_pos[1]),
-                            random.randint(data_handler.GLBVARS.star_rad[0], data_handler.GLBVARS.star_rad[1])
-                            )
+                bodies.Star(
+                    self.screen,
+                    star_xs[i],
+                    star_ys[i],
+                    np.random.randint(
+                        data_handler.GLBVARS.star_rad[0],
+                        data_handler.GLBVARS.star_rad[1]))
             )
+
         self.planet_masses = np.random.randint(data_handler.GLBVARS.planet_mass[0],
                                                data_handler.GLBVARS.planet_mass[1],
                                                size=(data_handler.GLBVARS.n_planets,))
@@ -331,12 +363,9 @@ class OrbitEnv(gym.Env):
         other_info = [data_handler.GLBVARS.width, data_handler.GLBVARS.height]
 
         observation_list = star_info + planet_info + other_info
-        # print("------------reset-----------")
-        # print(star_info)
-        # print(planet_info)
-        # print(other_info)
-        # print("------------reset-----------")
 
         self.observation = np.array(observation_list)
-
+        print("="*70)
+        print(self.observation)
+        print("="*70)
         return self.observation  # reward, done, info can't be included

@@ -49,7 +49,6 @@ def eval_genomes(genomes, config):
     for genome_id, genome in genomes:
         genome.fitness = eval_genome(genome, config)
 
-
 def run():
     # Load the config file, which is assumed to live in
     # the same directory as this script.
