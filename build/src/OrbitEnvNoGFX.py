@@ -79,7 +79,7 @@ class OrbitEnv(gym.Env):
                 for pnt in self.planets:
                     if helpers.euclidian_distance(star, pnt) <= star.r * 1.2:
                         # cumulative_age += pnt.age
-                        if self.cumulative_timesteps < 150:
+                        if self.cumulative_steps < 150:
                             self.reward -= 40
                             pnt.destroy(deathmsg="SHOT INTO DEATH")
                         else:
@@ -93,7 +93,7 @@ class OrbitEnv(gym.Env):
                         n = np.random.randint(0, 2)
 
                         # PUNISH IF TOO SOON
-                        if self.cumulative_timesteps < 150:
+                        if self.cumulative_steps < 150:
                             self.reward -= 60
 
                         if n == 1:
@@ -198,7 +198,7 @@ class OrbitEnv(gym.Env):
                     or (pnt.x < 0) or (pnt.x > data_handler.GLBVARS.width)) and pnt.alive == True:
 
                     # Big punishment if planets are killed too soon
-                    if self.cumulative_timesteps < 150:
+                    if self.cumulative_steps < 150:
                         self.reward -= 200
                         pnt.destroy(deathmsg="SHOT INTO DEATH")
                     else:
@@ -267,6 +267,7 @@ class OrbitEnv(gym.Env):
         self.cumulative_age = 0
         self.score = 0
         self.running = True
+
         self.reward = 0
         self.reward_scalar = 1
         self.reward_tracker = 0
@@ -316,12 +317,13 @@ class OrbitEnv(gym.Env):
 
             self.stars.append(
                 bodies.Star(
-                    self.screen,
-                    star_xs[i],
-                    star_ys[i],
-                    np.random.randint(
+                    x=star_xs[i],
+                    y=star_ys[i],
+                    r=np.random.randint(
                         data_handler.GLBVARS.star_rad[0],
-                        data_handler.GLBVARS.star_rad[1]))
+                        data_handler.GLBVARS.star_rad[1]),
+                    screen=None
+                )
             )
 
 
@@ -344,15 +346,9 @@ class OrbitEnv(gym.Env):
 
         observation_list = star_info + planet_info + other_info
 
-        # print("------------reset-----------")
-        # print(star_info)
-        # print(planet_info)
-        # print(other_info)
-        # print("------------reset-----------")
-
         self.observation = np.array(observation_list)
-        print("="*70)
-        print(self.observation)
-        print("="*70)
+        # print("="*70)
+        # print(self.observation)
+        # print("="*70)
 
         return self.observation  # reward, done, info can't be included

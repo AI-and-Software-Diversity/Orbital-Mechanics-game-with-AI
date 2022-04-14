@@ -18,7 +18,6 @@ class Collector:
             file.write(self.csv_format)
 
     def add_to_csv(self, data_to_add):
-        print("adding to csv")
         """
         Reference:
                 https://www.youtube.com/watch?v=MWYRGLKMzAQ

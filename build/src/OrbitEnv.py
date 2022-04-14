@@ -255,22 +255,13 @@ class OrbitEnv(gym.Env):
 
             # update the bg
             pygame.display.update()
-
-            # TODO remove all game.'s
             self.CLOCK.tick(self.FPS)
-
-        # TODO SETUP THE OBSERVATION
 
         star_info = [star.x for star in self.stars] + [star.y for star in self.stars] + [star.r for star in self.stars]
         planet_info = list(self.planet_masses)
 
         other_info = [data_handler.GLBVARS.width, data_handler.GLBVARS.height]
         observation_list = star_info + planet_info + other_info
-        # print("------------step-----------")
-        # print(star_info)
-        # print(planet_info)
-        # print(other_info)
-        # print("------------step-----------")
 
         self.observation = np.array(observation_list)
 
