@@ -1,8 +1,8 @@
 import os
 import pickle
 import neat
-from OrbitEnv import OrbitEnv
 from OrbitEnvNoGFX import OrbitEnv
+from OrbitEnv import OrbitEnv
 
 """
 give credit to sentdex and gh library

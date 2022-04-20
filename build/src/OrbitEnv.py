@@ -50,11 +50,15 @@ class OrbitEnv(gym.Env):
         if mode == "neat":
             print(mode)
             self.collector = Collector(f"data_neat", "neat")
+            self.collector_setup = Collector(f"setup_neat", "neat")
+            self.collector_pred = Collector(f"pred_neat", "neat")
 
         # if mode == "rlearn":
         else:
             print(mode)
             self.collector = Collector(f"data_rlearn", "rlearn")
+            self.collector_setup = Collector(f"setup_rlearn", "rlearn")
+            self.collector_pred = Collector(f"pred_rlearn", "rlearn")
 
         # The things that the model knows before input
         # For now,  star x/y pos, p1 x/y pos, p2 x/y pos, p3 x/y pos, p1m, p2m, p3m
@@ -67,6 +71,8 @@ class OrbitEnv(gym.Env):
         self.time_started = time.time().real
         self.runs_completed += 1
         pygame.init()
+
+        self.collector_pred.add_to_csv(action)
 
         while self.running:
 
@@ -111,7 +117,7 @@ class OrbitEnv(gym.Env):
                     if helpers.euclidian_distance(pnt1, pnt2) < (pnt1.r * 2.3 or pnt2.r * 2.3) and pnt1 != pnt2:
                         n = np.random.randint(0, 2)
                         # PUNISH IF TOO SOON
-                        if self.cumulative_timesteps < 150 < 1.2:
+                        if self.cumulative_timesteps < 150:
                             self.reward -= 60
                         if n == 1:
                             # cumulative_age += pnt.age
@@ -206,6 +212,8 @@ class OrbitEnv(gym.Env):
                                            self.reward,
                                            self.cumulative_timesteps,
                                            data_handler.GLBVARS.total_steps,
+                                           data_handler.GLBVARS.n_planets,
+                                           data_handler.GLBVARS.n_stars,
                                            self.runs_completed])
                 self.done = True
 
@@ -236,6 +244,8 @@ class OrbitEnv(gym.Env):
                 self.n_loops_passed = 0
                 self.reward += 4 * n_planets_alive
 
+
+
             # ending game (failure)
             if helpers.all_planets_destroyed(self.planets) and self.planets_in_motion and not self.have_displayed_score:
                 print(f"FAILURE, REWARD: {self.reward}, CS: {self.cumulative_timesteps}")
@@ -249,6 +259,8 @@ class OrbitEnv(gym.Env):
                                            self.reward,
                                            self.cumulative_timesteps,
                                            data_handler.GLBVARS.target_game_time,
+                                           data_handler.GLBVARS.n_planets,
+                                           data_handler.GLBVARS.n_stars,
                                            self.runs_completed])
 
                 self.done = True
@@ -262,7 +274,7 @@ class OrbitEnv(gym.Env):
 
         other_info = [data_handler.GLBVARS.width, data_handler.GLBVARS.height]
         observation_list = star_info + planet_info + other_info
-
+        self.collector_setup.add_to_csv(observation_list)
         self.observation = np.array(observation_list)
 
         info = {}
@@ -302,9 +314,11 @@ class OrbitEnv(gym.Env):
         # choosing the positions of all stars
         star_xs = []
         star_ys = []
+        safe = True
+        starPlacementAttempts = 0
 
+        # handling star placement
         while True:
-            starsWithValidPositions = 0
             star_xs.clear()
             star_ys.clear()
             for i in range(data_handler.GLBVARS.n_stars):
@@ -319,14 +333,25 @@ class OrbitEnv(gym.Env):
             mads = data_handler.GLBVARS.max_distance_stars
 
             # check suitability
+
+            # double loop because we are comparing all elemts of a loop
             for i in range(len(star_xs)-1):
                 for j in range(i+1, len(star_xs)):
+                    # if the distance is in the safe range we dont do anything
                     distance = np.linalg.norm(np.array([star_xs[i], star_ys[i]]) - np.array([star_xs[j], star_ys[j]]) )
                     if distance > mids and distance < mads:
-                        starsWithValidPositions += 1
+                        pass
+                    # if the distance is not the safe range we mark safe False in order to repeat the loop
+                    else:
+                        safe = False
 
-            if starsWithValidPositions == data_handler.GLBVARS.n_stars:
+            if safe:
                 break
+            starPlacementAttempts += 1
+
+            # if more than 30000 attempts to place stars take place we can assume it won't be successful
+            if starPlacementAttempts > 30000:
+                raise Exception("Your planet range is too restrictive")
 
         # creating starts
         for i in range(data_handler.GLBVARS.n_stars):
@@ -356,7 +381,7 @@ class OrbitEnv(gym.Env):
         observation_list = star_info + planet_info + other_info
 
         self.observation = np.array(observation_list)
-        print("="*70)
-        print(self.observation)
-        print("="*70)
+        # print("="*70)
+        # print(self.observation)
+        # print("="*70)
         return self.observation  # reward, done, info can't be included

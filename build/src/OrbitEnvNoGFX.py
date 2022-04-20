@@ -286,6 +286,7 @@ class OrbitEnv(gym.Env):
         # choosing the positions of all stars
         star_xs = []
         star_ys = []
+        safe = True
 
         while True:
             starsWithValidPositions = 0
@@ -307,9 +308,11 @@ class OrbitEnv(gym.Env):
                 for j in range(i+1, len(star_xs)):
                     distance = np.linalg.norm(np.array([star_xs[i], star_ys[i]]) - np.array([star_xs[j], star_ys[j]]) )
                     if distance > mids and distance < mads:
-                        starsWithValidPositions += 1
+                        pass
+                    else:
+                        safe = False
 
-            if starsWithValidPositions == data_handler.GLBVARS.n_stars:
+            if safe:
                 break
 
         # creating starts

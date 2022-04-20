@@ -22,7 +22,6 @@ Remember to reference Sentdex and documentation here (stable_baselines3, gym)
 """
 
 if __name__ == '__main__':
-
     fmt = '[%(levelname)s] %(asctime)s - %(message)s '
     logging.basicConfig(level=logging.INFO, format=fmt)
     start_time = time.time().real
@@ -38,14 +37,13 @@ if __name__ == '__main__':
     use_saved_model, train_new_model = False, True
     # see_sample_run = True
     see_sample_run = False
-
     #################
     # Train a model #
     #################
     if train_new_model:
-
         # train a new model
-        model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=filepath, n_steps=2)
+        # model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=filepath, n_steps=2)
+        model = PPO("MlpPolicy", env, verbose=1, n_steps=2)
 
         # train a model from a checkpoint
         # model = PPO.load(path='data/rlearn/models/model205.zip',
@@ -60,15 +58,18 @@ if __name__ == '__main__':
         # i = -1
 
         while i > -1:
-
+            print("4")
             model.learn(total_timesteps=1, reset_num_timesteps=False, tb_log_name="PPO")
+            print("3")
             timestamp = time.strftime("%m%d%H%M")
+            print("2")
 
             if i % 4 == 0:
                 model.save(
                     f"{filepath}/model{i}-{timestamp}"
                 )
                 print(f"Jut saved model{i}-{timestamp}")
+            print("1")
 
             i += 1
 

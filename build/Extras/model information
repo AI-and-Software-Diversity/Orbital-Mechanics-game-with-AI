@@ -1,0 +1,22 @@
+GENERAL::
+=========
+Model file name:
+
+
+RLEARN::
+========
+how many steps:
+strategy used:
+subdomains identified:
+training specifications:
+deterministic:
+type of rl model: PPO
+
+
+NEAT::
+======
+generation:
+strategy used:
+subdomains identified:
+training specifications:
+config:
