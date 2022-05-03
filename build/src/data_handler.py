@@ -89,20 +89,24 @@ size = 1600
 restriction_x = 200
 restriction_y = 150
 
-# GLBVARS = DataGenrator(
-#     n_planets=3,
-#     n_stars=1,
-#     planet_mom_scalar=0.00005,
-#     planet_rad=[9, 12],
-#     star_x_pos=[restriction_x, size - restriction_x],
-#     star_y_pos=[restriction_y, int(size / 1.75) - restriction_y],
-#     star_rad=[65, 80],
-#     width=size,
-#     height=size / 1.75,
-#     target_game_time=50,
-#     total_steps=2300,
-#     n_envs=1
-# )
+restriction_x = 400
+restriction_y = 250
+GLBVARS = DataGenrator(
+    n_planets=2,
+    n_stars=2,
+    planet_mom_scalar=0.00005,
+    planet_rad=[10, 15],
+    star_x_pos=[restriction_x, size - restriction_x],
+    star_y_pos=[restriction_y, int(size / 1.75) - restriction_y],
+    star_rad=[60, 70],
+    width=size,
+    height=size / 1.75,
+    target_game_time=50,
+    total_steps=2300,
+    n_envs=1,
+    min_distance_stars = 200,
+    max_distance_stars= 300
+)
 
 # GLBVARS = DataGenrator(
 #     n_planets=1,
@@ -117,28 +121,5 @@ restriction_y = 150
 #     target_game_time=50,
 #     total_steps=2300,
 #     n_envs=1,
-#     min_distance_stars = 400,
-#     max_distance_stars=600
+
 # )
-
-size = 1600
-restriction_x = 400
-restriction_y = 250
-
-GLBVARS = DataGenrator(
-    n_planets=3,
-    n_stars=2,
-    planet_mom_scalar=0.00005,
-    # planet_rad=[6, 15],
-    planet_rad=[9, 12],
-    star_x_pos=[restriction_x, size - restriction_x],
-    star_y_pos=[restriction_y, int(size / 1.75) - restriction_y],
-    star_rad=[65, 80],
-    width=size,
-    height=size / 1.75,
-    target_game_time=50,
-    total_steps=2300,
-    min_distance_stars=0,
-    max_distance_stars=20000,
-    n_envs=1
-)

@@ -43,7 +43,7 @@ if __name__ == '__main__':
     if train_new_model:
         # train a new model
         # model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=filepath, n_steps=2)
-        model = PPO("MlpPolicy", env, verbose=1, n_steps=2)
+        model = PPO("MlpPolicy", env, verbose=1, n_steps=784)
 
         # train a model from a checkpoint
         # model = PPO.load(path='data/rlearn/models/model205.zip',
@@ -58,18 +58,14 @@ if __name__ == '__main__':
         # i = -1
 
         while i > -1:
-            print("4")
             model.learn(total_timesteps=1, reset_num_timesteps=False, tb_log_name="PPO")
-            print("3")
             timestamp = time.strftime("%m%d%H%M")
-            print("2")
 
             if i % 4 == 0:
                 model.save(
                     f"{filepath}/model{i}-{timestamp}"
                 )
                 print(f"Jut saved model{i}-{timestamp}")
-            print("1")
 
             i += 1
 

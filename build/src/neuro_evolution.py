@@ -16,8 +16,7 @@ from OrbitEnv import OrbitEnv
 from OrbitEnvNoGFX import OrbitEnv
 
 
-runs_per_net = 6
-runs_per_net = 1
+runs_per_net = 3
 env = OrbitEnv(mode="neat")
 
 # Use the NN network phenotype and the discrete actuator force function.
@@ -47,8 +46,8 @@ def eval_genome(genome, config):
 
 def eval_genomes(genomes, config):
     for genome_id, genome in genomes:
-        genome.fitness = eval_genome(genome, config)
-
+        genome.fitness
+        
 def run():
     # Load the config file, which is assumed to live in
     # the same directory as this script.
@@ -70,13 +69,14 @@ def run():
     # pop.add_reporter(callbacks)
 
     pe = neat.ParallelEvaluator(multiprocessing.cpu_count(), eval_genome)
-    pe = neat.ParallelEvaluator(1, eval_genome)
     winner = pop.run(pe.evaluate)
 
     # Save the winner.
     with open(f'{path_to_models}/winner{time.strftime("%m%d%H%M")}', 'wb') as f:
         pickle.dump(winner, f)
 
+
+    print(f"winner {time.strftime('%m%d%H%M')}")
     stats.save()
     print(winner)
 

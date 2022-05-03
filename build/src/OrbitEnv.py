@@ -274,6 +274,7 @@ class OrbitEnv(gym.Env):
 
         other_info = [data_handler.GLBVARS.width, data_handler.GLBVARS.height]
         observation_list = star_info + planet_info + other_info
+
         self.collector_setup.add_to_csv(observation_list)
         self.observation = np.array(observation_list)
 

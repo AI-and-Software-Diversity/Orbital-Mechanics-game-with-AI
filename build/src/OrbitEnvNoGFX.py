@@ -47,11 +47,14 @@ class OrbitEnv(gym.Env):
 
         if mode == "neat":
             self.collector = Collector(f"data_neat", "neat")
+            self.collector_setup = Collector(f"setup_neat", "neat")
+            self.collector_pred = Collector(f"pred_neat", "neat")
 
         # if mode == "rlearn":
         else:
             self.collector = Collector(f"data_rlearn", "rlearn")
-
+            self.collector_setup = Collector(f"setup_rlearn", "rlearn")
+            self.collector_pred = Collector(f"pred_rlearn", "rlearn")
 
         # The things that the model knows before input
         # For now,  star x/y pos, p1 x/y pos, p2 x/y pos, p3 x/y pos, p1m, p2m, p3m
@@ -64,6 +67,8 @@ class OrbitEnv(gym.Env):
         self.started = 0
         self.time_started = time.time().real
         self.runs_completed += 1
+
+        self.collector_pred.add_to_csv(action)
 
         while self.running:
 
@@ -239,12 +244,8 @@ class OrbitEnv(gym.Env):
 
         other_info = [data_handler.GLBVARS.width, data_handler.GLBVARS.height]
         observation_list = star_info + planet_info + other_info
-        # print("------------step-----------")
-        # print(star_info)
-        # print(planet_info)
-        # print(other_info)
-        # print("------------step-----------")
 
+        self.collector_setup.add_to_csv(observation_list)
         self.observation = np.array(observation_list)
 
         info = {}
