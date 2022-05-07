@@ -49,16 +49,16 @@ class OrbitEnv(gym.Env):
         # choose agent mode
         if mode == "neat":
             print(mode)
-            self.collector = Collector(f"data_neat", "neat")
-            self.collector_setup = Collector(f"setup_neat", "neat")
-            self.collector_pred = Collector(f"pred_neat", "neat")
+            self.collector = Collector(f"data_neat", "neat", "data")
+            self.collector_setup = Collector(f"setup_neat", "neat", "setup")
+            self.collector_pred = Collector(f"pred_neat", "neat", "pred")
 
         # if mode == "rlearn":
         else:
             print(mode)
-            self.collector = Collector(f"data_rlearn", "rlearn")
-            self.collector_setup = Collector(f"setup_rlearn", "rlearn")
-            self.collector_pred = Collector(f"pred_rlearn", "rlearn")
+            self.collector = Collector(f"data_rlearn", "rlearn", "data")
+            self.collector_setup = Collector(f"setup_rlearn", "rlearn", "setup")
+            self.collector_pred = Collector(f"pred_rlearn", "rlearn", "pred")
 
         # The things that the model knows before input
         # For now,  star x/y pos, p1 x/y pos, p2 x/y pos, p3 x/y pos, p1m, p2m, p3m
@@ -212,8 +212,6 @@ class OrbitEnv(gym.Env):
                                            self.reward,
                                            self.cumulative_timesteps,
                                            data_handler.GLBVARS.total_steps,
-                                           data_handler.GLBVARS.n_planets,
-                                           data_handler.GLBVARS.n_stars,
                                            self.runs_completed])
                 self.done = True
 
@@ -259,8 +257,6 @@ class OrbitEnv(gym.Env):
                                            self.reward,
                                            self.cumulative_timesteps,
                                            data_handler.GLBVARS.target_game_time,
-                                           data_handler.GLBVARS.n_planets,
-                                           data_handler.GLBVARS.n_stars,
                                            self.runs_completed])
 
                 self.done = True
@@ -315,13 +311,15 @@ class OrbitEnv(gym.Env):
         # choosing the positions of all stars
         star_xs = []
         star_ys = []
-        safe = True
+
         starPlacementAttempts = 0
 
         # handling star placement
         while True:
+            safe = True
             star_xs.clear()
             star_ys.clear()
+
             for i in range(data_handler.GLBVARS.n_stars):
                 # generate n points
                 star_xs.append(random.randint(data_handler.GLBVARS.star_x_pos[0], data_handler.GLBVARS.star_x_pos[1]))
@@ -329,17 +327,18 @@ class OrbitEnv(gym.Env):
 
             # checking if points are suitable.....
 
-            # specify min/max distance
+            # Get the min/max distance
             mids = data_handler.GLBVARS.min_distance_stars
             mads = data_handler.GLBVARS.max_distance_stars
 
             # check suitability
 
-            # double loop because we are comparing all elemts of a loop
+            # double loop because we are comparing all elements of a loop
             for i in range(len(star_xs)-1):
                 for j in range(i+1, len(star_xs)):
                     # if the distance is in the safe range we dont do anything
-                    distance = np.linalg.norm(np.array([star_xs[i], star_ys[i]]) - np.array([star_xs[j], star_ys[j]]) )
+                    distance = np.linalg.norm(np.array([star_xs[i], star_ys[i]]) - np.array([star_xs[j], star_ys[j]]))
+
                     if distance > mids and distance < mads:
                         pass
                     # if the distance is not the safe range we mark safe False in order to repeat the loop
@@ -350,8 +349,8 @@ class OrbitEnv(gym.Env):
                 break
             starPlacementAttempts += 1
 
-            # if more than 30000 attempts to place stars take place we can assume it won't be successful
-            if starPlacementAttempts > 30000:
+            # if more than 3000 attempts to place stars take place we can assume it won't be successful
+            if starPlacementAttempts > 3000:
                 raise Exception("Your planet range is too restrictive")
 
         # creating starts

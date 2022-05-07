@@ -3,6 +3,8 @@ import pygame
 import logging
 import time
 import data_handler
+import matplotlib.pyplot as plt
+import numpy as np
 
 def euclidian_distance(body1, body2):
 
@@ -85,7 +87,7 @@ def scale_vectors(vec1, vec2, factor):
 def not_created_yet():
     print("THIS HAS NOT YET BEEN IMPLEMENTED")
 
-def get_collumn_from_csv(file, chosen_col, show_graph):
+def get_collumn_from_csv(file, chosen_col):
     """
     Returns a numpy array of data from a csv column (Not including the first line read)
 
@@ -101,27 +103,49 @@ def get_collumn_from_csv(file, chosen_col, show_graph):
     """
 
     import pandas as pd
-    import matplotlib.pyplot as plt
 
     df = pd.read_csv(file)
 
     full_col = df.to_numpy().transpose()[chosen_col]
     # print(col[-1])
 
-
-    if show_graph:
-
-        print()
-        plt.xlabel(f"run number")
-        plt.ylabel(f"{df.columns[chosen_col]}")
-        plt.scatter([i for i in range(len(full_col))], full_col)
-        plt.show()
-
     return np.array(full_col)
 
+def get_rlearn_graph(data, timesteps):
+    # https://stackoverflow.com/questions/11352047/finding-moving-average-from-data-points-in-python
+    aves = [np.mean(data[i:i + timesteps + 1]) for i in range(0, len(data), timesteps)]
+    print(len(aves))
+    plt.plot(range(0, len(aves)), aves)
+    plt.show()
 
+def setup_csv(num_planets, num_stars):
 
-    pass
+    title_string = ""
+
+    for i in range(num_stars):
+        title_string = title_string + f"star_{i+1}_x_pos,"
+
+    for i in range(num_stars):
+        title_string = title_string + f"star_{i+1}_y_pos,"
+
+    for i in range(num_stars):
+        title_string = title_string + f"star_{i+1}_m_pos,"
+
+    for i in range(num_planets):
+        title_string = title_string + f"planet_{i+1}_m_pos,"
+
+    title_string = title_string + "length,height"
+
+    return title_string
+
+def pred_csv(num_planets):
+    title_string = ""
+    for i in range(num_planets):
+        title_string = title_string + f"planet_{i+1}_x_pos,planet_{i+1}_y_pos,planet_{i+1}_x_mom,planet_{i+1}_y_mom,"
+    title_string = title_string[0:-1]
+
+    return title_string
+
 
 if __name__ == '__main__':
     # neat_values = get_collumn_from_csv(
@@ -135,4 +159,12 @@ if __name__ == '__main__':
     #     if val == 1:
     #         i+=1
     # print(i)
-    print()
+
+    arr = get_collumn_from_csv("/home/javonne/Desktop/data_rlearn.csv", 1)
+    plt.xlabel("model number")
+    plt.ylabel("Avg P(Success)")
+    plt.title("Avg P(Success) while training")
+    get_rlearn_graph(arr, 4096)
+    plt.show()
+
+    # print(setup_csv(2,2))

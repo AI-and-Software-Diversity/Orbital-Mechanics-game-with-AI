@@ -10,12 +10,11 @@ give credit to sentdex and gh library
 # model_name = ""
 # model_folder = ""
 
-model_folder = ""
-# model_folder = "NeuroEvolution/models"
-# model_name = ""
-model_name = "../../data/neat/models/neat-checkpoint-3"
+model_folder = "data/neat/models"
+model_folder = "agents_and_data/4 Final/neat/2"
+model_name = "winner04251728"
 
-with open(f'data/neat/models/winner1648952884.8555834', 'rb') as f:
+with open(f'{model_folder}/{model_name}', 'rb') as f:
     agent = pickle.load(f)
 
 # Load the config file, which is assumed to live in
@@ -29,8 +28,6 @@ config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
 net = neat.nn.FeedForwardNetwork.create(agent, config)
 
 env = OrbitEnv(mode="neat")
-# setattr(env.collector, "file_to_use", f"data_neat")
-# setattr(env.collector, "model_type", f"neat")
 observation = env.reset()
 
 done = False

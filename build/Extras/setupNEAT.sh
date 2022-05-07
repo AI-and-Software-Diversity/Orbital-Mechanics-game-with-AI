@@ -19,5 +19,4 @@ flight env activate gridware
 module load libs/nvidia-cuda/11.2.0/bin
 
 #Run your script.
-python3 src/config_controller.py
 python3 src/neuro_evolution.py

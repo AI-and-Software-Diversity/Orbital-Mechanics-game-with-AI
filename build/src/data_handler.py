@@ -1,8 +1,10 @@
 import os
+import helpers
+
 
 class Collector:
 
-    def __init__(self, file_to_use, model_type):
+    def __init__(self, file_to_use, model_type, csv):
         self.file_to_use = file_to_use
         self.model_type = model_type
 
@@ -10,7 +12,17 @@ class Collector:
         #                     "StepSizeP,num_planets,num_stars, Score,OptimalScore,FinalScore%DistanceFromOptimalScore, " +\
         #                     "avgSpeedP1...,avgAgeP,avgAgeP1..,StepSizeP,bigG]"
 
-        self.csv_format = "was succesful, reward, actual steps, target steps, num stars, num planets, runs completed"
+        if csv == "setup":
+            self.csv_format = helpers.setup_csv(GLBVARS.n_planets, GLBVARS.n_stars)
+
+        elif csv == "pred":
+            self.csv_format = helpers.pred_csv(GLBVARS.n_planets)
+
+        elif csv == "data":
+            self.csv_format = "was succesful, reward, actual steps, target steps, runs completed"
+
+        else:
+            raise Exception("ERROR: Your csv type has not been specified correctly.")
 
         # # ADDING THE DATA FORMAT SPECIFIED TO EMPTY CSV
         # # if not os.path.isfile(f"data/{self.model_type}/csvs/{self.file_to_use}.csv"):
@@ -18,6 +30,7 @@ class Collector:
             file.write(self.csv_format)
 
     def add_to_csv(self, data_to_add):
+
         """
         Reference:
                 https://www.youtube.com/watch?v=MWYRGLKMzAQ
@@ -34,10 +47,12 @@ class Collector:
         #     file.write(self.csv_format)
 
         # ADDING THE NEW DATA
+
         one_line = ""
         for var in data_to_add:
             one_line += str(var) + ","
         one_line = one_line[0:-1]
+
         with open(f"data/{self.model_type}/csvs/{self.file_to_use}.csv", "a", newline="") as file:
             file.write("\n"+ one_line)
 
@@ -85,41 +100,45 @@ class DataGenrator:
         self.min_distance_stars = min_distance_stars
         self.max_distance_stars = max_distance_stars
 
-size = 1600
-restriction_x = 200
-restriction_y = 150
-
-restriction_x = 400
-restriction_y = 250
-GLBVARS = DataGenrator(
-    n_planets=2,
-    n_stars=2,
-    planet_mom_scalar=0.00005,
-    planet_rad=[10, 15],
-    star_x_pos=[restriction_x, size - restriction_x],
-    star_y_pos=[restriction_y, int(size / 1.75) - restriction_y],
-    star_rad=[60, 70],
-    width=size,
-    height=size / 1.75,
-    target_game_time=50,
-    total_steps=2300,
-    n_envs=1,
-    min_distance_stars = 200,
-    max_distance_stars= 300
-)
-
+# size = 1600
+# restriction_x = 200
+# restriction_y = 150
+#
 # GLBVARS = DataGenrator(
-#     n_planets=1,
-#     n_stars=3,
+#     n_planets=2,
+#     n_stars=2,
 #     planet_mom_scalar=0.00005,
-#     planet_rad=[6, 9],
+#     planet_rad=[10, 15],
 #     star_x_pos=[restriction_x, size - restriction_x],
 #     star_y_pos=[restriction_y, int(size / 1.75) - restriction_y],
-#     star_rad=[40, 55],
+#     star_rad=[60, 70],
 #     width=size,
 #     height=size / 1.75,
 #     target_game_time=50,
 #     total_steps=2300,
 #     n_envs=1,
-
+#     # min_distance_stars = 150,
+#     min_distance_stars = 50,
+#     max_distance_stars= 999999
 # )
+
+size = 1600
+restriction_x = 250
+restriction_y = 250
+
+GLBVARS = DataGenrator(
+    n_planets=1,
+    n_stars=2,
+    planet_mom_scalar=0.00005,
+    planet_rad=[8, 12],
+    star_x_pos=[restriction_x, size - restriction_x],
+    star_y_pos=[restriction_y, int(size / 1.75) - restriction_y],
+    star_rad=[70, 80],
+    width=size,
+    height=size / 1.75,
+    target_game_time=50,
+    total_steps=2300,
+    n_envs=1,
+    min_distance_stars = 350,
+    max_distance_stars= 800
+)

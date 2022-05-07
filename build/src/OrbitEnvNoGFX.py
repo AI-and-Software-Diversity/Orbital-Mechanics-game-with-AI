@@ -46,18 +46,18 @@ class OrbitEnv(gym.Env):
         self.runs_completed = 0
 
         if mode == "neat":
-            self.collector = Collector(f"data_neat", "neat")
-            self.collector_setup = Collector(f"setup_neat", "neat")
-            self.collector_pred = Collector(f"pred_neat", "neat")
+            self.collector = Collector(f"data_neat", "neat", "data")
+            self.collector_setup = Collector(f"setup_neat", "neat", "setup")
+            self.collector_pred = Collector(f"pred_neat", "neat", "pred")
 
         # if mode == "rlearn":
         else:
-            self.collector = Collector(f"data_rlearn", "rlearn")
-            self.collector_setup = Collector(f"setup_rlearn", "rlearn")
-            self.collector_pred = Collector(f"pred_rlearn", "rlearn")
+            self.collector = Collector(f"data_rlearn", "rlearn", "data")
+            self.collector_setup = Collector(f"setup_rlearn", "rlearn", "setup")
+            self.collector_pred = Collector(f"pred_rlearn", "rlearn", "pred")
 
         # The things that the model knows before input
-        # For now,  star x/y pos, p1 x/y pos, p2 x/y pos, p3 x/y pos, p1m, p2m, p3m
+        # For now,  Star: x, y, m. Planet: m. Window: L, H
         N_DISCRETE_OBSERVATIONS = 3 * data_handler.GLBVARS.n_stars + 1 * data_handler.GLBVARS.n_planets + 2
         self.observation_space = spaces.Box(low=0, high=data_handler.GLBVARS.width, shape=(N_DISCRETE_OBSERVATIONS,))
 
@@ -288,11 +288,13 @@ class OrbitEnv(gym.Env):
         star_xs = []
         star_ys = []
         safe = True
+        starPlacementAttempts = 0
 
         while True:
-            starsWithValidPositions = 0
+
             star_xs.clear()
             star_ys.clear()
+            safe = True
             for i in range(data_handler.GLBVARS.n_stars):
                 # generate n points
                 star_xs.append(random.randint(data_handler.GLBVARS.star_x_pos[0], data_handler.GLBVARS.star_x_pos[1]))
@@ -307,7 +309,7 @@ class OrbitEnv(gym.Env):
             # check suitability
             for i in range(len(star_xs)-1):
                 for j in range(i+1, len(star_xs)):
-                    distance = np.linalg.norm(np.array([star_xs[i], star_ys[i]]) - np.array([star_xs[j], star_ys[j]]) )
+                    distance = np.linalg.norm(np.array([star_xs[i], star_ys[i]]) - np.array([star_xs[j], star_ys[j]]))
                     if distance > mids and distance < mads:
                         pass
                     else:
@@ -315,6 +317,11 @@ class OrbitEnv(gym.Env):
 
             if safe:
                 break
+            starPlacementAttempts += 1
+
+            # if more than 3000 attempts to place stars take place we can assume it won't be successful
+            if starPlacementAttempts > 3000:
+                raise Exception("Your planet range is too restrictive")
 
         # creating starts
         for i in range(data_handler.GLBVARS.n_stars):

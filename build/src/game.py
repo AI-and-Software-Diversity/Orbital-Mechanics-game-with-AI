@@ -64,9 +64,9 @@ def main_menu():
 
         if llbutton.collidepoint(mx, my) and clicked:
             pygame.event.wait()
-            # pygame.event.wait()
+            # pygame.event.neat()
             # level_1_human()
-            # pygame.event.wait()
+            # pygame.event.neat()
             menu_template(level_1_human, helpers.not_created_yet, helpers.not_created_yet, helpers.not_created_yet)
 
         helpers.text_box("play (NEAT AI)", 10, screen, 2 * data_handler.GLBVARS.width / 5, 30 + data_handler.GLBVARS.height / 2)
@@ -371,21 +371,21 @@ def level_1_human():
 #         pygame.draw.rect(screen, (255, 255, 255), llbutton)
 #
 #         if llbutton.collidepoint(mx, my) and clicked:
-#             pygame.event.wait()
+#             pygame.event.neat()
 #             function_1()
 #             logging.debug("llbutton")
 #
 #         helpers.text_box("LEVEL 2", 10, screen, 2 * WIDTH / 5, 30 + HEIGHT / 2)
 #         pygame.draw.rect(screen, (255, 255, 255), lbutton)
 #         if lbutton.collidepoint(mx, my) and clicked:
-#             pygame.event.wait()
+#             pygame.event.neat()
 #             function_2()
 #             logging.debug("lbutton")
 #
 #         helpers.text_box("LEVEL 3", 10, screen, 3 * WIDTH / 5, 30 + HEIGHT / 2)
 #         pygame.draw.rect(screen, (255, 255, 255), rbutton)
 #         if rbutton.collidepoint(mx, my) and clicked:
-#             pygame.event.wait()
+#             pygame.event.neat()
 #             function_3()
 #             logging.debug("rbutton")
 #
@@ -393,7 +393,7 @@ def level_1_human():
 #         pygame.draw.rect(screen, (255, 255, 255), rrbutton)
 #         if rrbutton.collidepoint(mx, my) and clicked:
 #             # if at start first event is clicking the button, we enter this thing and bug out
-#             pygame.event.wait()
+#             pygame.event.neat()
 #             function_4()
 #             logging.debug("rrbutton")
 #

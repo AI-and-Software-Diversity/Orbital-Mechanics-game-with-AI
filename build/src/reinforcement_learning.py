@@ -8,7 +8,7 @@ import time
 from stable_baselines3 import *
 import data_handler
 # import OrbitEnv
-from OrbitEnvNoGFX import OrbitEnv
+
 from OrbitEnv import OrbitEnv
 
 """
@@ -33,10 +33,10 @@ if __name__ == '__main__':
     new_logger = configure(filepath, ["stdout", "csv", "tensorboard"])
 
     # decide what kind of model you want to preview
-    # use_saved_model, train_new_model = True, False
-    use_saved_model, train_new_model = False, True
-    # see_sample_run = True
-    see_sample_run = False
+    use_saved_model, train_new_model = True, False
+    # use_saved_model, train_new_model = False, True
+    see_sample_run = True
+    # see_sample_run = False
     #################
     # Train a model #
     #################
@@ -48,7 +48,8 @@ if __name__ == '__main__':
         # train a model from a checkpoint
         # model = PPO.load(path='data/rlearn/models/model205.zip',
         #                  env=OrbitEnv(mode="rlearn"))
-
+        # model = PPO.load(path='data/rlearn/models/model60-05041928.zip',
+        #                  env=OrbitEnv(mode="rlearn"))
         # model.set_logger(new_logger)
         # we only need one step to make the initial decisions (position and velocity of planets) so keep at 1
         steps = 1
@@ -58,7 +59,7 @@ if __name__ == '__main__':
         # i = -1
 
         while i > -1:
-            model.learn(total_timesteps=1, reset_num_timesteps=False, tb_log_name="PPO")
+            model.learn(total_timesteps=1, reset_num_timesteps=False)
             timestamp = time.strftime("%m%d%H%M")
 
             if i % 4 == 0:
@@ -74,7 +75,7 @@ if __name__ == '__main__':
     ###################################
 
     if use_saved_model:
-        model = PPO.load('data/rlearn/models/model205')
+        model = PPO.load('data/rlearn/terrmodels/model4-05062349.zip')
 
     #################################################
     # Use a model that has just been loaded/trained #
@@ -87,7 +88,7 @@ if __name__ == '__main__':
         # show 3 sample runs with the chosen model
         for i in range(10):
 
-            action, _states = model.predict(obs, deterministic=True)
+            action, _states = model.predict(obs, deterministic=False)
 
 
 
