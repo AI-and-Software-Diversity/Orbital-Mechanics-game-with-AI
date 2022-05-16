@@ -1,0 +1,29 @@
+Pseudocode for an adjudicator
+
+agents = [agent_1, agent_2, ..., agent_n]
+best_conditions = [best_conditions_1, best_conditions_2, ..., best_conditions_n]
+average_reward_given_best_condition = [average_reward_given_best_condition_1, ... ]
+current_conditions = ... # observation
+
+def adjudicator(agents,
+                best_conditions,
+                average_reward_given_best_condition,
+                current_conditions):
+
+    possible_agents = []
+
+    # find agents where best conditions are met and add to list
+    for i in range(0, best_conditions.length - 1):
+        if current_conditions == best_conditions[i]:
+            possible_agents(agents[i])
+
+    # finding the position of the maximum reward
+    model_index = index(max(possible_agents))
+
+    # choosing the best agent out of the possibilities
+    chosen_agent = agents[model_index]
+
+    # this is the action
+    prediction = chosen_agent.predict(current_conditions)
+
+    return prediction
