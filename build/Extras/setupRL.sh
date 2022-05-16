@@ -2,10 +2,12 @@
 #SBATCH -D /users/adbg285/HPCWORKSNOW/buildrl
 #SBATCH --job-name rlearning_orbit
 #SBATCH --partition=gengpu
-#SBATCH --nodes=6
-#SBATCH --ntasks-per-node=40
-#SBATCH --mem=64MB
-#SBATCH --time=24:00:00
+#SBATCH --nodes=1
+#SBATCH --gres=gpu:1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=6
+#SBATCH --mem=128MB
+#SBATCH --time=48:00:00
 #SBATCH -e results/%x_%j.e
 #SBATCH -o results/%x_%j.o
 

@@ -2,9 +2,9 @@
 #SBATCH -D /users/adbg285/HPCWORKSNOW/buildneat
 #SBATCH --job-name neat_orbit
 #SBATCH --partition=nodes
-#SBATCH --nodes=3
-#SBATCH --ntasks-per-node=14
-#SBATCH --mem=48MB
+#SBATCH --nodes=6
+#SBATCH --ntasks-per-node=48
+#SBATCH --mem=0
 #SBATCH --time=16:00:00
 #SBATCH -e results/%x_%j.e
 #SBATCH -o results/%x_%j.o

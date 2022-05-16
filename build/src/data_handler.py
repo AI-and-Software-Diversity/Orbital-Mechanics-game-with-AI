@@ -5,12 +5,14 @@ import helpers
 class Collector:
 
     def __init__(self, file_to_use, model_type, csv):
+        """
+        This class allows you to write towards different CSVs.
+
+        csv: Determines what type of csv you write to
+        model_type: chooses the location of the CSV
+        """
         self.file_to_use = file_to_use
         self.model_type = model_type
-
-        # self.csv_format =  "[xPosS1..,yPosS1..,xPosP1...,yPosP1...,xMomP1..,yMomP1..,H,W,TargetTimeGame,MassP1...,MassS1...," +\
-        #                     "StepSizeP,num_planets,num_stars, Score,OptimalScore,FinalScore%DistanceFromOptimalScore, " +\
-        #                     "avgSpeedP1...,avgAgeP,avgAgeP1..,StepSizeP,bigG]"
 
         if csv == "setup":
             self.csv_format = helpers.setup_csv(GLBVARS.n_planets, GLBVARS.n_stars)
@@ -24,27 +26,17 @@ class Collector:
         else:
             raise Exception("ERROR: Your csv type has not been specified correctly.")
 
-        # # ADDING THE DATA FORMAT SPECIFIED TO EMPTY CSV
-        # # if not os.path.isfile(f"data/{self.model_type}/csvs/{self.file_to_use}.csv"):
+        # ADDING THE DATA FORMAT SPECIFIED TO EMPTY CSV
         with open(f"data/{self.model_type}/csvs/{self.file_to_use}.csv", "w", newline="\n" ) as file:
             file.write(self.csv_format)
 
     def add_to_csv(self, data_to_add):
 
         """
-        Reference:
-                https://www.youtube.com/watch?v=MWYRGLKMzAQ
+        This method writes information from a python list to a csv.
 
-        Order: [xPosS1..,yPosS1..,xPosP1...,yPosP1...,xMomP1..,yMomP1..,H,W,TargetTimeGame,MassP1...,MassS1...,
-                StepSizeP,num_planets,num_stars, Score,OptimalScore,FinalScore%DistanceFromOptimalScore, avgSpeedP1...,
-                avgAgeP,avgAgeP1..,StepSizeP,bigG]
-
-        Be sure to use setattr() if you want to use a different default file format...
+        Reference: https://www.youtube.com/watch?v=MWYRGLKMzAQ
         """
-
-        # # ADDING THE DATA FORMAT SPECIFIED TO EMPTY CSV
-        # with open(f"data/{self.model_type}/csvs/{self.file_to_use}.csv", "w", newline="\n" ) as file:
-        #     file.write(self.csv_format)
 
         # ADDING THE NEW DATA
 
@@ -54,17 +46,12 @@ class Collector:
         one_line = one_line[0:-1]
 
         with open(f"data/{self.model_type}/csvs/{self.file_to_use}.csv", "a", newline="") as file:
-            file.write("\n"+ one_line)
+            file.write("\n" + one_line)
 
-# collector = Collector(f"ghgd")
-# var1 = "1"
-# var2 = 2
-# var3 = 3
-# collector.add_to_csv([var1, var2])
 
 class DataGenrator:
     """
-    Well create an instanciable objects whose paramets will be used as varibales that can be used to train the mondel.
+    Well create an instantiable objects whose parameters will be used as variables that can be used to train the model.
 
     Every parameter will be callable with a get method
 
@@ -72,18 +59,12 @@ class DataGenrator:
     they want to train.
 
     """
-
-    order="[xPosS1..,yPosS1..,xPosP1...,yPosP1...,xMomP1..,yMomP1..,H,W,TargetTimeGame,MassP1...,MassS1...," + \
-    "StepSizeP,num_planets,num_stars, Score,OptimalScore," + \
-    "FinalScore%DistanceFromOptimalScore, " + \
-    "avgSpeedP1...,avgAgeP,avgAgeP1..,StepSizeP,bigG]"
     # everything from the last 2 must come from the write to csv method.
 
-    # def __init__(self, xPosS1, yPosS1, xPosP1, xPosP2, xPosP3, yPosP1, yPosP2, yPosP3, xMomP1, xMomP2, xMomP3, yMomP1, yMomP2, yMomP3, WIDTH, HEIGHT, target_game_time, massS1, massP1, massP2, massP3):
 
     def __init__(self, n_planets, n_stars, planet_mom_scalar, planet_rad, star_x_pos, star_y_pos,
-                 star_rad, width, height, target_game_time, total_steps, n_envs, min_distance_stars,
-                 max_distance_stars):
+                 star_rad, width, height, target_game_time, total_steps, n_envs, min_distance_stars=0,
+                 max_distance_stars=100000000000):
         self.width = width
         self.height = height
         self.n_planets = n_planets
@@ -100,45 +81,24 @@ class DataGenrator:
         self.min_distance_stars = min_distance_stars
         self.max_distance_stars = max_distance_stars
 
-# size = 1600
-# restriction_x = 200
-# restriction_y = 150
-#
-# GLBVARS = DataGenrator(
-#     n_planets=2,
-#     n_stars=2,
-#     planet_mom_scalar=0.00005,
-#     planet_rad=[10, 15],
-#     star_x_pos=[restriction_x, size - restriction_x],
-#     star_y_pos=[restriction_y, int(size / 1.75) - restriction_y],
-#     star_rad=[60, 70],
-#     width=size,
-#     height=size / 1.75,
-#     target_game_time=50,
-#     total_steps=2300,
-#     n_envs=1,
-#     # min_distance_stars = 150,
-#     min_distance_stars = 50,
-#     max_distance_stars= 999999
-# )
-
 size = 1600
-restriction_x = 250
-restriction_y = 250
+restriction_x = 750
+restriction_y = 440
 
+# This instance will be used repeatedly in the Env classes
 GLBVARS = DataGenrator(
     n_planets=1,
-    n_stars=2,
+    n_stars=1,
     planet_mom_scalar=0.00005,
-    planet_rad=[8, 12],
+    planet_rad=[9, 11],
     star_x_pos=[restriction_x, size - restriction_x],
     star_y_pos=[restriction_y, int(size / 1.75) - restriction_y],
-    star_rad=[70, 80],
+    star_rad=[70, 72],
     width=size,
     height=size / 1.75,
     target_game_time=50,
     total_steps=2300,
-    n_envs=1,
-    min_distance_stars = 350,
-    max_distance_stars= 800
+    n_envs=50,
+    min_distance_stars = 0,
+    max_distance_stars= 1000000
 )

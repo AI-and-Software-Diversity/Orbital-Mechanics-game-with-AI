@@ -1,0 +1,80 @@
+Pseudocode to find sub domains.
+
+1. You have two CSVs containing data that corresponds to two agents.
+2. You specify the columns by which you want to search for
+3. You get the max and min of each column
+4. You create one or many random filters given the columns from the parameter, and the min/max of those columns.
+5. You find the average reward given this filter for both CSVs (And thus both agents)
+6. You record all of the filters and which CSV has a higher reward (in a tuple like: Tuple[filter_conditions, better] ).
+7. You do this check N times.
+8. Once all of the checks are complete you will ideally have tuples with a variety of conditions and different winners
+    (winners being the csv with the higher average reward)
+9. Select a few of these with different higher average rewards (and therefore both models will have better performing sub-domains for analysis)
+
+
+
+
+
+def average_reward_given_filters(table_of_data, filter)
+    """
+    Given a table of data (like a csv or a dataframe) it finds the average reward after filtering the table
+    """
+    ...
+    return avg_reward
+
+
+def get_random_filters_given_columns(table_of_data)
+    """
+    Using the column titles, and the min/max of the column, this function returns a random boolean condition or filter
+    """
+    ...
+    return filter
+
+
+def sub_domain_search(csv_1, csv_2, [columns_to_search], number_of_checks):
+
+    filter_and_better = []
+
+    columns_1 = csv_1.columns
+    columns_2 = csv_2.columns
+
+    if columns_1 != columns_2:
+        raise Exception
+
+    for i in range(number_of_checks):
+        filter_1 = get_random_filters_given_columns(csv_1)
+        filter_2 = get_random_filters_given_columns(csv_2)
+
+        avg_1 = average_reward_given_filters(csv_1, filter_1)
+        avg_2 = average_reward_given_filters(csv_2, filter_2)
+
+        if avg_1 >= avg_2:
+            result = (filter_1, 0)
+
+        else:
+            result = (filter_2, 1)
+
+        filter_and_better.append(result)
+
+    return filter_and_better
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

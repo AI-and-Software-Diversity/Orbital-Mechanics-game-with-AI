@@ -4,7 +4,8 @@ from tensorflow.keras.callbacks import ModelCheckpoint
 from stable_baselines3 import PPO, A2C
 
 """
-Remember to reference Sentdex and documentation here (stable_baselines3, gym)
+This code comes from this sentdex tutorial: 
+https://www.youtube.com/watch?v=uKnjGn8fF70&list=PLQVvvaa0QuDf0O2DWwLZBfJeYY-JOeZB1&index=3
 """
 
 start_time = time.time().real

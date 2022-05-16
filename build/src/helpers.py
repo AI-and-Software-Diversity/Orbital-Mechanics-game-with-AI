@@ -7,6 +7,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def euclidian_distance(body1, body2):
+    """
+    Finds the Euclidean distance between two bodies.
+    """
 
     distance = np.abs(np.linalg.norm(
         np.array([body1.x, body1.y]) - np.array([body2.x, body2.y])
@@ -16,14 +19,9 @@ def euclidian_distance(body1, body2):
 
 def text_box(str, font_size, screen, x, y):
     """
-    https://www.fontspace.com/press-start-2p-font-f11591
+    Draws text on the screen.
 
-    :param str:
-    :param font:
-    :param screen:
-    :param x:
-    :param y:
-    :return:
+    Reference: https://www.fontspace.com/press-start-2p-font-f11591
     """
 
     font = pygame.font.Font('assets/PressStart2P-vaV7.ttf', font_size)
@@ -65,10 +63,11 @@ def law_of_gravitation(body1, body2):
         return 0
 
 def current_time():
-    # return time.time().real
+    """Returns the current time"""
     return round(time.time().real, 2)
 
 def all_planets_destroyed(pnts):
+    """Returns true if all planets are destroyed."""
     if len([pnt for pnt in pnts if pnt.alive == False]) == len([pnt for pnt in pnts]):
         return True
     return False
@@ -79,8 +78,7 @@ def scale_vectors(vec1, vec2, factor):
     :param vec2: The seconds vector (point in space)
     :return factor: The scaled difference between them (route from vex 2 to vec 1)
     """
-    resultant_vec = (np.array(vec1) - np.array(vec2)) / 500000
-
+    resultant_vec = (np.array(vec1) - np.array(vec2)) / 500_000
 
     return (resultant_vec) * factor
 
@@ -112,14 +110,21 @@ def get_collumn_from_csv(file, chosen_col):
     return np.array(full_col)
 
 def get_rlearn_graph(data, timesteps):
-    # https://stackoverflow.com/questions/11352047/finding-moving-average-from-data-points-in-python
+    """
+    Creaates a graph that emulates tensorboard graphs.
+    Timesteps Describes how many runs are collated into one datapoint.
+
+    Reference: https://stackoverflow.com/questions/11352047/finding-moving-average-from-data-points-in-python
+    """
     aves = [np.mean(data[i:i + timesteps + 1]) for i in range(0, len(data), timesteps)]
     print(len(aves))
     plt.plot(range(0, len(aves)), aves)
     plt.show()
 
 def setup_csv(num_planets, num_stars):
-
+    """
+    Automatically creates the title row for setup_csv's given #planets and #stars
+    """
     title_string = ""
 
     for i in range(num_stars):
@@ -139,13 +144,16 @@ def setup_csv(num_planets, num_stars):
     return title_string
 
 def pred_csv(num_planets):
+    """
+    Automatically creates the title row for pred_csv's given #planets
+    """
+
     title_string = ""
     for i in range(num_planets):
         title_string = title_string + f"planet_{i+1}_x_pos,planet_{i+1}_y_pos,planet_{i+1}_x_mom,planet_{i+1}_y_mom,"
     title_string = title_string[0:-1]
 
     return title_string
-
 
 if __name__ == '__main__':
     # neat_values = get_collumn_from_csv(
@@ -160,11 +168,11 @@ if __name__ == '__main__':
     #         i+=1
     # print(i)
 
-    arr = get_collumn_from_csv("/home/javonne/Desktop/data_rlearn.csv", 1)
-    plt.xlabel("model number")
-    plt.ylabel("Avg P(Success)")
-    plt.title("Avg P(Success) while training")
-    get_rlearn_graph(arr, 4096)
+    arr = get_collumn_from_csv("/home/javonne/Desktop/forhpc/data_neat.csv", 1)
+    plt.xlabel("run")
+    plt.ylabel("Reward")
+    plt.title("Reward/Batch")
+    get_rlearn_graph(arr, 100_000)
     plt.show()
 
     # print(setup_csv(2,2))

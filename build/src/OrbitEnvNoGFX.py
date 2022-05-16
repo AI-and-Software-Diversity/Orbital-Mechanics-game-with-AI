@@ -13,12 +13,12 @@ import random
 """
 The structure of the main OrbitEnv class comes from the stable_baselines3 api:
 I learnt how to train my model with reinforcement learning using the stable_baselines3 api:
-*LINK*
+https://stable-baselines3.readthedocs.io/en/master/guide/custom_env.html
 
 I learnt how to create my own gym custom environment following a tutorial series online by "Sentdex" on youtube
-*LINK*
+https://www.youtube.com/watch?v=uKnjGn8fF70
 
-I got some help with vectorization for optimisation:
+I got some help with vectorization for faster training times:
 https://www.youtube.com/watch?v=nxWginnBklU
 https://youtu.be/nxWginnBklU
 https://youtu.be/EEUXKG97YRw
@@ -27,30 +27,29 @@ https://www.youtube.com/watch?v=HN5d490_KKk
 
 class OrbitEnv(gym.Env):
 
-    """Custom Environment that follows gym interface"""
+
 
     metadata = {'render.modes': ['human']}
 
     def __init__(self, mode=None):
 
+        """Custom Environment that follows gym interface. Visualises agent performance"""
         super(OrbitEnv, self).__init__()
 
         # The possible decisions the agent can make
+        # This is only important to rlearn. The neat equiv to this is expected outputs
         # planet x/y Momentum, planet x/y Pos
-
         N_DISCRETE_ACTIONS = 4 * data_handler.GLBVARS.n_planets
         self.action_space = spaces.Box(low=-1, high=1, shape=(N_DISCRETE_ACTIONS,), dtype=np.float32)
-        # 4 * n_planets
-        # planet_N_x_position, planet_N_y_position, planet_N_x_momentum, planet_N_y_momentum # possibly planet_N_mass
 
         self.runs_completed = 0
 
+        # choose agent mode.
         if mode == "neat":
             self.collector = Collector(f"data_neat", "neat", "data")
             self.collector_setup = Collector(f"setup_neat", "neat", "setup")
             self.collector_pred = Collector(f"pred_neat", "neat", "pred")
 
-        # if mode == "rlearn":
         else:
             self.collector = Collector(f"data_rlearn", "rlearn", "data")
             self.collector_setup = Collector(f"setup_rlearn", "rlearn", "setup")
@@ -62,12 +61,10 @@ class OrbitEnv(gym.Env):
         self.observation_space = spaces.Box(low=0, high=data_handler.GLBVARS.width, shape=(N_DISCRETE_OBSERVATIONS,))
 
     def step(self, action):
-        # print("step called")
-        # self.runs_completed += 1
+
         self.started = 0
         self.time_started = time.time().real
         self.runs_completed += 1
-
         self.collector_pred.add_to_csv(action)
 
         while self.running:
@@ -122,8 +119,7 @@ class OrbitEnv(gym.Env):
 
             # net force calculator for bodies
 
-            # motion step 1
-            # set forces = 0 why?
+            # initialise force = 0 for all bodies
             for body in (self.planets + self.stars):
                 body.force = 0
 
@@ -227,7 +223,6 @@ class OrbitEnv(gym.Env):
             if helpers.all_planets_destroyed(self.planets) and self.planets_in_motion and not self.have_displayed_score:
                 # print(f"FAILURE, REWARD: {self.reward}, CS: {self.cumulative_steps}")
                 self.running = False
-                # test with off for story in disso
                 self.reward -= 80
                 self.running = False
                 # print(f"FAILED, SCORE: {self.reward}")

@@ -1,3 +1,10 @@
+"""
+THIS FILE IS NOT IN DEVELOPMENT ANYMORE
+
+IT MAY BE USEFUL IN THE FUTURE SO IT WONT BE DELETED
+"""
+
+
 from pygame.locals import *
 import sys
 import time
@@ -339,95 +346,97 @@ def level_1_human():
 
         CLOCK.tick(FPS)
 
+WIDTH = 1000
+HEIGHT = 1000*0.75
 
-# def menu_template(function_1, function_2, function_3, function_4):
-#
-#     screen = pygame.display.set_mode((WIDTH, HEIGHT))
-#     running = True
-#
-#     # setting up bg
-#     bg = pygame.image.load("assets/gamebg1.png")
-#     pygame.display.set_icon(bg)
-#
-#     # menu buttons
-#     # (x, y), (l, w)
-#     llbutton = pygame.Rect((WIDTH/5, HEIGHT / 2), (30, 10))
-#     lbutton = pygame.Rect((2*WIDTH/5, HEIGHT / 2), (30, 10))
-#     rbutton = pygame.Rect((3*WIDTH/5, HEIGHT / 2), (30, 10))
-#     rrbutton = pygame.Rect((4*WIDTH/5, HEIGHT / 2), (30, 10))
-#
-#     clicked = None
-#
-#     while running:
-#
-#         mx, my = pygame.mouse.get_pos()
-#         screen.blit(bg, (0, 0))
-#
-#         # TITLE AND BUTTONS
-#
-#         helpers.text_box("Level Selector", 50, screen, -350 + (WIDTH / 2), -200 + (HEIGHT / 2))
-#
-#         helpers.text_box("LEVEL 1", 10, screen, WIDTH / 5, 30 + HEIGHT / 2)
-#         pygame.draw.rect(screen, (255, 255, 255), llbutton)
-#
-#         if llbutton.collidepoint(mx, my) and clicked:
-#             pygame.event.neat()
-#             function_1()
-#             logging.debug("llbutton")
-#
-#         helpers.text_box("LEVEL 2", 10, screen, 2 * WIDTH / 5, 30 + HEIGHT / 2)
-#         pygame.draw.rect(screen, (255, 255, 255), lbutton)
-#         if lbutton.collidepoint(mx, my) and clicked:
-#             pygame.event.neat()
-#             function_2()
-#             logging.debug("lbutton")
-#
-#         helpers.text_box("LEVEL 3", 10, screen, 3 * WIDTH / 5, 30 + HEIGHT / 2)
-#         pygame.draw.rect(screen, (255, 255, 255), rbutton)
-#         if rbutton.collidepoint(mx, my) and clicked:
-#             pygame.event.neat()
-#             function_3()
-#             logging.debug("rbutton")
-#
-#         helpers.text_box("LEVEL 4", 10, screen, 4 * WIDTH / 5, 30 + HEIGHT / 2)
-#         pygame.draw.rect(screen, (255, 255, 255), rrbutton)
-#         if rrbutton.collidepoint(mx, my) and clicked:
-#             # if at start first event is clicking the button, we enter this thing and bug out
-#             pygame.event.neat()
-#             function_4()
-#             logging.debug("rrbutton")
-#
-#         clicked = False
-#
-#         # an event is some interaction with the engine. eg mouseclick
-#         for event in pygame.event.get():
-#             # BUG: the window launches, and the event loop is entered after the first mousedown. Then
-#
-#             # quit logic
-#             if event.type == pygame.QUIT:
-#                 pygame.quit()
-#                 sys.exit()
-#
-#             # back to main menu
-#             if event.type == KEYDOWN and event.key == K_ESCAPE:
-#                 running = False
-#
-#             # if llbutton.collidepoint(mx, my) and CLICKED:
-#             #     print("example")
-#
-#             if event.type == MOUSEBUTTONDOWN and event.button == 1:
-#                 # logging.debug("*click*")
-#                 clicked = True
-#
-#         # ending game
-#         condition = False
-#         if condition:
-#             running = False
-#
-#         # update the bg
-#         pygame.display.update()
-#
-#         CLOCK.tick(FPS)
+def menu_template(function_1, function_2, function_3, function_4):
+
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    running = True
+
+    # setting up bg
+    bg = pygame.image.load("assets/gamebg1.png")
+    pygame.display.set_icon(bg)
+
+    # menu buttons
+    # (x, y), (l, w)
+    llbutton = pygame.Rect((WIDTH/5, HEIGHT / 2), (30, 10))
+    lbutton = pygame.Rect((2*WIDTH/5, HEIGHT / 2), (30, 10))
+    rbutton = pygame.Rect((3*WIDTH/5, HEIGHT / 2), (30, 10))
+    rrbutton = pygame.Rect((4*WIDTH/5, HEIGHT / 2), (30, 10))
+
+    clicked = None
+
+    while running:
+
+        mx, my = pygame.mouse.get_pos()
+        screen.blit(bg, (0, 0))
+
+        # TITLE AND BUTTONS
+
+        helpers.text_box("Level Selector", 50, screen, -350 + (WIDTH / 2), -200 + (HEIGHT / 2))
+
+        helpers.text_box("LEVEL 1", 10, screen, WIDTH / 5, 30 + HEIGHT / 2)
+        pygame.draw.rect(screen, (255, 255, 255), llbutton)
+
+        if llbutton.collidepoint(mx, my) and clicked:
+            pygame.event.neat()
+            function_1()
+            logging.debug("llbutton")
+
+        helpers.text_box("LEVEL 2", 10, screen, 2 * WIDTH / 5, 30 + HEIGHT / 2)
+        pygame.draw.rect(screen, (255, 255, 255), lbutton)
+        if lbutton.collidepoint(mx, my) and clicked:
+            pygame.event.neat()
+            function_2()
+            logging.debug("lbutton")
+
+        helpers.text_box("LEVEL 3", 10, screen, 3 * WIDTH / 5, 30 + HEIGHT / 2)
+        pygame.draw.rect(screen, (255, 255, 255), rbutton)
+        if rbutton.collidepoint(mx, my) and clicked:
+            pygame.event.neat()
+            function_3()
+            logging.debug("rbutton")
+
+        helpers.text_box("LEVEL 4", 10, screen, 4 * WIDTH / 5, 30 + HEIGHT / 2)
+        pygame.draw.rect(screen, (255, 255, 255), rrbutton)
+        if rrbutton.collidepoint(mx, my) and clicked:
+            # if at start first event is clicking the button, we enter this thing and bug out
+            pygame.event.neat()
+            function_4()
+            logging.debug("rrbutton")
+
+        clicked = False
+
+        # an event is some interaction with the engine. eg mouseclick
+        for event in pygame.event.get():
+            # BUG: the window launches, and the event loop is entered after the first mousedown. Then
+
+            # quit logic
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            # back to main menu
+            if event.type == KEYDOWN and event.key == K_ESCAPE:
+                running = False
+
+            # if llbutton.collidepoint(mx, my) and CLICKED:
+            #     print("example")
+
+            if event.type == MOUSEBUTTONDOWN and event.button == 1:
+                # logging.debug("*click*")
+                clicked = True
+
+        # ending game
+        condition = False
+        if condition:
+            running = False
+
+        # update the bg
+        pygame.display.update()
+
+        CLOCK.tick(FPS)
 
 
 
@@ -443,6 +452,6 @@ if __name__ == '__main__':
     CLOCK = pygame.time.Clock()
 
 
-    # main_menu()
-    level_1_human()
+    main_menu()
+    # level_1_human()
 

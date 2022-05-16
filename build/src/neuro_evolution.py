@@ -1,7 +1,3 @@
-"""
-give credit to sentdex and gh library
-"""
-
 import multiprocessing
 import os
 import pickle
@@ -10,11 +6,16 @@ import time
 import neat
 import numpy as np
 import gym
-hpc = True
 
-from OrbitEnv import OrbitEnv
 from OrbitEnvNoGFX import OrbitEnv
+from OrbitEnv import OrbitEnv
 
+"""
+Code to implement neuro evolution comes from the Neat-python library as well as the Sentdex youtube channel.
+
+https://github.com/CodeReclaimers/neat-python/tree/master/examples
+https://www.youtube.com/watch?v=ZC0gMhYhwW0
+"""
 
 runs_per_net = 3
 env = OrbitEnv(mode="neat")
@@ -31,11 +32,11 @@ def eval_genome(genome, config):
         # Run the given simulation for up to num_steps time steps.
         fitness = 0.0
         done = False
+
         while not done:
 
             action = net.activate(observation)
             observation, reward, done, info = env.step(action)
-
             fitness += reward
 
         fitnesses.append(fitness)
@@ -76,7 +77,7 @@ def run():
         pickle.dump(winner, f)
 
 
-    print(f"winner {time.strftime('%m%d%H%M')}")
+    print(f"winner {time.strftime('(%d%m)%H%M')}")
     stats.save()
     print(winner)
 
@@ -110,8 +111,6 @@ def continue_from_checkpoint(checkpoint_name, n_runs=0):
         pickle.dump(winner, f)
 
     print(winner)
-
-
 
 if __name__ == '__main__':
     run()

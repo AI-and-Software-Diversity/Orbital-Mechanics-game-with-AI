@@ -13,12 +13,12 @@ import random
 """
 The structure of the main OrbitEnv class comes from the stable_baselines3 api:
 I learnt how to train my model with reinforcement learning using the stable_baselines3 api:
-*LINK*
+https://stable-baselines3.readthedocs.io/en/master/guide/custom_env.html
 
 I learnt how to create my own gym custom environment following a tutorial series online by "Sentdex" on youtube
-*LINK*
+https://www.youtube.com/watch?v=uKnjGn8fF70
 
-I got some help with vectorization for optimisation:
+I got some help with vectorization for faster training times:
 https://www.youtube.com/watch?v=nxWginnBklU
 https://youtu.be/nxWginnBklU
 https://youtu.be/EEUXKG97YRw
@@ -27,40 +27,38 @@ https://www.youtube.com/watch?v=HN5d490_KKk
 
 
 class OrbitEnv(gym.Env):
-    """Custom Environment that follows gym interface"""
+
 
     metadata = {'render.modes': ['human']}
 
     def __init__(self, mode=None):
+        """Custom Environment that follows gym interface. Does not visualise agent performance"""
+
         self.mode = mode
         # self.runs_completed = -1
         super(OrbitEnv, self).__init__()
 
         # The possible decisions the agent can make
-        # planet x/y Momentum, planet x/y Pos
-
-        N_DISCRETE_ACTIONS = 4 * data_handler.GLBVARS.n_planets
-        # N_DISCRETE_ACTIONS = 4 * 5
         # This is only important to rlearn. The neat equiv to this is expected outputs
+        # planet x/y Momentum, planet x/y Pos
+        N_DISCRETE_ACTIONS = 4 * data_handler.GLBVARS.n_planets
         self.action_space = spaces.Box(low=-1, high=1, shape=(N_DISCRETE_ACTIONS,), dtype=np.float32)
 
         self.runs_completed = 0
 
-        # choose agent mode
+        # choose agent mode.
         if mode == "neat":
-            print(mode)
             self.collector = Collector(f"data_neat", "neat", "data")
             self.collector_setup = Collector(f"setup_neat", "neat", "setup")
             self.collector_pred = Collector(f"pred_neat", "neat", "pred")
 
-        # if mode == "rlearn":
         else:
             print(mode)
             self.collector = Collector(f"data_rlearn", "rlearn", "data")
             self.collector_setup = Collector(f"setup_rlearn", "rlearn", "setup")
             self.collector_pred = Collector(f"pred_rlearn", "rlearn", "pred")
 
-        # The things that the model knows before input
+        # The things that the model uses to predict actions
         # For now,  star x/y pos, p1 x/y pos, p2 x/y pos, p3 x/y pos, p1m, p2m, p3m
         N_DISCRETE_OBSERVATIONS = 3 * data_handler.GLBVARS.n_stars + 1 * data_handler.GLBVARS.n_planets + 2
         self.observation_space = spaces.Box(low=0, high=data_handler.GLBVARS.width, shape=(N_DISCRETE_OBSERVATIONS,))
@@ -72,6 +70,7 @@ class OrbitEnv(gym.Env):
         self.runs_completed += 1
         pygame.init()
 
+        # writing action to csv
         self.collector_pred.add_to_csv(action)
 
         while self.running:
@@ -80,8 +79,6 @@ class OrbitEnv(gym.Env):
             for pnt in self.planets:
                 if pnt.alive:
                     pnt.age = (helpers.current_time() - pnt.birthtime).__round__(2)
-
-            # self.mx, self.my = pygame.mouse.get_pos()
 
             self.screen.fill((0,0,0))
             self.screen.blit(self.bg, (0, 0))
@@ -95,6 +92,8 @@ class OrbitEnv(gym.Env):
             helpers.text_box(f"CS: {self.cumulative_timesteps.__round__(2)}/{data_handler.GLBVARS.total_steps}", 15,
                              self.screen, 500 + (data_handler.GLBVARS.width / 2),
                              -350 + (data_handler.GLBVARS.height / 2))
+
+            # drawing the stars onscreen
             for star in self.stars:
                 star.draw()
 
@@ -120,10 +119,8 @@ class OrbitEnv(gym.Env):
                         if self.cumulative_timesteps < 150:
                             self.reward -= 60
                         if n == 1:
-                            # cumulative_age += pnt.age
                             pnt1.destroy(deathmsg="multi-planet collision")
                         else:
-                            # cumulative_age += pnt.age
                             pnt2.destroy(deathmsg="multi-planet collision")
 
             #########################
@@ -139,11 +136,10 @@ class OrbitEnv(gym.Env):
 
             # net force calculator for bodies
 
-            # motion step 1
-            # set forces = 0 why?
+            # initialise force = 0 for all bodies
             for body in (self.planets + self.stars):
                 body.force = 0
-                # setattr(body, "force", 0)
+                setattr(body, "force", 0)
 
             # calculate gravity
             for body1 in (self.planets + self.stars):
@@ -249,7 +245,6 @@ class OrbitEnv(gym.Env):
                 print(f"FAILURE, REWARD: {self.reward}, CS: {self.cumulative_timesteps}")
                 logging.debug("FAILED")
                 self.running = False
-                # test with off for story in disso
                 self.reward -= 80
                 self.running = False
                 # print(f"FAILED, SCORE: {self.reward}")
@@ -265,6 +260,8 @@ class OrbitEnv(gym.Env):
             pygame.display.update()
             self.CLOCK.tick(self.FPS)
 
+
+        # setting up the final observation to report back to the model
         star_info = [star.x for star in self.stars] + [star.y for star in self.stars] + [star.r for star in self.stars]
         planet_info = list(self.planet_masses)
 
@@ -283,11 +280,9 @@ class OrbitEnv(gym.Env):
         This is where we get the observation
         So: star x/y pos, window h/w
         """
-        # print("reset called")
         self.done = False
         self.n_loops_passed = 0
         self.cumulative_timesteps = 0
-        # pygame.init()
         # For us: just the observation_space
         self.planets_in_motion = False
         self.have_displayed_score = False
@@ -381,7 +376,4 @@ class OrbitEnv(gym.Env):
         observation_list = star_info + planet_info + other_info
 
         self.observation = np.array(observation_list)
-        # print("="*70)
-        # print(self.observation)
-        # print("="*70)
         return self.observation  # reward, done, info can't be included
