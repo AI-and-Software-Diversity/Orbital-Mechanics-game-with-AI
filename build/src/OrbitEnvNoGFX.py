@@ -24,7 +24,6 @@ https://youtu.be/nxWginnBklU
 https://youtu.be/EEUXKG97YRw
 https://www.youtube.com/watch?v=HN5d490_KKk 
 """
-
 class OrbitEnv(gym.Env):
 
 
@@ -123,13 +122,17 @@ class OrbitEnv(gym.Env):
             for body in (self.planets + self.stars):
                 body.force = 0
 
+            # TODO vectorise
             # calculate gravity
             for body1 in (self.planets + self.stars):
                 for body2 in (self.planets + self.stars):
-                    # if body not in stars:
-                    #     pass
-                    if body1 != body2:
+                    if body1 not in self.stars:
                         body1.force += helpers.law_of_gravitation(body2, body1)
+                    #     pass
+                    # if body1 != body2:
+
+
+
 
             # move and draw planets
             for body in self.planets:
@@ -140,6 +143,8 @@ class OrbitEnv(gym.Env):
             if self.started == 0:
 
                 position_scalar = 0.95
+                momentum_min = 0
+                momentum_min = data_handler.GLBVARS.planet_mom_minimum
                 momentum_scalar = data_handler.GLBVARS.planet_mom_scaler
                 width = data_handler.GLBVARS.width
                 height = data_handler.GLBVARS.height
@@ -159,8 +164,8 @@ class OrbitEnv(gym.Env):
 
                     # decide the momentum of the planet
                     momentum = np.array(
-                        [action[i+2] * momentum_scalar,
-                         action[i+3] * momentum_scalar]
+                        [momentum_min + (action[i+2] * momentum_scalar),
+                         momentum_min + (action[i+3] * momentum_scalar)]
                     )
 
                     setattr(self.planets[planet_num], "momentum", momentum)
@@ -183,7 +188,7 @@ class OrbitEnv(gym.Env):
                 # self.score = helpers.current_time() - self.start_time
                 self.have_displayed_score = True
                 self.reward += 100 + (n_planets_alive * 50)
-                # print(f"SUCCESS, REWARD: {self.reward}, CS: {self.cumulative_steps}")
+                print(f"SUCCESS, REWARD: {self.reward}, CS: {self.cumulative_steps}")
                 self.running = False
                 self.collector.add_to_csv([1,
                                            self.reward,
@@ -358,3 +363,5 @@ class OrbitEnv(gym.Env):
         # print("="*70)
 
         return self.observation  # reward, done, info can't be included
+
+

@@ -1,4 +1,6 @@
 import os
+import sys
+
 import helpers
 
 
@@ -63,8 +65,8 @@ class DataGenrator:
 
 
     def __init__(self, n_planets, n_stars, planet_mom_scalar, planet_rad, star_x_pos, star_y_pos,
-                 star_rad, width, height, target_game_time, total_steps, n_envs, min_distance_stars=0,
-                 max_distance_stars=100000000000):
+                 star_rad, width, height, target_game_time, total_steps, n_envs, planet_mom_minimum,
+                 min_distance_stars=0, max_distance_stars=100000000000):
         self.width = width
         self.height = height
         self.n_planets = n_planets
@@ -80,25 +82,32 @@ class DataGenrator:
         self.n_envs = n_envs
         self.min_distance_stars = min_distance_stars
         self.max_distance_stars = max_distance_stars
+        self.planet_mom_minimum = planet_mom_minimum
 
-size = 1600
+size = 5600
+# size = 2000
 restriction_x = 750
 restriction_y = 440
+
+restriction_x = 250
+restriction_y = 350
 
 # This instance will be used repeatedly in the Env classes
 GLBVARS = DataGenrator(
     n_planets=1,
-    n_stars=1,
-    planet_mom_scalar=0.00005,
-    planet_rad=[9, 11],
+    n_stars=3,
+    # planet_mom_scalar=0.00005,
+    planet_mom_scalar=600,
+    planet_mom_minimum = 750,
+    planet_rad=[10, 20],
     star_x_pos=[restriction_x, size - restriction_x],
     star_y_pos=[restriction_y, int(size / 1.75) - restriction_y],
-    star_rad=[70, 72],
+    star_rad=[200, 250],
     width=size,
     height=size / 1.75,
-    target_game_time=50,
-    total_steps=2300,
-    n_envs=50,
-    min_distance_stars = 0,
-    max_distance_stars= 1000000
+    target_game_time=123456,
+    total_steps=1600,
+    n_envs=1,
+    min_distance_stars = 1800,
+    max_distance_stars= 1000000000000000000,
 )

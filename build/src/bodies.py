@@ -35,7 +35,9 @@ class Planet:
         logging.debug(f"initialising a planet")
         self.active = False
         self.alive = True
-        self.dt = 0.000001 # step size = 0.000001
+        # self.dt = 0.000001 # step size = 0.000001
+        # todo
+        self.dt = 5 # step size = 0.000001
         self.x = x
         self.y = y
         self.r = r
@@ -64,6 +66,13 @@ class Planet:
     def move(self):
         """
         move a planet
+
+        The specific method used was the Euler-Cromer method
+        https://www.youtube.com/watch?v=rPkJtpVJwSw&list=PLdCdV2GBGyXOOutOEKggaZo1rCHtUYh-A
+
+        Which followed this tutorial
+        https://www.youtube.com/watch?v=4ycpvtIio-o&list=PLdCdV2GBGyXOExPW4u8H88S5mwrx_8vWK&index=2
+
         """
 
         # Euler-Cromer method to new position:
@@ -72,6 +81,9 @@ class Planet:
         # done already in game loop
 
         # Then update momentum using the force*stepsize
+
+
+
         if self.mass != 0:
             self.momentum[0] = self.momentum[0] + self.force[0] * self.dt
             self.momentum[1] = self.momentum[1] + self.force[1] * self.dt

@@ -42,7 +42,11 @@ def law_of_gravitation(body1, body2):
     Which followed this tutorial
     https://www.youtube.com/watch?v=4ycpvtIio-o&list=PLdCdV2GBGyXOExPW4u8H88S5mwrx_8vWK&index=2
     """
-    if body1.mass != 0 and body2.mass != 0:
+
+    # if body1 == body2:
+    #     return 0
+
+    if body1.mass != 0 and body2.mass != 0 and body1 != body2:
         if body1 == body2:
             raise Exception("The bodies can not be the same")
 

@@ -10,7 +10,7 @@ import data_handler
 import helpers
 
 from OrbitEnvNoGFX import OrbitEnv
-from OrbitEnv import OrbitEnv
+# from OrbitEnv import OrbitEnv
 
 """
 I learnt how to implement this file mainly using Sentdex's youtube tutorial and the stable baselines 
@@ -34,8 +34,9 @@ if __name__ == '__main__':
 
     # What would you like to do?
 
-    use_saved_model, train_new_model = True, False
-    # use_saved_model, train_new_model = False, True
+    # use_saved_model, train_new_model = True, False
+    use_saved_model, train_new_model = False, True
+
 
     see_sample_run = True
     # see_sample_run = False
@@ -47,7 +48,7 @@ if __name__ == '__main__':
     if train_new_model:
 
         # train a new model (PPO or A2C)
-        model = PPO("MlpPolicy", env, verbose=1, n_steps=784)
+        model = PPO("MlpPolicy", env, verbose=1, n_steps=2)
         # model = A2C("MlpPolicy", env, verbose=1, n_steps=784)
 
         # train a model from a checkpoint
@@ -60,11 +61,13 @@ if __name__ == '__main__':
         # training loop
 
         i = 1
-        while i > -1:
+        # while i > -1:
+        while i < 5:
             model.learn(total_timesteps=1, reset_num_timesteps=False)
             timestamp = time.strftime("%d%m(%H:%M)")
 
             if i % 1 == 0:
+                break
                 model.save(
                     f"{filepath}/model{i}-{timestamp}"
                 )
@@ -94,7 +97,8 @@ if __name__ == '__main__':
 
         # https: // stable - baselines3.readthedocs.io / en / master / guide / examples.html
         # show N sample runs with the chosen model
-        for i in range(1000):
+        for i in range(10):
+
 
             action, _states = model.predict(obs, deterministic=False)
             obs, reward, done, info = env.step(action)

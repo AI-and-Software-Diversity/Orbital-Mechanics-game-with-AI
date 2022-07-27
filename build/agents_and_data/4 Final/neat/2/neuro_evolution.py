@@ -1,3 +1,7 @@
+"""
+give credit to sentdex and gh library
+"""
+
 import multiprocessing
 import os
 import pickle
@@ -6,21 +10,15 @@ import time
 import neat
 import numpy as np
 import gym
+hpc = True
 
+from OrbitEnv import OrbitEnv
 from OrbitEnvNoGFX import OrbitEnv
-# from OrbitEnv import OrbitEnv
 
-"""
-Code to implement neuro evolution comes from the Neat-python library as well as the Sentdex youtube channel.
-
-https://github.com/CodeReclaimers/neat-python/tree/master/examples
-https://www.youtube.com/watch?v=ZC0gMhYhwW0
-"""
 
 runs_per_net = 3
 env = OrbitEnv(mode="neat")
 
-# borrowedfrom Sentdex youtube channel
 # Use the NN network phenotype and the discrete actuator force function.
 def eval_genome(genome, config):
     net = neat.nn.FeedForwardNetwork.create(genome, config)
@@ -33,11 +31,11 @@ def eval_genome(genome, config):
         # Run the given simulation for up to num_steps time steps.
         fitness = 0.0
         done = False
-
         while not done:
 
             action = net.activate(observation)
             observation, reward, done, info = env.step(action)
+
             fitness += reward
 
         fitnesses.append(fitness)
@@ -48,9 +46,8 @@ def eval_genome(genome, config):
 
 def eval_genomes(genomes, config):
     for genome_id, genome in genomes:
-        genome.fitness
+        genome.fitness = eval_genome(genome, config)
 
-# borrowed from neat-python github
 def run():
     # Load the config file, which is assumed to live in
     # the same directory as this script.
@@ -78,12 +75,9 @@ def run():
     with open(f'{path_to_models}/winner{time.strftime("%m%d%H%M")}', 'wb') as f:
         pickle.dump(winner, f)
 
-
-    print(f"winner {time.strftime('(%d%m)%H%M')}")
     stats.save()
     print(winner)
 
-# written independently editing other borrowed code
 def continue_from_checkpoint(checkpoint_name, n_runs=0):
 
 
@@ -114,6 +108,8 @@ def continue_from_checkpoint(checkpoint_name, n_runs=0):
         pickle.dump(winner, f)
 
     print(winner)
+
+
 
 if __name__ == '__main__':
     run()

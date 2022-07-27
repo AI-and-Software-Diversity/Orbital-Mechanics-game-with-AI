@@ -2,8 +2,9 @@ import os
 import pickle
 import neat
 import helpers
-from OrbitEnv import OrbitEnv
 from OrbitEnvNoGFX import OrbitEnv
+# from OrbitEnv import OrbitEnv
+
 
 """
 Code to implement neuro evolution comes from the Neat-python library as well as the Sentdex youtube channel.
@@ -18,7 +19,7 @@ model_folder = "agents_and_data/4 Final/neat/2"
 model_name = "winner04251728"
 
 
-string = "/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/agents/2_star_2_planet/neat3/winner04062032"
+string = "/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/data/neat/models/winner07260118"
 with open(f'{string}', 'rb') as f:
     agent = pickle.load(f)
 
@@ -40,13 +41,15 @@ done = False
 start_time = helpers.current_time()
 
 # This loop is copied from the reinforcement_learning.py file. Which comes from another tutorial
-for i in range(1000):
+num_loops = 10_000
+for i in range(num_loops):
     while not done:
         action = net.activate(observation)
 
         observation, reward, done, info = env.step(action)
-        print(f"{i} Done. reward: {reward}")
+        # print(f"{i} Done. reward: {reward}")
     done = False
     env.reset()
 
+print(f"that was {num_loops} loops.")
 print(f"\n\nThat took {(helpers.current_time() - start_time)/60}m")

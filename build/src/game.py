@@ -442,7 +442,7 @@ def menu_template(function_1, function_2, function_3, function_4):
 
 if __name__ == '__main__':
 
-
+    # loggine comes from https://www.youtube.com/watch?v=-ARI4Cz-awo
     fmt = '[%(levelname)s] %(asctime)s - %(message)s '
     # l1 = logging.basicConfig(filename="logs.log", level=logging.DEBUG, format=fmt)
 
