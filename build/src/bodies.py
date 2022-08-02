@@ -2,6 +2,7 @@ import numpy as np
 import pygame
 import logging
 import helpers
+import data_handler
 
 class Star:
     """
@@ -37,7 +38,8 @@ class Planet:
         self.alive = True
         # self.dt = 0.000001 # step size = 0.000001
         # todo
-        self.dt = 5 # step size = 0.000001
+        # self.dt = 5 # step size = 0.000001
+        self.dt = data_handler.GLBVARS.timestep
         self.x = x
         self.y = y
         self.r = r

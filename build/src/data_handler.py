@@ -66,6 +66,7 @@ class DataGenrator:
 
     def __init__(self, n_planets, n_stars, planet_mom_scalar, planet_rad, star_x_pos, star_y_pos,
                  star_rad, width, height, target_game_time, total_steps, n_envs, planet_mom_minimum,
+                 position_scalar, timestep,
                  min_distance_stars=0, max_distance_stars=100000000000):
         self.width = width
         self.height = height
@@ -83,6 +84,8 @@ class DataGenrator:
         self.min_distance_stars = min_distance_stars
         self.max_distance_stars = max_distance_stars
         self.planet_mom_minimum = planet_mom_minimum
+        self.position_scalar = position_scalar
+        self.timestep = timestep
 
 size = 5600
 # size = 2000
@@ -110,4 +113,6 @@ GLBVARS = DataGenrator(
     n_envs=1,
     min_distance_stars = 1800,
     max_distance_stars= 1000000000000000000,
+    position_scalar=0.95,
+    timestep = 5,
 )

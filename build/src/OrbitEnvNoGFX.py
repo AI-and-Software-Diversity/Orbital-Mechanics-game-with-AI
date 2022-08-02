@@ -26,8 +26,6 @@ https://www.youtube.com/watch?v=HN5d490_KKk
 """
 class OrbitEnv(gym.Env):
 
-
-
     metadata = {'render.modes': ['human']}
 
     def __init__(self, mode=None):
@@ -142,8 +140,7 @@ class OrbitEnv(gym.Env):
             # setup actions of the agent
             if self.started == 0:
 
-                position_scalar = 0.95
-                momentum_min = 0
+                position_scalar = data_handler.GLBVARS.position_scalar
                 momentum_min = data_handler.GLBVARS.planet_mom_minimum
                 momentum_scalar = data_handler.GLBVARS.planet_mom_scaler
                 width = data_handler.GLBVARS.width

@@ -2,8 +2,8 @@ import os
 import pickle
 import neat
 import helpers
-from OrbitEnvNoGFX import OrbitEnv
-# from OrbitEnv import OrbitEnv
+# from OrbitEnvNoGFX import OrbitEnv
+from OrbitEnv import OrbitEnv
 
 
 """
@@ -14,8 +14,13 @@ https://github.com/CodeReclaimers/neat-python/tree/master/examples
 https://www.youtube.com/watch?v=ZC0gMhYhwW0
 """
 
+# Get the observation
+env = OrbitEnv(mode="neat")
+observation = env.reset()
+
+
+# Specify what model you choose
 model_folder = "data/neat/models"
-# model_folder = "agents_and_data/4 Final/neat/2"
 model_name = "winner04251728"
 
 
@@ -34,14 +39,14 @@ config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
 
 net = neat.nn.FeedForwardNetwork.create(agent, config)
 
-env = OrbitEnv(mode="neat")
-observation = env.reset()
+
 
 done = False
 start_time = helpers.current_time()
 
 # This loop is copied from the reinforcement_learning.py file. Which comes from another tutorial
 num_loops = 10_000
+num_loops = 2
 for i in range(num_loops):
     while not done:
         action = net.activate(observation)
@@ -49,7 +54,9 @@ for i in range(num_loops):
         observation, reward, done, info = env.step(action)
         # print(f"{i} Done. reward: {reward}")
     done = False
+    # reset. we now how tthe initial conditions
     env.reset()
+    # observation, reward, done, info = env.step(action)
 
 print(f"that was {num_loops} loops.")
 print(f"\n\nThat took {(helpers.current_time() - start_time)/60}m")
