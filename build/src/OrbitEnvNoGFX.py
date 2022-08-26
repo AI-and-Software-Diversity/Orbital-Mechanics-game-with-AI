@@ -146,7 +146,7 @@ class OrbitEnv(gym.Env):
                 width = data_handler.GLBVARS.width
                 height = data_handler.GLBVARS.height
 
-                # decide the position of of planet
+                # decide the position of planet
                 planet_num = 0
                 for i in range(0, 4 * data_handler.GLBVARS.n_planets, 4):
                     self.planets.append(
@@ -227,7 +227,7 @@ class OrbitEnv(gym.Env):
                 self.running = False
                 self.reward -= 80
                 self.running = False
-                # print(f"FAILED, SCORE: {self.reward}")
+                print(f"FAILED, SCORE: {self.reward}")
                 self.collector.add_to_csv([0,
                                            self.reward,
                                            self.cumulative_steps,

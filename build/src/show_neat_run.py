@@ -41,7 +41,7 @@ done = False
 start_time = helpers.current_time()
 
 # This loop is copied from the reinforcement_learning.py file. Which comes from another tutorial
-num_loops = 10_000
+num_loops = 10_00
 for i in range(num_loops):
     while not done:
         action = net.activate(observation)
