@@ -227,7 +227,7 @@ class OrbitEnv(gym.Env):
                 self.running = False
                 self.reward -= 80
                 self.running = False
-                print(f"FAILED, SCORE: {self.reward}")
+                # print(f"FAILED, SCORE: {self.reward}")
                 self.collector.add_to_csv([0,
                                            self.reward,
                                            self.cumulative_steps,

@@ -87,21 +87,18 @@ class DataGenrator:
         self.position_scalar = position_scalar
         self.timestep = timestep
 
+# This instance will be used repeatedly in the Env classes
 size = 5600
-# size = 2000
-restriction_x = 750
-restriction_y = 440
-
 restriction_x = 250
 restriction_y = 350
 
 # This instance will be used repeatedly in the Env classes
 GLBVARS = DataGenrator(
-    n_planets=2,
+    n_planets=1,
     n_stars=2,
-    # planet_mom_scalar=0.00005,
     planet_mom_scalar=600,
     planet_mom_minimum = 750,
+
     planet_rad=[10, 20],
     star_x_pos=[restriction_x, size - restriction_x],
     star_y_pos=[restriction_y, int(size / 1.75) - restriction_y],
@@ -110,11 +107,11 @@ GLBVARS = DataGenrator(
     height=size / 1.75,
     target_game_time=123456,
     total_steps=1600,
-    n_envs=1,
-    min_distance_stars = 1800,
-    max_distance_stars= 1000000000000000000,
+    n_envs=10,
+    min_distance_stars=0,
     position_scalar=0.95,
-    timestep = 5,
+    timestep=5,
+    max_distance_stars=1000000000000000000
 )
 
 

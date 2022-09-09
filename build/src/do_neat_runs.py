@@ -14,12 +14,13 @@ https://github.com/CodeReclaimers/neat-python/tree/master/examples
 https://www.youtube.com/watch?v=ZC0gMhYhwW0
 """
 
-model_folder = "data/neat/models"
-# model_folder = "agents_and_data/4 Final/neat/2"
-model_name = "winner04251728"
+# model_folder = "data/neat/models"
+# model_name = "winner04251728"
 
 
-string = "/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/data/neat/models/winner07260118"
+# string = "/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/RESEARCH_DATA/2S1P/neat_1/winner08281650"
+# string = "/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/RESEARCH_DATA/2S1P/neat_2/winner08281656"
+string = "/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/RESEARCH_DATA/2S1P/neat_3/winner08281737"
 with open(f'{string}', 'rb') as f:
     agent = pickle.load(f)
 
@@ -40,8 +41,8 @@ observation = env.reset()
 done = False
 start_time = helpers.current_time()
 
-# This loop is copied from the reinforcement_learning.py file. Which comes from another tutorial
-num_loops = 10_00
+# This loop is copied from the do_reinforcement_learning_runs.py file. Which comes from another tutorial
+num_loops = 5000
 for i in range(num_loops):
     while not done:
         action = net.activate(observation)

@@ -20,7 +20,7 @@ https://www.youtube.com/watch?v=ZC0gMhYhwW0
 runs_per_net = 3
 env = OrbitEnv(mode="neat")
 
-# borrowedfrom Sentdex youtube channel
+# borrowed from Sentdex youtube channel
 # Use the NN network phenotype and the discrete actuator force function.
 def eval_genome(genome, config):
     net = neat.nn.FeedForwardNetwork.create(genome, config)

@@ -33,13 +33,11 @@ if __name__ == '__main__':
     filepath = 'data/rlearn/models'
 
     # What would you like to do?
-
     # use_saved_model, train_new_model = True, False
     use_saved_model, train_new_model = False, True
 
-
-    see_sample_run = True
-    # see_sample_run = False
+    # see_sample_run = True
+    see_sample_run = False
 
 
     #################
@@ -48,7 +46,7 @@ if __name__ == '__main__':
     if train_new_model:
 
         # train a new model (PPO or A2C)
-        model = PPO("MlpPolicy", env, verbose=1, n_steps=2)
+        model = PPO("MlpPolicy", env, verbose=1, n_steps=200)
         # model = A2C("MlpPolicy", env, verbose=1, n_steps=784)
 
         # train a model from a checkpoint
@@ -61,13 +59,12 @@ if __name__ == '__main__':
         # training loop
 
         i = 1
-        # while i > -1:
-        while i < 5:
+        while i > -1:
             model.learn(total_timesteps=1, reset_num_timesteps=False)
             timestamp = time.strftime("%d%m(%H:%M)")
 
-            if i % 1 == 0:
-                break
+            if i % 5 == 0:
+                # break
                 model.save(
                     f"{filepath}/model{i}-{timestamp}"
                 )
@@ -80,9 +77,9 @@ if __name__ == '__main__':
     ###################################
 
     if use_saved_model:
-        # model = PPO.load('data/rlearn/models/model24-1105(11:40).zip')
 
-        string = "/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/data/rlearn/models/model24-1105(11:40).zip"
+        # string = "/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/RESEARCH_DATA/2S1P/rl_1/model10-0809(15:49)"
+        string = "/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/RESEARCH_DATA/2S1P/rl_2/model15-0809(15:51)"
         model = PPO.load(string)
 
     #################################################
@@ -96,9 +93,8 @@ if __name__ == '__main__':
         start_time = helpers.current_time()
 
         # https: // stable - baselines3.readthedocs.io / en / master / guide / examples.html
-        # show N sample runs with the chosen model
-        for i in range(10):
-
+        n_runs = 5000
+        for i in range(n_runs):
 
             action, _states = model.predict(obs, deterministic=False)
             obs, reward, done, info = env.step(action)
@@ -109,4 +105,3 @@ if __name__ == '__main__':
 
         env.close()
         print(f"\n\nThat took {(helpers.current_time() - start_time)/60}m")
-

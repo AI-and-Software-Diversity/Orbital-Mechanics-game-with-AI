@@ -3,7 +3,8 @@ import logging
 import time
 import matplotlib.pyplot as plt
 import numpy as np
-
+import pandas as pd
+import random
 def euclidian_distance(body1, body2):
     """
     Finds the Euclidean distance between two bodies.
@@ -136,10 +137,10 @@ def setup_csv(num_planets, num_stars):
         title_string = title_string + f"star_{i+1}_y_pos,"
 
     for i in range(num_stars):
-        title_string = title_string + f"star_{i+1}_m_pos,"
+        title_string = title_string + f"star_{i+1}_m,"
 
     for i in range(num_planets):
-        title_string = title_string + f"planet_{i+1}_m_pos,"
+        title_string = title_string + f"planet_{i+1}_m,"
 
     title_string = title_string + "length,height"
 
@@ -157,6 +158,245 @@ def pred_csv(num_planets):
 
     return title_string
 
+
+#####################
+# SUBDOMAIN METHODS #
+#####################
+
+def create_dataframe(filepath_data, filepath_setup):
+    """
+    Takes the data and setup CSVs and combines them into 1 larger csv.
+    """
+
+    df_1 = pd.read_csv(filepath_data, sep=',')
+    df_2 = pd.read_csv(filepath_setup, sep=',')
+
+
+    #reference for concat: https://www.youtube.com/watch?v=iYWKfUOtGaw
+    df_rl = pd.concat([df_1, df_2], axis=1)
+    df_rl.columns = df_rl.columns.str.replace(' ', '')
+
+    return df_rl
+
+def filtered_df(df, cols, i, operator, pivot):
+    """
+    params: The parameters are the totality of the information required to filter the dataframe
+    """
+
+    if operator == ">":
+        return (df[cols[i]] > pivot)
+    else:
+        return (df[cols[i]] <= pivot)
+
+def get_random_filters_given_columns(dataframe):
+    """
+    Using the column titles, and the min/max of the column,
+    this function returns a random boolean condition or filter
+    """
+
+    #     list of the columns
+    #     lists of the min/max value of each column
+
+    excluded_cols = ['wassuccesful',
+                     'reward',
+                     'actualsteps',
+                     'targetsteps',
+                     'runscompleted',
+                     'length',
+                     'height']
+
+    cols = [col for col in dataframe.columns if col not in excluded_cols]
+    i = random.randint(0,len(cols)-1)
+
+    maxs = [dataframe[col].max() for col in cols]
+    mins = [dataframe[col].min() for col in cols]
+
+    filt_info = []
+    pivot = random.randint(mins[i],
+                           maxs[i])
+    b = random.randint(0,1)
+
+    if b == 0:
+        filt = filtered_df(dataframe, cols, i, ">", pivot)
+
+        filt_info.append((dataframe, cols, i, ">", pivot))
+#         print(f"{cols[i]}>{pivot}")
+    else:
+        filt = filtered_df(dataframe, cols, i, "<=", pivot)
+        filt_info.append((dataframe, cols, i, "<=", pivot))
+#         print(f"{cols[i]}<={pivot}")
+
+
+    return filt, filt_info
+
+def average_reward_given_filters(dataframe, fltr):
+    """
+
+    @Description: Given a table of data (like a csv or a dataframe) it finds the average
+    reward after filtering the table
+
+
+    """
+
+    # filter the dataframe
+    # reference fro loc: https://www.youtube.com/watch?v=Lw2rlcxScZY
+    df_avg = dataframe.loc[fltr, 'reward']
+#     print(pd.DataFrame(df_avg))
+
+
+    # get the average of those that meet our conditions
+    avg_reward = np.mean(df_avg)
+
+    return avg_reward
+
+def sub_domain_search(df_agent_1, agent_1, df_agent_2, agent_2):
+
+    fitness_subdomain_winner = []
+
+    # 1. You have two CSVs containing data that corresponds to two agents.
+    # via params
+
+    # you ensure each data tihng has the same columns
+    if list(df_agent_1.columns) != list(df_agent_2.columns):
+        raise Exception("These dataframes have different columns and cannot be compared. Perhaps the corresponding agents were trained with different inputs?")
+
+
+    # 4. You create one or many random filters given the columns from the parameter, and the min/max of those columns.
+    filt, filt_conditions = get_random_filters_given_columns(df_agent_1)
+
+    #  check the performance of each agent in chosen filter
+    agent_1_performance = average_reward_given_filters(df_agent_1, filt)
+    agent_2_performance = average_reward_given_filters(df_agent_2, filt)
+
+    difference = np.abs(agent_1_performance - agent_2_performance)
+
+    # 6. You record all of the filters and which CSV has a higher reward (in a tuple like: Tuple[filter_conditions, better] ).
+    if agent_1_performance >= agent_2_performance:
+        fitness_subdomain_winner.append((difference, filt_conditions, agent_1))
+    else:
+        fitness_subdomain_winner.append((difference, filt_conditions, agent_2))
+
+#     print(fitness_subdomain_winner)
+#     print(fitness_subdomain_winner[0][0])
+#     print(np.array(fitness_subdomain_winner).shape)
+
+    # put biggest differences at the top of the list
+#     fitness_subdomain_winner = fitness_subdomain_winner.sort()
+#     fitness_subdomain_winner = fitness_subdomain_winner.reverse()
+
+    return fitness_subdomain_winner
+
+def agent_selection_component(subdomain_analysis, observation, agent_1_path, agent_2_path):
+
+    #
+    subdomain_winners_reward = [subdomain[0] for subdomain in subdomain_analysis]
+    subdomain_winner = [subdomain[2] for subdomain in subdomain_analysis]
+    subdomain_conditions = [subdomain[1][0] for subdomain in subdomain_analysis]
+
+    #
+    agent_1_points = 0
+    agent_2_points = 0
+
+    for i in range(len(subdomain_conditions)):
+        # column_iter = subdomain_conditions[i][2]
+        # print(subdomain_winner[i])
+        # print(subdomain_conditions[i][-2:])
+        # print(observation[column_iter])
+
+        if subdomain_winner[i] == "agent_1":
+            agent_1_points += 1
+
+        elif subdomain_winner[i] == "agent_2":
+            agent_2_points += 1
+
+        else:
+            raise Exception("ASC malfunction: Invalid Agent specified")
+
+    print(f"Agent 1 had {agent_1_points} points\nAgent 2 had {agent_2_points} points")
+
+    if agent_1_points >= agent_2_points:
+        return agent_1_path
+
+    else:
+        return agent_2_path
+
+def superior_agent_in_subdomain(df_agent_1, df_agent_2, num_checks):
+
+    """
+    This function compares 2 agents in N subdomains and lets you know which agent is best.
+
+    @param df_agent_1: dataframe of agent 1
+    @param df_agent_2: dataframe of agent 2
+    @param num_checks: number of checks to perform
+
+    @return: Returns a List of tuples with N values. Each tuple contains the fitness, filter conditions and superior agent for a random subdomain.
+    """
+    fitness_subdomain_winner = []
+
+    # 1. You have two CSVs containing data that corresponds to two agents.
+    # via params
+
+    # you ensure each data tihng has the same columns
+    if list(df_agent_1.columns) != list(df_agent_2.columns):
+        raise Exception("These dataframes have different columns and cannot be compared. Perhaps the corresponding agents were trained with different inputs?")
+
+    # 7. You do this check N times.
+    for i in range(num_checks):
+
+        # 4. You create one or many random filters given the columns from the parameter, and the min/max of those columns.
+        filt, filt_conditions = get_random_filters_given_columns(df_agent_2)
+
+        #  check the performance of each agent in chosen filter
+        agent_1_performance = average_reward_given_filters(df_agent_1, filt)
+        agent_2_performance = average_reward_given_filters(df_agent_2, filt)
+        difference = np.abs(agent_1_performance - agent_2_performance)
+
+        # 6. You record all of the filters and which CSV has a higher reward (in a tuple like: Tuple[filter_conditions, better] ).
+        if agent_1_performance >= agent_2_performance:
+            fitness_subdomain_winner.append((difference, filt_conditions, "agent_1"))
+        else:
+            fitness_subdomain_winner.append((difference, filt_conditions, "agent_2"))
+
+    return fitness_subdomain_winner
+
+def ASC_neat_rl(subdomain_analysis, observation, neat_agent_path, rl_agent_path):
+
+    #
+    subdomain_winners_reward = [subdomain[0] for subdomain in subdomain_analysis]
+    subdomain_winner = [subdomain[2] for subdomain in subdomain_analysis]
+    subdomain_conditions = [subdomain[1][0] for subdomain in subdomain_analysis]
+
+    #
+    neat_agent_points = 0
+    rl_agent_points = 0
+
+    for i in range(len(subdomain_conditions)):
+        # column_iter = subdomain_conditions[i][2]
+        # print(subdomain_winner[i])
+        # print(subdomain_conditions[i][-2:])
+        # print(observation[column_iter])
+
+        if subdomain_winner[i] == "agent_1":
+            neat_agent_points += 1
+
+        elif subdomain_winner[i] == "agent_2":
+            rl_agent_points += 1
+
+        else:
+            raise Exception("ASC malfunction: Invalid Agent specified")
+
+    print(f"The neat agent had {neat_agent_points} points\nThe rl agent had {rl_agent_points} points")
+
+    if neat_agent_points >= rl_agent_points:
+        return neat_agent_path, "neat"
+
+    else:
+        return rl_agent_path, "rl"
+
+#########################
+# SUBDOMAIN METHODS END #
+#########################
+
 if __name__ == '__main__':
     # neat_values = get_collumn_from_csv(
     #     file="data/neat/csvs/data_neat.csv",
@@ -170,11 +410,19 @@ if __name__ == '__main__':
     #         i+=1
     # print(i)
 
-    arr = get_collumn_from_csv("/home/javonne/Desktop/forhpc/data_neat.csv", 1)
-    plt.xlabel("run")
-    plt.ylabel("Reward")
-    plt.title("Reward/Batch")
-    get_rlearn_graph(arr, 100_000)
-    plt.show()
+    arr1 = get_collumn_from_csv("/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/RESEARCH_DATA/2S1P/neat_1/data_neat.csv", 1)
+    arr2 = get_collumn_from_csv("/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/RESEARCH_DATA/2S1P/neat_2/data_neat.csv", 1)
+    arr3 = get_collumn_from_csv("/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/RESEARCH_DATA/2S1P/neat_3/data_neat.csv", 1)
+    arr23 = get_collumn_from_csv("/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/RESEARCH_DATA/2S1P/neat_2_neat_3/data_neat.csv", 1)
 
+    # plt.xlabel("run")
+    # plt.ylabel("Reward")
+    # plt.title("Reward/Batch")
+    # get_rlearn_graph(arr, 100_000)
+    # plt.show()
+
+    print(f"Mean for 1 is:     {np.mean(arr1)}")
+    print(f"Mean for 2 is:     {np.mean(arr2)}")
+    print(f"Mean for 3 is:     {np.mean(arr3)}")
+    print(f"Mean for 23 is:    {np.mean(arr23)}")
     # print(setup_csv(2,2))
