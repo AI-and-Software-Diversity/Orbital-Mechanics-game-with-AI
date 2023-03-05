@@ -184,8 +184,8 @@ class OrbitEnv(gym.Env):
             if not self.have_displayed_score and self.cumulative_steps > data_handler.GLBVARS.total_steps:
                 # self.score = helpers.current_time() - self.start_time
                 self.have_displayed_score = True
-                self.reward += 100 + (n_planets_alive * 50)
-                print(f"SUCCESS, REWARD: {self.reward}, CS: {self.cumulative_steps}")
+                self.reward += 300 + (n_planets_alive * 50)
+                # print(f"SUCCESS, REWARD: {self.reward}, CS: {self.cumulative_steps}")
                 self.running = False
                 self.collector.add_to_csv([1,
                                            self.reward,
@@ -215,11 +215,11 @@ class OrbitEnv(gym.Env):
             # An increasing amount proportional to the length of time of the run.
             # increase the reward every 5s
 
-            interval = 40
+            interval = 10
             self.n_loops_passed += 1
             if self.n_loops_passed >= interval:
                 self.n_loops_passed = 0
-                self.reward += 4 * n_planets_alive
+                self.reward += 8 * n_planets_alive
 
             # ending game (failure)
             if helpers.all_planets_destroyed(self.planets) and self.planets_in_motion and not self.have_displayed_score:

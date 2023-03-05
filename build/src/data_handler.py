@@ -48,6 +48,7 @@ class Collector:
         one_line = one_line[0:-1]
 
         with open(f"data/{self.model_type}/csvs/{self.file_to_use}.csv", "a", newline="") as file:
+            # print(f"csv at data/{self.model_type}/csvs/{self.file_to_use}.csv has been updated")
             file.write("\n" + one_line)
 
 
@@ -88,31 +89,50 @@ class DataGenrator:
         self.timestep = timestep
 
 # This instance will be used repeatedly in the Env classes
-size = 5600
+size = 2000
 restriction_x = 250
 restriction_y = 350
 
 # This instance will be used repeatedly in the Env classes
 GLBVARS = DataGenrator(
     n_planets=1,
-    n_stars=2,
-    planet_mom_scalar=600,
-    planet_mom_minimum = 750,
-
-    planet_rad=[10, 20],
+    n_stars=1,
+    planet_mom_scalar=300,
+    planet_mom_minimum = 900,
+    planet_rad=[5, 20],
     star_x_pos=[restriction_x, size - restriction_x],
     star_y_pos=[restriction_y, int(size / 1.75) - restriction_y],
-    star_rad=[200, 250],
+    star_rad=[100, 150],
     width=size,
     height=size / 1.75,
     target_game_time=123456,
-    total_steps=1600,
-    n_envs=10,
+    total_steps=1000,
+    n_envs=60,
     min_distance_stars=0,
     position_scalar=0.95,
-    timestep=5,
+    timestep=10,
     max_distance_stars=1000000000000000000
 )
+
+# GLBVARS = DataGenrator(
+#     n_planets=1,
+#     n_stars=2,
+#     planet_mom_scalar=600,
+#     planet_mom_minimum = 750,
+#     planet_rad=[10, 20],
+#     star_x_pos=[restriction_x, size - restriction_x],
+#     star_y_pos=[restriction_y, int(size / 1.75) - restriction_y],
+#     star_rad=[200, 250],
+#     width=size,
+#     height=size / 1.75,
+#     target_game_time=123456,
+#     total_steps=1600,
+#     n_envs=10,
+#     min_distance_stars=0,
+#     position_scalar=0.95,
+#     timestep=5,
+#     max_distance_stars=1000000000000000000
+# )
 
 
 # GLBVARS = DataGenrator(

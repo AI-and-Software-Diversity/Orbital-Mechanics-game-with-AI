@@ -16,22 +16,20 @@ from OrbitEnvNoGFX import OrbitEnv
 
 if __name__ == '__main__':
     done = False
-    fmt = '[%(levelname)s] %(asctime)s - %(message)s '
-    logging.basicConfig(level=logging.INFO, format=fmt)
     start_time = time.time().real
     print(f"{time.strftime('%d%m(%H:%M)')}")
     # https://stable-baselines3.readthedocs.io/en/master/guide/examples.html
     env = make_vec_env(OrbitEnv, n_envs=data_handler.GLBVARS.n_envs, vec_env_cls=DummyVecEnv)
     obs = env.reset()
-    filepath = 'data/rlearn/models'
 
-    # neat1
+    # neat agent
     path = "/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/RESEARCH_DATA/2S1P/neat_1"
     agent_1_path = f"{path}/winner08281650"
     filepath_data = f"{path}/data_neat.csv"
     filepath_setup = f"{path}/setup_neat.csv"
     df_neat = helpers.create_dataframe(filepath_data, filepath_setup)
 
+    # rl agent
     path_2 = "/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/RESEARCH_DATA/2S1P/rl_2"
     agent_2_path = f"{path_2}/model15-0809(15:51).zip"
     filepath_data_2 = f"{path}/data_rl.csv"
@@ -39,7 +37,7 @@ if __name__ == '__main__':
     df_rl = helpers.create_dataframe(filepath_data, filepath_setup)
 
     filt, filter_conditions = helpers.get_random_filters_given_columns(df_neat)
-    helpers.average_reward_given_filters(df_neat, filt)
+    # helpers.average_reward_given_filters(df_neat, filt)
 
     model = PPO.load(agent_2_path)
 
@@ -59,6 +57,7 @@ if __name__ == '__main__':
         # ============================================================================
         subdomain_analysis = helpers.superior_agent_in_subdomain(df_neat, df_rl, 100)
         best_agent_path, agent_type = helpers.ASC_neat_rl(subdomain_analysis, obs, agent_1_path, agent_2_path)
+
         print(f"This run uses the agent location at: \n{best_agent_path}\n")
 
         if agent_type == "neat":

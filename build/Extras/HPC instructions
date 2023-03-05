@@ -5,29 +5,35 @@ ssh -N username@hpc-jump00.city.ac.uk -L 2000:hyperion.city.ac.uk:22
     # To connect a client terminal (With host open)
 ssh -p2000 username@localhost
     # For me
-ssh -N adbg285@hpc-jump00.city.ac.uk -L 2000:hyperion.city.ac.uk:22
-ssh -p2000 adbg285@localhost
+ssh -N sbrt882@hpc-jump00.city.ac.uk -L 2000:hyperion.city.ac.uk:22
+ssh -p2000 sbrt882@localhost
 
+
+--
     # Make sure to upgrade pip in the HPC client
-pip3 install --proxy http://hpc-proxy00.city.ac.uk:3128 --upgrade pip
+# pip3 install --proxy http://hpc-proxy00.city.ac.uk:3128 --upgrade pip
+pip install --upgrade pip
 
     # Libraries
 pip3 install --proxy http://hpc-proxy00.city.ac.uk:3128 --user LIBRARY
 
     # The libraries to run this project
     # create a venv with these libraries
-pip3 install --proxy http://hpc-proxy00.city.ac.uk:3128 --user stable-baselines3=1.4.0
-pip3 install --proxy http://hpc-proxy00.city.ac.uk:3128 --user neat-python=0.92
-pip3 install --proxy http://hpc-proxy00.city.ac.uk:3128 --user pygame=2.1.2
+# pip3 install stablebaselines3
+pip3 install --proxy http://hpc-proxy00.city.ac.uk:3128 stable-baselines3==1.4.0
+pip3 install --proxy http://hpc-proxy00.city.ac.uk:3128 neat-python=0.92
+pip3 install --proxy http://hpc-proxy00.city.ac.uk:3128 pygame=2.1.2
     # the following may not be needed
 pip3 install --proxy http://hpc-proxy00.city.ac.uk:3128 --user gym=0.19.0
 pip3 install --proxy http://hpc-proxy00.city.ac.uk:3128 --user tensorflow=2.8.0
+pip install --proxy http://hpc-proxy00.city.ac.uk:3128 torch==1.8.0+cu111 torchvision==0.9.0+cu111 torchaudio==0.8.0 -f https://download.pytorch.org/whl/torch_stable.html
+
 
     # Another way to use pip
 python3 -m pip install --proxy http://hpc-proxy00.city.ac.uk:3128 stable-baselines3
 
     #  venv stuff
-python -m venv venv/
+python3 -m venv venv/
 source venv/bin/activate
 pip3 install --proxy http://hpc-proxy00.city.ac.uk:3128 --user -r requirements.txt
 

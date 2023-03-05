@@ -111,6 +111,6 @@ if __name__ == "__main__":
 
         # ============================================================================
 
-    print(f"\n\nThat took {round((helpers.current_time() - start_time)/60, 2)}m")
-    print(f"that was {num_loops} loops.")
+    print(f"\n\nThat took {round((helpers.current_time() - start_time)/60, 2)} minutes.")
+    print(f"That was {num_loops} loops.")
 

@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import random
+
+
 def euclidian_distance(body1, body2):
     """
     Finds the Euclidean distance between two bodies.
@@ -298,10 +300,6 @@ def agent_selection_component(subdomain_analysis, observation, agent_1_path, age
     agent_2_points = 0
 
     for i in range(len(subdomain_conditions)):
-        # column_iter = subdomain_conditions[i][2]
-        # print(subdomain_winner[i])
-        # print(subdomain_conditions[i][-2:])
-        # print(observation[column_iter])
 
         if subdomain_winner[i] == "agent_1":
             agent_1_points += 1
@@ -371,10 +369,6 @@ def ASC_neat_rl(subdomain_analysis, observation, neat_agent_path, rl_agent_path)
     rl_agent_points = 0
 
     for i in range(len(subdomain_conditions)):
-        # column_iter = subdomain_conditions[i][2]
-        # print(subdomain_winner[i])
-        # print(subdomain_conditions[i][-2:])
-        # print(observation[column_iter])
 
         if subdomain_winner[i] == "agent_1":
             neat_agent_points += 1
@@ -426,3 +420,9 @@ if __name__ == '__main__':
     print(f"Mean for 3 is:     {np.mean(arr3)}")
     print(f"Mean for 23 is:    {np.mean(arr23)}")
     # print(setup_csv(2,2))
+    print(get_rlearn_graph(get_collumn_from_csv(
+        "/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/data/rlearn/csvs/data_rlearn.csv", 1), 784*1))
+
+    # print(get_rlearn_graph(get_collumn_from_csv("/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/PRESENTATION_DATA/data_rlearn.csv", 1),784))
+    # plt.plot([1, 2, 3], [5, 7, 4])
+    # plt.show()

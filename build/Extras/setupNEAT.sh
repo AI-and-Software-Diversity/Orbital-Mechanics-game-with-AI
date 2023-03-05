@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -D /users/adbg285/HPCWORKSNOW/buildneat
+#SBATCH -D /users/sbrt882/hyperion/buildneat
 #SBATCH --job-name neat_orbit
 #SBATCH --partition=nodes
 #SBATCH --nodes=6
