@@ -94,25 +94,99 @@ restriction_x = 250
 restriction_y = 350
 
 # This instance will be used repeatedly in the Env classes
+
+# b)COMPETENCEVARIATION DONE
+# GLBVARS = DataGenrator(
+#     n_planets=1,
+#     n_stars=1,
+#     planet_mom_scalar=300,
+#     planet_mom_minimum = 900,
+#     planet_rad=[5, 20],
+#     star_x_pos=[restriction_x, size - restriction_x],
+#     star_y_pos=[restriction_y, int(size / 1.75) - restriction_y],
+#     star_rad=[100, 150],
+#     width=size,
+#     height=size / 1.75,
+#     target_game_time=123456,
+#     total_steps=1024,
+#     n_envs=60,
+#     # n_envs=1,
+#     min_distance_stars=0,
+#     position_scalar=0.95,
+#     timestep=10,
+#     max_distance_stars=1000000000000000000
+# )
+
+# my new mechanism for diversity benefits is: How much do peformance gain is there based on the top 5 domains
+# ===2SPECIALISTS=========================================================================
+
+# GLBVARS = DataGenrator(
+#     n_planets=1,
+#     n_stars=1,
+#     planet_mom_scalar=300,
+#     planet_mom_minimum = 900,
+#     planet_rad=[5, 12],
+#     star_x_pos=[restriction_x, size - restriction_x],
+#     star_y_pos=[restriction_y, int(size / 1.75) - restriction_y],
+#     star_rad=[100, 125],
+#     width=size,
+#     height=size / 1.75,
+#     target_game_time=123456,
+#     total_steps=1024,
+#     n_envs=60,
+#     # n_envs=1,
+#     min_distance_stars=0,
+#     position_scalar=0.95,
+#     timestep=10,
+#     max_distance_stars=1000000000000000000
+# )
+
+# DIFFERENT METHODS ALSO
 GLBVARS = DataGenrator(
     n_planets=1,
     n_stars=1,
     planet_mom_scalar=300,
     planet_mom_minimum = 900,
-    planet_rad=[5, 20],
+    planet_rad=[13, 20],
     star_x_pos=[restriction_x, size - restriction_x],
     star_y_pos=[restriction_y, int(size / 1.75) - restriction_y],
-    star_rad=[100, 150],
+    star_rad=[126, 150],
     width=size,
     height=size / 1.75,
     target_game_time=123456,
-    total_steps=1000,
+    total_steps=1024,
     n_envs=60,
+    # n_envs=1,
     min_distance_stars=0,
     position_scalar=0.95,
     timestep=10,
     max_distance_stars=1000000000000000000
 )
+
+# 2 specialist DAtaGen combined
+# GLBVARS = DataGenrator(
+#     n_planets=1,
+#     n_stars=1,
+#     planet_mom_scalar=300,
+#     planet_mom_minimum = 900,
+#     planet_rad=[5, 20],
+#     star_x_pos=[restriction_x, size - restriction_x],
+#     star_y_pos=[restriction_y, int(size / 1.75) - restriction_y],
+#     star_rad=[100, 150],
+#     width=size,
+#     height=size / 1.75,
+#     target_game_time=123456,
+#     total_steps=1024,
+#     n_envs=60,
+#     # n_envs=1,
+#     min_distance_stars=0,
+#     position_scalar=0.95,
+#     timestep=10,
+#     max_distance_stars=1000000000000000000
+# )
+
+
+#============================================================================
 
 # GLBVARS = DataGenrator(
 #     n_planets=1,

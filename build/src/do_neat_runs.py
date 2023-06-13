@@ -20,7 +20,21 @@ https://www.youtube.com/watch?v=ZC0gMhYhwW0
 
 # string = "/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/RESEARCH_DATA/2S1P/neat_1/winner08281650"
 # string = "/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/RESEARCH_DATA/2S1P/neat_2/winner08281656"
-string = "/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/RESEARCH_DATA/2S1P/neat_3/winner08281737"
+# string = "/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/RESEARCH_DATA/2S1P/neat_3/winner08281737"
+
+# 25/1000
+# string = "/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/PRESENTATION_DATA/different_methods/winner04032321"
+# 58/1000
+# string = "/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/PRESENTATION_DATA/different_methods/winner04032314"
+# 49/1000
+# string = "/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/PRESENTATION_DATA/different_methods/winner04030437"
+
+
+# 150/1000
+string = "/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/PRESENTATION_DATA/different_methods/winner04032324"
+# 195/1000
+# string = "/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/PRESENTATION_DATA/different_methods/winner04040105"
+
 with open(f'{string}', 'rb') as f:
     agent = pickle.load(f)
 
@@ -42,7 +56,7 @@ done = False
 start_time = helpers.current_time()
 
 # This loop is copied from the do_reinforcement_learning_runs.py file. Which comes from another tutorial
-num_loops = 5000
+num_loops = 1000
 for i in range(num_loops):
     while not done:
         action = net.activate(observation)
@@ -54,5 +68,25 @@ for i in range(num_loops):
 
 print(f"that was {num_loops} loops.")
 print(f"\n\nThat took {(helpers.current_time() - start_time)/60}m")
+import numpy as np
+
+# print(np.mean(helpers.get_collumn_from_csv(
+#     "/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/data/neat/csvs/data_neat.csv", 1)))
+from collections import Counter
+
+print(())
+
+results = Counter(helpers.get_collumn_from_csv(
+    "/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/data/neat/csvs/data_neat.csv", 0))
+
+print(results[1])
+
+
+
+
+
+
+
+
 
 

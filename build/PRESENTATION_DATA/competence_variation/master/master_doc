@@ -1,0 +1,22 @@
+MASTER DOCUMENT
+
+Score avg, link
+
+Jut saved model27-2203(17:52)|    ep_rew_mean     | -46.6    |
+Jut saved model42-2203(19:45)|    ep_rew_mean     | 97.4     |
+Jut saved model51-2203(21:24)|    ep_rew_mean     | 142      |
+Jut saved model78-2303(02:55)|    ep_rew_mean     | 193      |
+Jut saved model87-2303(04:54)|    ep_rew_mean     | 218      |
+Jut saved model90-2303(05:38)|    ep_rew_mean     | 248      |
+Jut saved model96-2303(07:11)|    ep_rew_mean     | 318      |
+Jut saved model105-2303(09:46)|    ep_rew_mean     | 363      |
+Jut saved model117-2303(13:27)|    ep_rew_mean     | 400      |
+
+
+using ppo:
+
+Jut saved model42-2203(19:45)|    ep_rew_mean     | 97.4     |
+Jut saved model90-2303(05:38)|    ep_rew_mean     | 248      |
+Jut saved model117-2303(13:27)|    ep_rew_mean     | 400      |
+
+

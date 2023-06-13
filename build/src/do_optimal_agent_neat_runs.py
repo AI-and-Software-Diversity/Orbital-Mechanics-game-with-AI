@@ -92,7 +92,7 @@ if __name__ == "__main__":
         print(obs)
         # ============================================================================
 
-        subdomain_analysis = helpers.superior_agent_in_subdomain(df_neat_2, df_neat_3, 100)
+        subdomain_analysis = helpers.superior_agent_in_subdomain_old(df_neat_2, df_neat_3, 100)
         best_agent_path = helpers.agent_selection_component(subdomain_analysis, obs, agent_2_path, agent_3_path)
         print(f"This run uses the agent location at: \n{best_agent_path}\n")
 

@@ -124,6 +124,8 @@ def get_rlearn_graph(data, timesteps):
     aves = [np.mean(data[i:i + timesteps + 1]) for i in range(0, len(data), timesteps)]
     print(len(aves))
     plt.plot(range(0, len(aves)), aves)
+    plt.xlabel("Run#")
+    plt.ylabel("Reward")
     plt.show()
 
 def setup_csv(num_planets, num_stars):
@@ -318,7 +320,7 @@ def agent_selection_component(subdomain_analysis, observation, agent_1_path, age
     else:
         return agent_2_path
 
-def superior_agent_in_subdomain(df_agent_1, df_agent_2, num_checks):
+def superior_agent_in_subdomain_old(df_agent_1, df_agent_2, num_checks):
 
     """
     This function compares 2 agents in N subdomains and lets you know which agent is best.
@@ -355,11 +357,99 @@ def superior_agent_in_subdomain(df_agent_1, df_agent_2, num_checks):
         else:
             fitness_subdomain_winner.append((difference, filt_conditions, "agent_2"))
 
+        # print(f"{'-'*20}\nA1 performance {agent_1_performance}\nA2 performance {agent_2_performance}\ndiff {difference}{'-'*20}\n")
+
     return fitness_subdomain_winner
+
+def average_difference_in_subdomain(df_agent_1, df_agent_2, num_checks):
+
+    """
+    This function compares 2 agents in N subdomains and lets you know which agent is best.
+
+    @param df_agent_1: dataframe of agent 1
+    @param df_agent_2: dataframe of agent 2
+    @param num_checks: number of checks to perform
+
+    @return: Returns a List of tuples with N values. Each tuple contains the fitness, filter conditions and superior agent for a random subdomain.
+    """
+    differences = []
+    cum_agent_1_performance = []
+    cum_agent_1_performance = []
+    # 1. You have two CSVs containing data that corresponds to two agents.
+    # via params
+
+    # you ensure each data tihng has the same columns
+    if list(df_agent_1.columns) != list(df_agent_2.columns):
+        raise Exception("These dataframes have different columns and cannot be compared. Perhaps the corresponding agents were trained with different inputs?")
+
+    # 7. You do this check N times.
+    for i in range(num_checks):
+
+        # 4. You create one or many random filters given the columns from the parameter, and the min/max of those columns.
+        filt, filt_conditions = get_random_filters_given_columns(df_agent_2)
+
+        #  check the performance of each agent in chosen filter
+        agent_1_performance = average_reward_given_filters(df_agent_1, filt)
+        agent_2_performance = average_reward_given_filters(df_agent_2, filt)
+
+
+
+        if agent_1_performance > agent_2_performance:
+            pass
+        else:
+            pass
+
+        difference = np.abs(agent_1_performance - agent_2_performance)
+        differences.append(difference)
+    print()
+    return np.nanmean(differences)
+
+def benefits_from_diversity(df_agent_1, df_agent_2, num_checks):
+    """
+
+    """
+    # differences = []
+    cum_agent_1_performance = []
+    cum_agent_2_performance = []
+    # 1. You have two CSVs containing data that corresponds to two agents.
+    # via params
+
+    # you ensure each data tihng has the same columns
+    if list(df_agent_1.columns) != list(df_agent_2.columns):
+        raise Exception(
+            "These dataframes have different columns and cannot be compared. Perhaps the corresponding agents were trained with different inputs?")
+
+    # 7. You do this check N times.
+    for i in range(num_checks):
+
+        # 4. You create one or many random filters given the columns from the parameter, and the min/max of those columns.
+        filt, filt_conditions = get_random_filters_given_columns(df_agent_2)
+
+        #  check the performance of each agent in chosen filter
+        agent_1_performance = average_reward_given_filters(df_agent_1, filt)
+        agent_2_performance = average_reward_given_filters(df_agent_2, filt)
+
+        cum_agent_1_performance.append(agent_1_performance)
+        cum_agent_2_performance.append(agent_2_performance)
+        # print(cum_agent_1_performance)
+        # print(cum_agent_2_performance)
+
+        # difference = np.abs(agent_1_performance - agent_2_performance)
+        # differences.append(difference)
+
+    avg_a1 = np.nanmean(cum_agent_1_performance)
+    avg_a2 = np.nanmean(cum_agent_2_performance)
+
+    if avg_a1 > avg_a2:
+        return f" Agent 1 is superior with an average PBGVD of  {avg_a1 - avg_a2}", (avg_a1, avg_a2), avg_a1 - avg_a2
+
+    else:
+        return f" Agent 2 is superior with an average PBGVD of  {avg_a2 - avg_a1}", (avg_a1, avg_a2), avg_a2 - avg_a1
+
 
 def ASC_neat_rl(subdomain_analysis, observation, neat_agent_path, rl_agent_path):
 
-    #
+
     subdomain_winners_reward = [subdomain[0] for subdomain in subdomain_analysis]
     subdomain_winner = [subdomain[2] for subdomain in subdomain_analysis]
     subdomain_conditions = [subdomain[1][0] for subdomain in subdomain_analysis]
@@ -392,37 +482,57 @@ def ASC_neat_rl(subdomain_analysis, observation, neat_agent_path, rl_agent_path)
 #########################
 
 if __name__ == '__main__':
-    # neat_values = get_collumn_from_csv(
-    #     file="data/neat/csvs/data_neat.csv",
-    #     chosen_col=0,
-    #     show_graph=True
-    # )
+    average_1 = average_reward_given_filters()
+    average_2 = average_reward_given_filters()
+
+    # Combined_avg = combine(average_1, average_2)
+
+    #===================
+
+    # filepath_data = 'data/rlearn/csvs/data_rlearn.csv'
+    # filepath_setup = 'data/rlearn/csvs/data_setup.csv'
+    # df_rl = create_dataframe(filepath_data, filepath_setup)
     #
-    # i = 0
-    # for val in neat_values:
-    #     if val == 1:
-    #         i+=1
-    # print(i)
+    # filepath_data = 'data/neat/csvs/data_neat.csv'
+    # filepath_setup = 'data/neat/csvs/setup_neat.csv'
+    # df_neat = create_dataframe(filepath_data, filepath_setup)
+    #
+    # subdomain_analysis = superior_agent_in_subdomain_old(df_neat, df_rl, 100)
+    # best_agent_path, agent_type = ASC_neat_rl(subdomain_analysis, obs, agent_1_path, agent_2_path)
 
-    arr1 = get_collumn_from_csv("/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/RESEARCH_DATA/2S1P/neat_1/data_neat.csv", 1)
-    arr2 = get_collumn_from_csv("/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/RESEARCH_DATA/2S1P/neat_2/data_neat.csv", 1)
-    arr3 = get_collumn_from_csv("/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/RESEARCH_DATA/2S1P/neat_3/data_neat.csv", 1)
-    arr23 = get_collumn_from_csv("/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/RESEARCH_DATA/2S1P/neat_2_neat_3/data_neat.csv", 1)
+    #===================
 
-    # plt.xlabel("run")
-    # plt.ylabel("Reward")
-    # plt.title("Reward/Batch")
-    # get_rlearn_graph(arr, 100_000)
-    # plt.show()
-
-    print(f"Mean for 1 is:     {np.mean(arr1)}")
-    print(f"Mean for 2 is:     {np.mean(arr2)}")
-    print(f"Mean for 3 is:     {np.mean(arr3)}")
-    print(f"Mean for 23 is:    {np.mean(arr23)}")
-    # print(setup_csv(2,2))
-    print(get_rlearn_graph(get_collumn_from_csv(
-        "/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/data/rlearn/csvs/data_rlearn.csv", 1), 784*1))
-
+    # # neat_values = get_collumn_from_csv(
+    # #     file="data/neat/csvs/data_neat.csv",
+    # #     chosen_col=0,
+    # #     show_graph=True
+    # # )
+    # #
+    # # i = 0
+    # # for val in neat_values:
+    # #     if val == 1:
+    # #         i+=1
+    # # print(i)
+    #
+    # arr1 = get_collumn_from_csv("/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/RESEARCH_DATA/2S1P/neat_1/data_neat.csv", 1)
+    # arr2 = get_collumn_from_csv("/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/RESEARCH_DATA/2S1P/neat_2/data_neat.csv", 1)
+    # arr3 = get_collumn_from_csv("/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/RESEARCH_DATA/2S1P/neat_3/data_neat.csv", 1)
+    # arr23 = get_collumn_from_csv("/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/RESEARCH_DATA/2S1P/neat_2_neat_3/data_neat.csv", 1)
+    #
+    # # plt.xlabel("run")
+    # # plt.ylabel("Reward")
+    # # plt.title("Reward/Batch")
+    # # get_rlearn_graph(arr, 100_000)
+    # # plt.show()
+    #
+    # # print(f"Mean for 1 is:     {np.mean(arr1)}")
+    # # print(f"Mean for 2 is:     {np.mean(arr2)}")
+    # # print(f"Mean for 3 is:     {np.mean(arr3)}")
+    # # print(f"Mean for 23 is:    {np.mean(arr23)}")
+    # # print(setup_csv(2,2))
+    # print(get_rlearn_graph(get_collumn_from_csv(
+    #     "/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/data/neat/csvs/data_neat.csv", 1), 1*1024))
+    #
     # print(get_rlearn_graph(get_collumn_from_csv("/home/javonne/Uni/Orbital-Mechanics-game-with-AI/build/PRESENTATION_DATA/data_rlearn.csv", 1),784))
-    # plt.plot([1, 2, 3], [5, 7, 4])
-    # plt.show()
+    # # plt.plot([1, 2, 3], [5, 7, 4])
+    # # plt.show()

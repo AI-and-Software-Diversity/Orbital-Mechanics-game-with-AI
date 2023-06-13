@@ -17,7 +17,7 @@ https://github.com/CodeReclaimers/neat-python/tree/master/examples
 https://www.youtube.com/watch?v=ZC0gMhYhwW0
 """
 
-runs_per_net = 3
+runs_per_net = 10
 env = OrbitEnv(mode="neat")
 
 # borrowed from Sentdex youtube channel
